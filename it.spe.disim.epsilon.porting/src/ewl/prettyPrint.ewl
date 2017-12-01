@@ -1,0 +1,8 @@
+wizard Decomposition{
+	guard :
+		self.isTypeOf(Operation) and (self.F_probExec() and self.F_resDemand(th_maxResDemand) and (not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil)))
+	title : " Decomposition"
+	do{
+		self.decomposition();
+	}
+}

@@ -1,0 +1,31 @@
+context Operation{
+	
+	
+	critique Move_it_to_a_new_Component_deployed_to_a_new_Node{ 
+	check{
+		if( self.F_resDemand()  and self.F_probExec()  and self.F_resDemand()  and ( self.F_T()  or self.F_maxHwUtil()) ){
+			return false;
+
+	}
+			return true;
+
+	}
+		message :"Move_it_to_a_new_Component_deployed_to_a_new_Node <Operation> "+self.name
+
+		fix{
+			title : "Move_it_to_a_new_Component_deployed_to_a_new_Node"
+			do{
+				self.moveToNewComponentDeployedOnNewNode(); 
+				self.moveToNewComponentDeployedOnNewNode(); 
+			}
+		}
+		
+		fix{
+			title : "fix2"
+			do{
+				self.moveToNewComponentDeployedOnNewNode(); 
+			}
+		}
+
+	}
+} 

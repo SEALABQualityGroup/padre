@@ -1,0 +1,9 @@
+pattern newComponent
+	mainRole : Operation { 
+match : 
+self.isTypeOf(Operation) and self.F_probExec() and self.F_resDemand() and (self.F_T() or self.F_maxHwUtil())
+ onmatch {
+self.moveToNewComponentDeployedOnNewNode();
+}
+
+}

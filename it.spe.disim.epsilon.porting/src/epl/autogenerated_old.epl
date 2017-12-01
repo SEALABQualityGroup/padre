@@ -1,0 +1,19 @@
+pattern Move_it_to_a_new_Component_deployed_to_a_new_Node
+	mainRole : Operation { 
+match : 
+mainRole.F_resDemand() and mainRole.F_probExec() and mainRole.F_resDemand() and (mainRole.F_T() or mainRole.F_maxHwUtil())
+ onmatch {
+mainRole.moveToNewComponentDeployedOnNewNode();
+mainRole.moveToNewComponentDeployedOnNewNode();
+}
+}
+
+pattern fix2
+	mainRole : Operation { 
+match : 
+mainRole.F_resDemand() and mainRole.F_probExec() and mainRole.F_resDemand() and (mainRole.F_T() or mainRole.F_maxHwUtil())
+ onmatch {
+mainRole.moveToNewComponentDeployedOnNewNode();
+}
+
+}

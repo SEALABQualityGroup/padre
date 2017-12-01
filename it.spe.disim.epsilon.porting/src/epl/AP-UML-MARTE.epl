@@ -1,0 +1,144 @@
+pattern PaF
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(_th_maxResDemand()) and (not mainRole.F_T(_th_SthReq()) or not mainRole.F_maxHwUtil(_th_maxHwUtil())))
+		onmatch {
+		mainRole.moveToNewOwnerDeployedOnNewNode();
+	}
+}
+pattern PaF
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(_th_maxResDemand()) and (not mainRole.F_T(_th_SthReq()) or not mainRole.F_maxHwUtil(_th_maxHwUtil())))
+		onmatch {
+		mainRole.moveToNewOwnerDeployedOnNearLessUsedNode();
+	}
+}
+pattern PaF
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(_th_maxResDemand()) and (not mainRole.F_T(_th_SthReq()) or not mainRole.F_maxHwUtil(_th_maxHwUtil())))
+		onmatch {
+		mainRole.redeployOnNearLessUsedNode();
+	}
+}
+pattern PaF
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(_th_maxResDemand()) and (not mainRole.F_T(_th_SthReq()) or not mainRole.F_maxHwUtil(_th_maxHwUtil())))
+		onmatch {
+		mainRole.moveToLessCriticalOwner();
+	}
+}
+pattern PaF
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(_th_maxResDemand()) and (not mainRole.F_T(_th_SthReq()) or not mainRole.F_maxHwUtil(_th_maxHwUtil())))
+		onmatch {
+		mainRole.decomposition();
+	}
+}
+pattern CPS
+	mainRole : Node { 
+		match : 
+			(mainRole.F_maxQL(th_maxQL) and mainRole.F_maxHwUtil(_th_maxHwUtil()))
+		onmatch {
+		mainRole.moveToNewComponentDeployedOnNewNode();
+	}
+}
+pattern CPS
+	mainRole : Node { 
+		match : 
+			(mainRole.F_maxQL(th_maxQL) and mainRole.F_maxHwUtil(_th_maxHwUtil()))
+		onmatch {
+		mainRole.moveToNewComponentDeployedOnNearLessUsedNode();
+	}
+}
+pattern CPS
+	mainRole : Node { 
+		match : 
+			(mainRole.F_maxQL(th_maxQL) and mainRole.F_maxHwUtil(_th_maxHwUtil()))
+		onmatch {
+		mainRole.redeployOnNearLessUsedNode();
+	}
+}
+pattern CPS
+	mainRole : Node { 
+		match : 
+			(mainRole.F_maxQL(th_maxQL) and mainRole.F_maxHwUtil(_th_maxHwUtil()))
+		onmatch {
+		mainRole.moveToLessCriticalComponent();
+	}
+}
+pattern ExtensiveProcessingAP
+	mainRole : Component { 
+		match : 
+			(mainRole.F_resDemand(_th_maxResDemand(), _th_minResDemand()) and mainRole.F_probExec() and (mainRole.F_maxHwUtil(_th_maxHwUtil())) or mainRole.F_RT(_th_SrtReq()))
+		onmatch {
+		mainRole.moveToNewComponentDeployedOnNewNode();
+	}
+}
+pattern ExtensiveProcessingAP
+	mainRole : Component { 
+		match : 
+			(mainRole.F_resDemand(_th_maxResDemand(), _th_minResDemand()) and mainRole.F_probExec() and (mainRole.F_maxHwUtil(_th_maxHwUtil())) or mainRole.F_RT(_th_SrtReq()))
+		onmatch {
+		mainRole.moveToNewComponentDeployedOnNearLessUsedNode();
+	}
+}
+pattern ExtensiveProcessingAP
+	mainRole : Component { 
+		match : 
+			(mainRole.F_resDemand(_th_maxResDemand(), _th_minResDemand()) and mainRole.F_probExec() and (mainRole.F_maxHwUtil(_th_maxHwUtil())) or mainRole.F_RT(_th_SrtReq()))
+		onmatch {
+		mainRole.redeployOnNearLessUsedNode();
+	}
+}
+pattern ExtensiveProcessingAP
+	mainRole : Component { 
+		match : 
+			(mainRole.F_resDemand(_th_maxResDemand(), _th_minResDemand()) and mainRole.F_probExec() and (mainRole.F_maxHwUtil(_th_maxHwUtil())) or mainRole.F_RT(_th_SrtReq()))
+		onmatch {
+		mainRole.moveToLessCriticalComponent();
+	}
+}
+pattern Blob_Controller
+	mainRole : Component { 
+		match : 
+			mainRole.F_numClientConnects(_th_maxConnects()) and mainRole.F_numMsgsIn(_th_maxMsgs()) and (mainRole.F_maxHwUtil(_th_maxHwUtil()) or mainRole.F_maxNetUtil(_th_maxNetUtil()))
+		onmatch {
+		mainRole.reduceNumberOfClientConnects(_th_maxConnects());
+	}
+}
+pattern Blob_dataContainer
+	mainRole : Component { 
+		match : 
+			mainRole.F_numSupplierConnects(_th_maxConnects()) and mainRole.F_numMsgsOut(_th_maxMsgs()) and (mainRole.F_maxHwUtil(_th_maxHwUtil()) or mainRole.F_maxNetUtil(_th_maxNetUtil()))
+		onmatch {
+		mainRole.reduceNumberOfSupplierConnects();
+	}
+}
+pattern EmptySemiTruck
+	mainRole : Component { 
+		match : 
+			mainRole.F_numRemMsgs(_th_maxRemMsgs()) and (mainRole.F_maxNetUtil(_th_minNetUtil()) or mainRole.F_numRemInst(_th_maxRemInst()))
+		onmatch {
+		mainRole.applySessionFacade();
+	}
+}
+pattern EmptySemiTruck
+	mainRole : Class { 
+		match : 
+			mainRole.F_numRemMsgs(_th_maxRemMsgs()) and (not mainRole.F_maxNetUtil(_th_minNetUtil()) or mainRole.F_numRemInst(_th_maxRemInst()))
+		onmatch {
+		mainRole.applySessionFacade();
+	}
+}
+pattern TowerOfBabel
+	mainRole : Component { 
+		match : 
+			mainRole.F_numExF(_th_maxExF()) and mainRole.F_maxHwUtil(_th_maxHwUtil())
+		onmatch {
+		mainRole.applyStandardFormat();
+	}
+}

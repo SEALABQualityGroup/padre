@@ -1,0 +1,15 @@
+context Operation {
+	critique PaF {
+		check {
+			return false;
+		}
+		message : "context title"
+		fix {
+			title : "fix title"
+			do {
+				//FIX 1
+				"do block".println(); 
+			}
+		}
+	}
+}

@@ -1,0 +1,152 @@
+//----------------PaF---------------------------
+
+wizard Move_it_to_a_new_Component_deployed_to_a_new_Node{
+	guard :
+		self.isTypeOf(Operation) and 
+			self.F_probExec() and self.F_resDemand(th_maxResDemand) and 
+			(not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil))
+	title : " Move it to a new Component deployed to a new Node"
+	do{
+		self.moveToNewOwnerDeployedOnNewNode();
+	}
+}
+
+wizard EP{
+	guard :
+		self.isTypeOf(Operation) and 
+			self.F_probExec() and self.F_resDemand(th_maxResDemand) and 
+			(not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil))
+	title : " Move it to a new Component deployed to the less used neighbour Node"
+	do{
+		self.moveToNewOwnerDeployedOnNearLessUsedNode();
+	}
+}
+
+wizard EP{
+	guard :
+		self.isTypeOf(Operation) and 
+			self.F_probExec() and self.F_resDemand(th_maxResDemand) and 
+			(not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil))
+	title : " Redeploy its owning Component to the less used neighbour Node"
+	do{
+		self.redeployOnNearLessUsedNode();
+	}
+}
+
+wizard Change_its_owning_Component_to_the_one_with_the_lowest_demand{
+	guard :
+		self.isTypeOf(Operation) and 
+			self.F_probExec() and self.F_resDemand(th_maxResDemand) and 
+			(not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil))
+	title : " Change its owning Component to the one with the lowest demand"
+	do{
+		self.moveToLessCriticalOwner();
+	}
+}
+
+wizard Decomposition{
+	guard :
+		self.isTypeOf(Operation) and 
+			self.F_probExec() and self.F_resDemand(th_maxResDemand) and 
+			(not self.F_T(th_SthReq) or not self.F_maxHwUtil(th_maxHwUtil))
+	title : " Decomposition"
+	do{
+		self.decomposition();
+	}
+}
+
+//-------------------CPS---------------------------------
+
+wizard Move_it_to_a_new_Component_deployed_to_a_new_Node{
+	guard :
+		self.isTypeOf(Node) and 
+			self.F_maxQL(th_maxQL) and 
+				self.F_maxHwUtil(th_maxHwUtil)
+	title : " Move it to a new Component deployed to a new Node"
+	do{
+		self.moveToNewComponentDeployedOnNewNode();
+	}
+}
+
+wizard Move_it_to_a_new_Component_deployed_to_the_less_used_neighbour_Node{
+	guard :
+		self.isTypeOf(Node) and 
+			self.F_maxQL(th_maxQL) and 
+				self.F_maxHwUtil(th_maxHwUtil)
+	title : " Move it to a new Component deployed to the less used neighbour Node"
+	do{
+		self.moveToNewComponentDeployedOnNearLessUsedNode();
+	}
+}
+
+wizard Redeploy_its_owning_Component_to_the_less_used_neighbour_Node{
+	guard :
+		self.isTypeOf(Node) and 
+			self.F_maxQL(th_maxQL) and 
+				self.F_maxHwUtil(th_maxHwUtil)
+	title : " Redeploy its owning Component to the less used neighbour Node"
+	do{
+		self.redeployOnNearLessUsedNode();
+	}
+}
+
+wizard Change_its_owning_Component_from_to_the_one_with_the_lowest_demand{
+	guard :
+		self.isTypeOf(Node) and 
+			self.F_maxQL(th_maxQL) and 
+				self.F_maxHwUtil(th_maxHwUtil)
+	title : " Change its owning Component from to the one with the lowest demand"
+	do{
+		self.moveToLessCriticalComponent();
+	}
+}
+
+//---------------------EP---------------------------------
+
+wizard Move_it_to_a_new_Component_deployed_to_a_new_Node{
+	guard :
+		self.isTypeOf(Component) and 
+			self.F_resDemand(th_maxResDemand, th_minResDemand) and 
+				self.F_probExec() and 
+					(self.F_maxHwUtil(th_maxHwUtil) or self.F_RT(th_SrtReq))
+	title : " Move it to a new Component deployed to a new Node"
+	do{
+		self.moveToNewComponentDeployedOnNewNode();
+	}
+}
+
+wizard Move_it_to_a_new_Component_deployed_to_the_less_used_neighbour_Node{
+	guard :
+		self.isTypeOf(Component) and 
+			self.F_resDemand(th_maxResDemand, th_minResDemand) and 
+				self.F_probExec() and 
+					(self.F_maxHwUtil(th_maxHwUtil) or self.F_RT(th_SrtReq))
+	title : " Move it to a new Component deployed to the less used neighbour Node"
+	do{
+		self.moveToNewComponentDeployedOnNearLessUsedNode();
+	}
+}
+
+wizard Redeploy_its_owning_Component_to_the_less_used_neighbour_Node{
+	guard :
+		self.isTypeOf(Component) and 
+			self.F_resDemand(th_maxResDemand, th_minResDemand) and 
+				self.F_probExec() and 
+					(self.F_maxHwUtil(th_maxHwUtil) or self.F_RT(th_SrtReq))
+	title : " Redeploy its owning Component to the less used neighbour Node"
+	do{
+		self.redeployOnNearLessUsedNode();
+	}
+}
+
+wizard Change_its_owning_Component_from_to_the_one_with_the_lowest_demand{
+	guard :
+		self.isTypeOf(Component) and 
+			self.F_resDemand(th_maxResDemand, th_minResDemand) and 
+				self.F_probExec() and 
+					(self.F_maxHwUtil(th_maxHwUtil) or self.F_RT(th_SrtReq))
+	title : " Change its owning Component from to the one with the lowest demand"
+	do{
+		self.moveToLessCriticalComponent();
+	}
+}

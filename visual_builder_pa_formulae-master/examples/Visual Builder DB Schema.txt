@@ -1,0 +1,63 @@
+
+/***Build tables***/
+
+create table f (
+	id int(11) NOT null auto_increment, 
+	name varchar(255), 
+	return_bool tinyint(1), 
+	isUnary tinyint(1), 
+	primary key(id)
+);
+
+create table context (
+	id int(11) NOT null auto_increment, 
+	name varchar(255), 
+	primary key(id)
+);
+
+create table f_context (
+	f_id int(11) NOT null, 
+	context_id int(11) NOT null, 
+	f_body varchar(5000), 
+	primary key(f_id, context_id), 
+	foreign key (f_id) references f(id),
+	foreign key (context_id) references context(id)
+);
+
+create table do (
+	id int(11) NOT null auto_increment, 
+	name varchar(255), 
+	body varchar(5000), 
+	primary key(id)
+);
+
+create table do_context (
+	do_id int(11) NOT null, 
+	context_id int(11) NOT null, 
+	primary key(do_id, context_id), 
+	foreign key (do_id) references do(id),
+	foreign key (context_id) references context(id)
+);
+
+create table thresholds (
+	id int(11) NOT null auto_increment, 
+	name varchar(255), 
+	value float, 
+	primary key(id)
+);
+
+create table f_thresholds (
+	f_id int(11) NOT null, 
+	thresholds_id int(11) NOT null,  
+	primary key(f_id, thresholds_id), 
+	foreign key (f_id) references f(id),
+	foreign key (thresholds_id) references thresholds(id)
+);
+
+create table f_f (
+	f_id int(11) NOT null, 
+	f_id_to_compare int(11) NOT null,  
+	primary key(f_id, f_id_to_compare), 
+	foreign key (f_id) references f(id),
+	foreign key (f_id_to_compare) references f(id)
+);

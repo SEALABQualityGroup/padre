@@ -1,0 +1,22 @@
+//FIX 1
+wizard newComponent {
+	guard : 
+		self.isTypeOf(Operation) and
+			self.F_probExec() and self.F_resDemand() and
+						( self.F_T() or self.F_maxHwUtil() ) 			
+	title : "Move it to a new Component deployed to a new Node"
+	do {
+ 		self.moveToNewComponentDeployedOnNewNode();
+	} 
+}
+//FIX 2
+wizard newComponent_N_L_U_Node {
+	guard : 
+		self.isTypeOf(Operation) and
+			self.F_probExec() and self.F_resDemand() and
+						( self.F_T() or self.F_maxHwUtil() )  		
+	title : "Move it to a new Component deployed to the less used neighbour Node"
+	do {
+ 		self.moveToNewComponentDeployedOnNearLessUsedNode();
+	} 
+}

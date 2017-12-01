@@ -1,0 +1,8 @@
+pattern Move_it_to_a_new_Component_deployed_to_the_less_used_neighbour_Node
+	mainRole : Operation { 
+		match : 
+			(mainRole.F_probExec() and mainRole.F_resDemand(th_maxResDemand) and (not mainRole.F_T(th_SthReq) or not mainRole.F_maxHwUtil(th_maxHwUtil)))
+		onmatch {
+		mainRole.moveToNewOwnerDeployedOnNearLessUsedNode();
+	}
+}

@@ -1,0 +1,9 @@
+wizard Two{
+guard :
+self.isTypeOf(Operation) and self.F_resDemand() and self.F_probExec() and self.F_resDemand(th_maxResDemand, par1, par2) and (self.F_T(th_SthReq) or self.F_maxHwUtil(th_maxHwUtil))
+title : "Two"
+do{
+self.moveToNewComponentDeployedOnNewNode();
+self.moveToNewComponentDeployedOnNewNode();
+
+}}

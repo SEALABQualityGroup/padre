@@ -1,0 +1,35 @@
+operation getSystemCriticalComponent() : Component{
+	var components = Component.allInstances->select(iterator | iterator.hasStereotype("PaRunTInstance"));
+	
+	return components.sortBy(c : Component | c.getAverageDemand())->last();
+
+}
+
+operation getLessUsedComponent() : Component{
+	var listOfSystemComponent = Component.allInstances->select(iterator | iterator.hasStereotype("PaRunTInstance") and iterator.notLegacy());
+	var lessUsedComp = listOfSystemComponent->selectOne(iterator | iterator.getAverageDemand() > 0.0);
+
+	var lessUsedDemand = lessUsedComp.getAverageDemand();
+	
+	for(comp in listOfSystemComponent){
+		if(comp.getAverageDemand() <> 0.0 and comp.getAverageDemand() < lessUsedDemand){
+			lessUsedDemand = comp.getAverageDemand();
+			lessUsedComp = comp;
+		}
+	}
+	return lessUsedComp;
+}
+
+operation showError(msg : String) {
+	if(debug())
+		("[[ "+ msg +" ]]").errln("There was an error!!! ");
+}
+
+operation debug() : Boolean{
+	return false;
+}
+
+
+operation log(string : String){
+	string.println();
+}

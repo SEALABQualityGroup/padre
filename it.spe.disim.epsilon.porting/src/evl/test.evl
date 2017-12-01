@@ -1,0 +1,16 @@
+context Operation{ critique newComponent{
+	check{
+		if(self.isTypeOf(Operation) and self.F_probExec() and self.F_resDemand() and (self.F_T() or self.F_maxHwUtil())){
+			return false;
+		}
+		return true;
+	}
+		message : " newComponent"
+		fix {
+			title : " Move it to a new Component deployed to a new Node"
+			do{
+				self.moveToNewComponentDeployedOnNewNode();
+			}
+		}
+	}
+}

@@ -1,0 +1,41 @@
+operation Message getReceiveLifeline() : Lifeline{
+	var interaction = self.getOwner(); //interaction
+	var lifeline = interaction.getLifeline(self.getReceiveEvent());
+	if(lifeline.isUndefined()){
+		showError("Method: getReceiveLifeline() in interaction.eol");
+		return null;
+	}
+	
+	return lifeline;
+}
+
+operation Message isReturn() : Boolean{
+	if( self.getMessageSort().asString().equals("reply") ){
+		
+		return true;
+	}
+	return false;
+}
+
+operation Message notReturn() : Boolean{
+	return not self.isReturn();
+}
+
+operation Message getUseCase() : UseCase{
+	var returnValue;
+	returnValue = self.getInteraction().getUseCase();
+	return returnValue;
+}
+
+
+operation Message getBES() : BehaviorExecutionSpecification{
+	var mos_receive = self.getReceiveEvent();
+	var bes = BehaviorExecutionSpecification.allInstances->selectOne(iterator | iterator.getStart() == mos_receive);
+	return bes;
+}
+
+operation Message getEOS() : ExecutionOccurrenceSpecification{
+	var bes = self.getBES();
+	var eos = bes.getFinish();
+	return eos;
+}

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Epsilon Wizard Engine Engine
+Bundle-SymbolicName: org.eclipse.epsilon.ewl.engine
+Bundle-Version: 1.3.0.qualifier
+Bundle-Vendor: Eclipse Modeling Project
+Require-Bundle: org.eclipse.epsilon.eol.engine
+Export-Package: org.eclipse.epsilon.ewl,
+ org.eclipse.epsilon.ewl.dom,
+ org.eclipse.epsilon.ewl.execute,
+ org.eclipse.epsilon.ewl.execute.context,
+ org.eclipse.epsilon.ewl.parse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
