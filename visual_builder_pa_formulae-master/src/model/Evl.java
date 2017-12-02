@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(namespace = "model")
 public class Evl{
 	
+	List<ImportStatement> importList;
 	List<Context> contextList;
 	
 	
@@ -35,11 +36,18 @@ public class Evl{
 	   */
 	public Evl() {
 		this.contextList = new ArrayList<Context>();
+		this.importList = new ArrayList<ImportStatement>();
 	}
-	/**
-	  * returns the context list 
-	  * @return    contextList
-	  */
+	
+	@XmlElementWrapper
+	@XmlElement(name="importStatement")
+	public List<ImportStatement> getImportList() {
+		return importList;
+	}
+	public void setImportList(List<ImportStatement> importList) {
+		this.importList = importList;
+	}
+
 	@XmlElementWrapper
 	@XmlElement(name="context")
 	public List<Context> getContextList() {
@@ -50,8 +58,15 @@ public class Evl{
 	}
 	public String toString(){
 		String res="";
-		for(Context c : this.getContextList()){
-			res+=c.toString();
+		
+		for (ImportStatement i : this.getImportList()) {
+			res += i.toString();
+		}
+		
+		res += "\n";
+		
+		for(Context c : this.getContextList()) {
+			res += c.toString();
 		}
 		return res;
 	}

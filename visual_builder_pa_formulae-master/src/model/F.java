@@ -38,6 +38,6 @@ public class F extends Threshold{
 		this.returnType = returnType;
 	}
 	public String toString(){
-		return "self."+this.text+"()";
+		return "self."+this.text;
 	}
 }

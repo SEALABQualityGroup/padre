@@ -1,3 +1,4 @@
+
 package view;
 
 import java.io.BufferedWriter;
@@ -7,9 +8,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.FileUtils;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -24,8 +32,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -33,17 +44,36 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IStorageEditorInput;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+
 import dialogs.MyTitleAreaDialogCont;
 import dialogs.MyTitleAreaDialogCrit;
 import dialogs.MyTitleAreaDialogFixTitle;
 import dialogs.MyTitleAreaDialogMessage;
 import dialogs.MyTitleAreaDialogNewProject;
+import listeners.CreateEOLfileListener;
+import listeners.DB_Do_operationSelected;
+import listeners.DB_Th_operationSelected;
+import listeners.DB_F_operationSelected;
+import listeners.EOLfileSelected;
+import listeners.EOLoperationSelected;
 import listeners.ExitMenuItemListener;
+import listeners.FetchSelectionListener;
 import listeners.port2eplListener;
 import listeners.port2ewlListener;
+import listeners.saveEOLtoDBListener;
+import listeners.saveEolListener;
+import listeners.updateEOLonDBListener;
+import listeners.validateSelectionListener;
 import model.BinaryPredicate;
 import model.BinaryPredicateOperator;
 import model.Check;
@@ -66,35 +96,63 @@ import plugin.handlers.ProjectManagment;
 import model.F;
 import model.Db;
 
-/** *
- *main gui
- */
 public class Gui {
 	private Menu menu, menu2;
 
-	private MenuItem removeContextMenuItem, removeCheckMenuItem,  removeFixItem, removeCritiqueItem,
-			removeMessageItem, removeTitleItem;
+	private MenuItem removeContextMenuItem, removeCheckMenuItem, removeFixItem, removeCritiqueItem, removeMessageItem,
+			removeTitleItem;
 	private MenuItem addTitleMenuItem, addCritiqueMenuItem, addFixMenuItem, addMessageMenuItem, addCheckMenuItem,
-			 addContextMenuItem;
+			addContextMenuItem;
 
 	private Evl evl;
-	List<F> listF = new ArrayList<F>();
+
+	private List<AST> EOLoperations = new ArrayList<AST>();
+	private List<Integer> DBMetricFunctions = new ArrayList<Integer>();
+	private List<Integer> DBThresholdFunctions = new ArrayList<Integer>();
+	private List<Integer> DBDoFunctions = new ArrayList<Integer>();
+
+	private String workspace;
 
 	public void createGui(Composite s) {
-		
+
 		Shell shell = (Shell) s;
-		shell.setLayout(new FormLayout());
-		shell.setSize(1024, 768);
-		
 
-		FormLayout fLayout = new FormLayout();
-		fLayout.marginHeight = 5;
-		fLayout.marginWidth = 5;
-		fLayout.marginTop = 15;
-		fLayout.marginBottom = 5;
-		shell.setLayout(fLayout);
+		DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
+		dialog.setText("choose directory...");
+		dialog.setFilterPath("c:\\");
+		workspace = dialog.open();
 
-		Composite outer = new Composite(shell, SWT.BORDER);
+		GridLayout root = new GridLayout();
+		root.marginHeight = 5;
+		root.marginWidth = 5;
+		root.marginTop = 15;
+		root.marginBottom = 5;
+		shell.setLayout(root);
+
+		TabFolder folder = new TabFolder(shell, SWT.FILL);
+
+		GridData folderData = new GridData();
+		folderData.grabExcessHorizontalSpace = true;
+		folderData.grabExcessVerticalSpace = true;
+		folderData.horizontalAlignment = SWT.FILL;
+		folderData.verticalAlignment = SWT.FILL;
+		folder.setLayoutData(folderData);
+
+		// Tab 1
+		TabItem tab1 = new TabItem(folder, SWT.NONE);
+		tab1.setText("EOL");
+
+		// Tab 2
+		TabItem tab2 = new TabItem(folder, SWT.NONE);
+		tab2.setText("EVL");
+
+		// Tab 3
+		TabItem tab3 = new TabItem(folder, SWT.NONE);
+		tab3.setText("Run validation");
+
+		Composite outer = new Composite(folder, SWT.BORDER);
+
+		tab1.setControl(outer);
 
 		FormLayout formLayout = new FormLayout();
 		formLayout.marginHeight = 5;
@@ -102,7 +160,8 @@ public class Gui {
 		formLayout.spacing = 5;
 		formLayout.marginTop = 5;
 		outer.setLayout(formLayout);
-		//left composite 
+
+		// left composite
 		Composite innerLeft = new Composite(outer, SWT.BORDER);
 		innerLeft.setLayout(new FormLayout());
 
@@ -112,7 +171,7 @@ public class Gui {
 		fData.right = new FormAttachment(40); // Locks on 40% of the view
 		fData.bottom = new FormAttachment(65);
 		innerLeft.setLayoutData(fData);
-		//tree for representing the evl file hierarchy
+		// tree for representing the evl file hierarchy
 		Tree tree = new Tree(innerLeft, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
 		FormData fdTree = new FormData();
 		fdTree.top = new FormAttachment(0);
@@ -120,13 +179,13 @@ public class Gui {
 		fdTree.right = new FormAttachment(90);
 		fdTree.bottom = new FormAttachment(100);
 		tree.setLayoutData(fdTree);
-		//evl object 
+		// evl object
 		evl = new Evl();
 		tree.setData(evl);
-		//composite which will contain the buttons for managing the tree
+		// composite which will contain the buttons for managing the tree
 		Composite buttonsComp = new Composite(innerLeft, SWT.NONE);
 		buttonsComp.setLayout(new FormLayout());
-		//buttons form data for specify their location
+		// buttons form data for specify their location
 		FormData fdButtons = new FormData();
 		fdButtons.top = new FormAttachment(0);
 		fdButtons.left = new FormAttachment(tree, 10);
@@ -169,7 +228,7 @@ public class Gui {
 		button2.setLayoutData(f2);
 		button3.setLayoutData(f3);
 		button4.setLayoutData(f4);
-		//right composite for the Check and Do areas
+		// right composite for the Check and Do areas
 		Composite innerRight = new Composite(outer, SWT.BORDER);
 		innerRight.setLayout(new FormLayout());
 
@@ -188,7 +247,8 @@ public class Gui {
 		formDatar1.right = new FormAttachment(100);
 		formDatar1.bottom = new FormAttachment(100);
 		right1.setLayoutData(formDatar1);
-		//this composite will contains the list of GuardOperators,F,operators,Thresholds
+		// this composite will contains the list of
+		// GuardOperators,F,operators,Thresholds
 		Composite checkComp = new Composite(right1, SWT.BORDER);
 		checkComp.setLayout(new FormLayout());
 		FormData checkFormData = new FormData();
@@ -197,7 +257,7 @@ public class Gui {
 		checkFormData.right = new FormAttachment(100);
 		checkFormData.bottom = new FormAttachment(45);
 		checkComp.setLayoutData(checkFormData);
-		//guard op
+		// guard op
 		Composite guardOpComposite = new Composite(checkComp, SWT.NONE);
 		FormData guardOpCompositeFormData = new FormData();
 		guardOpCompositeFormData.top = new FormAttachment(0);
@@ -229,7 +289,7 @@ public class Gui {
 		guardOpList.add(GuardOperator.OR.toString());
 		guardOpList.add(GuardOperator.XOR.toString());
 		guardOpList.add(GuardOperator.EMPTY.toString());
-		//F
+		// F
 		Composite fComposite = new Composite(checkComp, SWT.NONE);
 		FormData fCompositeFormData = new FormData();
 		fCompositeFormData.top = new FormAttachment(0);
@@ -258,7 +318,7 @@ public class Gui {
 		fLabelFormData.bottom = new FormAttachment(fList);
 
 		fLabel.setLayoutData(fLabelFormData);
-		//op
+		// op
 		Composite opComposite = new Composite(checkComp, SWT.NONE);
 		FormData opCompositeFormData = new FormData();
 		opCompositeFormData.top = new FormAttachment(0);
@@ -283,7 +343,7 @@ public class Gui {
 		opLabelFormData.bottom = new FormAttachment(opList);
 		opLabelFormData.left = new FormAttachment(5);
 		opLabel.setLayoutData(opLabelFormData);
-		//Thresholds
+		// Thresholds
 		Composite thComposite = new Composite(checkComp, SWT.NONE);
 		FormData thCompositeFormData = new FormData();
 		thCompositeFormData.top = new FormAttachment(0);
@@ -313,7 +373,7 @@ public class Gui {
 		thLabel.setLayoutData(thLabelFormData);
 
 		checkComp.pack();
-		//do
+		// do
 		Composite doComp = new Composite(right1, SWT.BORDER);
 		doComp.setLayout(new FormLayout());
 
@@ -339,7 +399,7 @@ public class Gui {
 		doLabelFormData.left = new FormAttachment(20);
 		doLabelFormData.bottom = new FormAttachment(doList);
 		doLabel.setLayoutData(doLabelFormData);
-		//Console composite
+		// Console composite
 		Composite innerBottom = new Composite(outer, SWT.BORDER);
 		innerBottom.setLayout(new FormLayout());
 
@@ -355,8 +415,7 @@ public class Gui {
 
 		Text console = new Text(innerBottom, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		console.setEditable(false);
-		
-		
+
 		FormData fdBottom = new FormData();
 		fdBottom.top = new FormAttachment(0);
 		fdBottom.left = new FormAttachment(0);
@@ -364,8 +423,9 @@ public class Gui {
 		fdBottom.bottom = new FormAttachment(100);
 		console.setLayoutData(fdBottom);
 		console.setBackground(new Color(null, 0, 0, 0));
-		console.setForeground(new Color(null, 0, 255, 0));	
-		//add a listener to the 'button1', the button for adding elements to the tree hierarchy
+		console.setForeground(new Color(null, 0, 255, 0));
+		// add a listener to the 'button1', the button for adding elements to
+		// the tree hierarchy
 		button1.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -378,10 +438,13 @@ public class Gui {
 					string += t;
 				}
 				menu = new Menu(innerLeft);
-				//Check which element of the tree has been selected by comparing its label with the specified keyword
+				// Check which element of the tree has been selected by
+				// comparing its label with the specified keyword
 				if ((string.toLowerCase().contains("critique")) || ((string.toLowerCase().contains("constraint")))) {
-					//if an invariant tree item is selected , it's enabled to set check, set message and add fix
-					//the evl associated to the tree is updated acording to the user selection
+					// if an invariant tree item is selected , it's enabled to
+					// set check, set message and add fix
+					// the evl associated to the tree is updated acording to the
+					// user selection
 					addCheckMenuItem = new MenuItem(menu, SWT.PUSH);
 					addCheckMenuItem.setText("Set Check");
 					addCheckMenuItem.addSelectionListener(new SelectionAdapter() {
@@ -516,24 +579,22 @@ public class Gui {
 						}
 					});
 
-					/*addDoMenuItem = new MenuItem(menu, SWT.PUSH);
-					addDoMenuItem.setText("Add Do");
-					addDoMenuItem.addSelectionListener(new SelectionAdapter() {
-						public void widgetSelected(SelectionEvent e) {
-
-							TreeItem temp = selected[0];
-							Fix fixSelected = (Fix) temp.getData();
-							Do d = new Do();
-							//List<Do> doListTemp = fixSelected.getDoList();
-							//doListTemp.add(d);
-							fixSelected.setDoList(doListTemp);
-							tree.removeAll();
-							tree.setData(evl);
-							fillTreeModel2(tree, evl);
-
-						}
-
-					});*/
+					/*
+					 * addDoMenuItem = new MenuItem(menu, SWT.PUSH);
+					 * addDoMenuItem.setText("Add Do");
+					 * addDoMenuItem.addSelectionListener(new SelectionAdapter()
+					 * { public void widgetSelected(SelectionEvent e) {
+					 * 
+					 * TreeItem temp = selected[0]; Fix fixSelected = (Fix)
+					 * temp.getData(); Do d = new Do(); //List<Do> doListTemp =
+					 * fixSelected.getDoList(); //doListTemp.add(d);
+					 * fixSelected.setDoList(doListTemp); tree.removeAll();
+					 * tree.setData(evl); fillTreeModel2(tree, evl);
+					 * 
+					 * }
+					 * 
+					 * });
+					 */
 
 				}
 				if ((string.toLowerCase().contains("context"))) {
@@ -622,12 +683,14 @@ public class Gui {
 			}
 
 		});
-		//add a listener to the 'button2', the button for removing elements to the tree hierarchy
+		// add a listener to the 'button2', the button for removing elements to
+		// the tree hierarchy
 		button2.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//this listener has the same logic of the button1's selection listener
+				// this listener has the same logic of the button1's selection
+				// listener
 				TreeItem[] selected = tree.getSelection();
 				String string = "";
 				for (TreeItem t : selected) {
@@ -688,49 +751,42 @@ public class Gui {
 					});
 
 				}
-				/*Do treeItem cant't be removed
-				 * if (string.toLowerCase().contains("do")) {
-					removeDoMenuItem = new MenuItem(menu2, SWT.PUSH);
-					removeDoMenuItem.setText("Remove Do");
-					removeDoMenuItem.addSelectionListener(new SelectionAdapter() {
-						public void widgetSelected(SelectionEvent e) {
-							TreeItem temp = selected[0];
-							TreeItem parent = temp.getParentItem();
-							TreeItem grandParent = parent.getParentItem();
-							TreeItem contextParent = grandParent.getParentItem();
-
-							Do DoTemp2 = (Do) temp.getData();
-							Fix fixTemp = (Fix) parent.getData();
-							Container cTemp = (Container) grandParent.getData();
-
-							for (Context context : evl.getContextList()) {
-								if (context.equals(contextParent.getData())) {
-									for (Container container : context.getContainers()) {
-										if (container.equals(cTemp)) {
-											List<Fix> fList = container.getFixList();
-											for (Fix f : fList) {
-												if (f.equals(fixTemp)) {
-													f.getDoList().remove(DoTemp2);
-												}
-											}
-										}
-
-									}
-								}
-							}
-
-							// evl.removeDoFromFix(cTemp.getParent(), cTemp,
-							// fixTemp, DoTemp2);
-
-							tree.removeAll();
-							tree.setData(evl);
-							fillTreeModel2(tree, evl);
-
-						}
-
-					});
-
-				}*/
+				/*
+				 * Do treeItem cant't be removed if
+				 * (string.toLowerCase().contains("do")) { removeDoMenuItem =
+				 * new MenuItem(menu2, SWT.PUSH);
+				 * removeDoMenuItem.setText("Remove Do");
+				 * removeDoMenuItem.addSelectionListener(new SelectionAdapter()
+				 * { public void widgetSelected(SelectionEvent e) { TreeItem
+				 * temp = selected[0]; TreeItem parent = temp.getParentItem();
+				 * TreeItem grandParent = parent.getParentItem(); TreeItem
+				 * contextParent = grandParent.getParentItem();
+				 * 
+				 * Do DoTemp2 = (Do) temp.getData(); Fix fixTemp = (Fix)
+				 * parent.getData(); Container cTemp = (Container)
+				 * grandParent.getData();
+				 * 
+				 * for (Context context : evl.getContextList()) { if
+				 * (context.equals(contextParent.getData())) { for (Container
+				 * container : context.getContainers()) { if
+				 * (container.equals(cTemp)) { List<Fix> fList =
+				 * container.getFixList(); for (Fix f : fList) { if
+				 * (f.equals(fixTemp)) { f.getDoList().remove(DoTemp2); } } }
+				 * 
+				 * } } }
+				 * 
+				 * // evl.removeDoFromFix(cTemp.getParent(), cTemp, // fixTemp,
+				 * DoTemp2);
+				 * 
+				 * tree.removeAll(); tree.setData(evl); fillTreeModel2(tree,
+				 * evl);
+				 * 
+				 * }
+				 * 
+				 * });
+				 * 
+				 * }
+				 */
 				if (string.toLowerCase().contains("fix")) {
 					removeFixItem = new MenuItem(menu2, SWT.PUSH);
 					removeFixItem.setText("Remove Fix");
@@ -874,7 +930,7 @@ public class Gui {
 
 			}
 		});
-		//topMenu
+		// topMenu
 		Menu menuBar = new Menu(shell, SWT.BAR);
 
 		MenuItem cascadeFileMenu = new MenuItem(menuBar, SWT.CASCADE);
@@ -882,47 +938,49 @@ public class Gui {
 
 		MenuItem cascadeFileMenu2 = new MenuItem(menuBar, SWT.CASCADE);
 		cascadeFileMenu2.setText("&Save");
-		
+
 		MenuItem cascadeFileMenu3 = new MenuItem(menuBar, SWT.CASCADE);
 		cascadeFileMenu3.setText("&Porting");
-		
+
+		// MenuItem cascadeFileMenu4 = new MenuItem(menuBar, SWT.CASCADE);
+		// cascadeFileMenu4.setText("&EOL");
+
 		Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
 		cascadeFileMenu.setMenu(fileMenu);
 
 		Menu saveMenu = new Menu(shell, SWT.DROP_DOWN);
 		cascadeFileMenu2.setMenu(saveMenu);
-		
-		Menu portingMenu = new Menu(shell,SWT.DROP_DOWN);
+
+		Menu portingMenu = new Menu(shell, SWT.DROP_DOWN);
 		cascadeFileMenu3.setMenu(portingMenu);
 
-		//Saves the .evl file
+		// Menu EolMenu = new Menu(shell,SWT.DROP_DOWN);
+		// cascadeFileMenu4.setMenu(EolMenu);
+
+		// Saves the .evl file
 		MenuItem saveEvlMenuItem = new MenuItem(saveMenu, SWT.PUSH);
-		saveEvlMenuItem.setText("Save in .evl"); 
+		saveEvlMenuItem.setText("Save in .evl");
 		saveEvlMenuItem.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 				dialog.setText("Save EVL code...");
 				dialog.setFilterNames(new String[] { "All Files (*.evl)" });
-				dialog.setFilterExtensions(new String[] { "*.evl" }); 
+				dialog.setFilterExtensions(new String[] { "*.evl" });
 				dialog.setFilterPath("c:\\");
 				dialog.setFileName("");
 				String dir = dialog.open();
 				File file;
-				if (dir != null)
-				{
+				if (dir != null) {
 					file = new File(dir);
-				}
-				else 
-				{
+				} else {
 					return;
 				}
 
-				
 				try {
-					
+
 					FileWriter fw;
 					fw = new FileWriter(file);
 					BufferedWriter bw = new BufferedWriter(fw);
@@ -930,11 +988,11 @@ public class Gui {
 					bw.flush();
 					bw.close();
 					console.append("\n" + evl.toString());
-					
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					// e1.printStackTrace();
-					console.append("\n" + e1.getMessage() );
+					console.append("\n" + e1.getMessage());
 				}
 			}
 
@@ -947,7 +1005,7 @@ public class Gui {
 
 		MenuItem newProjectMenuItem = new MenuItem(fileMenu, SWT.PUSH);
 		newProjectMenuItem.setText("&New Evl Project");
-		//Creates a blank project
+		// Creates a blank project
 		newProjectMenuItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -980,7 +1038,8 @@ public class Gui {
 
 		MenuItem saveItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveItem.setText("&Save Project");
-		//save the current project in a xml file; it invokes the method Save() from the ProjectManagment class
+		// save the current project in a xml file; it invokes the method Save()
+		// from the ProjectManagment class
 		saveItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -1017,15 +1076,16 @@ public class Gui {
 				} catch (JAXBException e1) {
 					// TODO Auto-generated catch block
 					// e1.printStackTrace();
-					console.append("\n" + e1.getMessage() );
+					console.append("\n" + e1.getMessage());
 				}
 
 			}
 		});
-		
+
 		MenuItem openProjectItem = new MenuItem(fileMenu, SWT.PUSH);
 		openProjectItem.setText("&Open existing Project");
-		//open a already saved project; it invokes the method Open() from the ProjectManagment class
+		// open a already saved project; it invokes the method Open() from the
+		// ProjectManagment class
 		openProjectItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -1036,19 +1096,19 @@ public class Gui {
 				String[] filterExt = { "*.xml" };
 				dlg.setFilterExtensions(filterExt);
 				String dir = dlg.open();
-				
+
 				try {
-					
+
 					evl = ProjectManagment.Open(dir);
 					console.append("\n Project opened ");
-					
+
 				} catch (FileNotFoundException | JAXBException e1) {
 					// TODO Auto-generated catch block
 					// e1.printStackTrace();
-					console.append("\n" + e1.getMessage() );
+					console.append("\n" + e1.getMessage());
 
 				}
-				
+
 				tree.removeAll();
 				fillTreeModel2(tree, evl);
 
@@ -1067,38 +1127,38 @@ public class Gui {
 				} catch (FileNotFoundException | JAXBException e1) {
 					// TODO Auto-generated catch block
 					// e1.printStackTrace();
-					console.append("\n" + e1.getMessage() );
+					console.append("\n" + e1.getMessage());
 				}
 				tree.removeAll();
 				fillTreeModel2(tree, evl);
 
 			}
 		});
-		
-		
+
 		MenuItem exitItem = new MenuItem(fileMenu, SWT.PUSH);
 		exitItem.setText("&Exit");
 		exitItem.addSelectionListener(new ExitMenuItemListener(shell));
-		
-		//Porting EVL to EPL
+
+		// Porting EVL to EPL
 		MenuItem port2eplMenuItem = new MenuItem(portingMenu, SWT.PUSH);
 		port2eplMenuItem.setText("Port EVL file to EPL");
 		port2eplMenuItem.addSelectionListener(new port2eplListener(console, shell));
-		
-		//Porting EVL to EWL
+
+		// Porting EVL to EWL
 		MenuItem port2ewlMenuItem = new MenuItem(portingMenu, SWT.PUSH);
 		port2ewlMenuItem.setText("Port EVL file to EWL");
 		port2ewlMenuItem.addSelectionListener(new port2ewlListener(console, shell));
-		
-		//this is a mouse listener for the tree
-		//this listener populates the fList according to the context name and if a context is properly selected
-		
+
+		// this is a mouse listener for the tree
+		// this listener populates the fList according to the context name and
+		// if a context is properly selected
+
 		tree.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseUp(MouseEvent e) {
 				Tree tempTree = (Tree) e.getSource();
-				//checks if a tree element is selected
+				// checks if a tree element is selected
 				if (tempTree.getItem(new Point(e.x, e.y)) != null) {
 					// an item was clicked.
 					TreeItem[] selected;
@@ -1109,7 +1169,7 @@ public class Gui {
 						itemSelected = selected[0];
 
 					} catch (ArrayIndexOutOfBoundsException exception) {
-						//console.append("\nSelecet correct treeItem");
+						// console.append("\nSelecet correct treeItem");
 
 						return;
 					}
@@ -1117,7 +1177,8 @@ public class Gui {
 					TreeItem par = itemSelected.getParentItem();
 					String string = itemSelected.getText();
 					if (string.toLowerCase().contains("context")) {
-						//if a context treeItem is selected the fList applicable to it, is recovered from db
+						// if a context treeItem is selected the fList
+						// applicable to it, is recovered from db
 						button3.setEnabled(false);
 						button4.setEnabled(false);
 						Context context = (Context) itemSelected.getData();
@@ -1126,18 +1187,19 @@ public class Gui {
 							fl = Db.getFList(context.getName());
 						} catch (ClassNotFoundException | SQLException e1) {
 							// e1.printStackTrace();
-							console.append("\n" + e1.getMessage() );
+							console.append("\n" + e1.getMessage());
 						}
 						fList.removeAll();
 						for (F f : fl) {
 							fList.add(f.getText());
 						}
 					} else if (string.toLowerCase().contains("fix")) {
-						//if a fix treeItem is selected the doList applicable to it, is recovered from db
+						// if a fix treeItem is selected the doList applicable
+						// to it, is recovered from db
 						button3.setEnabled(true);
 						button4.setEnabled(true);
 						// populate doList
-						//Fix fix = (Fix) itemSelected.getData();
+						// Fix fix = (Fix) itemSelected.getData();
 						List<String> tempDoList = new ArrayList<String>();
 						TreeItem invariant = itemSelected.getParentItem();
 						TreeItem context = invariant.getParentItem();
@@ -1156,7 +1218,8 @@ public class Gui {
 						}
 
 					} else if (string.toLowerCase().contains("do")) {
-						//if a do treeItem is selected the doList applicable to it, is recovered from db
+						// if a do treeItem is selected the doList applicable to
+						// it, is recovered from db
 						button3.setEnabled(true);
 						button4.setEnabled(true);
 						// populate doList
@@ -1180,7 +1243,8 @@ public class Gui {
 
 					} else if ((string.toLowerCase().contains("critique"))
 							|| (string.toLowerCase().contains("constraint"))) {
-						//if an invariant treeItem is selected the fList applicable to it, is recovered from db
+						// if an invariant treeItem is selected the fList
+						// applicable to it, is recovered from db
 						button3.setEnabled(false);
 						button4.setEnabled(false);
 
@@ -1192,7 +1256,7 @@ public class Gui {
 							fl = Db.getFList(context.getName());
 						} catch (ClassNotFoundException | SQLException e1) {
 							// e1.printStackTrace();
-							console.append("\n" + e1.getMessage() );
+							console.append("\n" + e1.getMessage());
 						}
 						fList.removeAll();
 						for (F f : fl) {
@@ -1202,7 +1266,8 @@ public class Gui {
 					}
 
 					else if (string.toLowerCase().contains("check")) {
-						//if a check treeItem is selected the fList applicable to it, is recovered from db
+						// if a check treeItem is selected the fList applicable
+						// to it, is recovered from db
 						button3.setEnabled(true);
 						button4.setEnabled(true);
 						TreeItem invariantItem = itemSelected.getParentItem();
@@ -1214,14 +1279,15 @@ public class Gui {
 							fl = Db.getFList(context.getName());
 						} catch (ClassNotFoundException | SQLException e1) {
 							// e1.printStackTrace();
-							console.append("\n" + e1.getMessage() );
+							console.append("\n" + e1.getMessage());
 						}
 						fList.removeAll();
 						for (F f : fl) {
 							fList.add(f.getText());
 						}
 
-					} else if ((par.getText().toLowerCase().contains("not"))||(par.getText().toLowerCase().contains("check"))) {
+					} else if ((par.getText().toLowerCase().contains("not"))
+							|| (par.getText().toLowerCase().contains("check"))) {
 						button3.setEnabled(true);
 						button4.setEnabled(true);
 					} else {
@@ -1253,69 +1319,84 @@ public class Gui {
 
 			}
 		});
-		//this listener populates the oplist, guardOpList, and threshold List
-		//form the F selected from the fList; 
-		//if the element returns a boolean value only the Flist, and GuardOpList are populated
-		//and the opList is populated with not operator and empty op
+		// this listener populates the oplist, guardOpList, and threshold List
+		// form the F selected from the fList;
+		// if the element returns a boolean value only the Flist, and
+		// GuardOpList are populated
+		// and the opList is populated with not operator and empty op
 		fList.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 
-				//String string = "";
-				String[] s = fList.getSelection();
-				String selection = s[0];
+				thList.removeAll();
+				opList.removeAll();
+				opList.add("");
+				opList.add("!");
 
-				List<F> fListTemp = null;
+				List<Threshold> tList = null;
 				try {
-					fListTemp = Db.getFList();
+					thList.removeAll();
+					tList = Db.getThresholdList();
 
 				} catch (ClassNotFoundException | SQLException e1) {
-					console.append("\n" + e1.getMessage() );
+					console.append("\n" + e1.getMessage());
 				}
-				for (F f : fListTemp) {
-					// console.append(f.getCard()+f.getText()+"\n");
-					//take the fList from db and find the f selected
-					
-					if (f.getText().equals(selection)) {
-						// if the f return a boolean or not the f are populated properly 
-						
-						if (f.getReturnType().equals("boolean")) {
-							
-							// console.append(f.getText()+f.getCard());
-							thList.removeAll();
-							opList.removeAll();
-							opList.add("");
-							opList.add("!");
-							// console.append("Boolean F\n");
-						
-						} else if (!(f.getReturnType().equals("boolean"))) {
-							thList.removeAll();
-							opList.removeAll();
-							opList.add(">");
-							opList.add(">=");
-							opList.add("<");
-							opList.add("<=");
-							opList.add("=");
-							opList.add("<>");
-							List<Threshold> tList = null;
-							try {
-								thList.removeAll();
-								tList = Db.getThresholdList(selection);
-								tList.addAll(Db.getFListToCompare(selection));
-							} catch (ClassNotFoundException | SQLException e1) {
-								console.append("\n" + e1.getMessage() );
-							}
-							for (Threshold t : tList) {
-								thList.add(t.getText());
-							}
-						}
-					}
+				for (Threshold t : tList) {
+					thList.add(t.getText());
 				}
+
+				// String string = "";
+				/*
+				 * String[] s = fList.getSelection(); String selection = s[0];
+				 * 
+				 * List<F> fListTemp = null; try { fListTemp = Db.getFList();
+				 * 
+				 * } catch (ClassNotFoundException | SQLException e1) {
+				 * console.append("\n" + e1.getMessage() ); } for (F f :
+				 * fListTemp) { // console.append(f.getCard()+f.getText()+"\n");
+				 * //take the fList from db and find the f selected
+				 * 
+				 * if (f.getText().equals(selection)) {
+				 */
+				// if the f return a boolean or not the f are populated properly
+
+				// if (f.getReturnType().equals("boolean")) {
+				//
+				// // console.append(f.getText()+f.getCard());
+				// thList.removeAll();
+				// opList.removeAll();
+				// opList.add("");
+				// opList.add("!");
+				// // console.append("Boolean F\n");
+				//
+				// } else if (!(f.getReturnType().equals("boolean"))) {
+				// thList.removeAll();
+				//// opList.removeAll();
+				//// opList.add(">");
+				//// opList.add(">=");
+				//// opList.add("<");
+				//// opList.add("<=");
+				//// opList.add("=");
+				//// opList.add("<>");
+				// List<Threshold> tList = null;
+				// try {
+				// thList.removeAll();
+				// tList = Db.getThresholdList();
+				//// tList.addAll(Db.getFListToCompare(selection));
+				// } catch (ClassNotFoundException | SQLException e1) {
+				// console.append("\n" + e1.getMessage() );
+				// }
+				// for (Threshold t : tList) {
+				// thList.add(t.getText());
+				// }
+				// }
+				// }
+				// }
 
 			}
 		});
 
 		// add button listener
-		//the button3 is the button for adding F and do
+		// the button3 is the button for adding F and do
 		button3.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -1325,7 +1406,7 @@ public class Gui {
 				TreeItem parentItem = null;
 				int opListIndex = opList.getSelectionIndex();
 				int guardOpListIndex = guardOpList.getSelectionIndex();
-				
+
 				try {
 					selectedItems = tree.getSelection();
 					item = selectedItems[0];
@@ -1341,19 +1422,20 @@ public class Gui {
 
 				String fName = "";
 
-				if ((item.getText().toLowerCase().contains("check"))||(parentItem.getText().toLowerCase().contains("check"))) {
-					Check check = null ;
-					String contextName="";
-					if(item.getText().toLowerCase().contains("check")){
+				if ((item.getText().toLowerCase().contains("check"))
+						|| (parentItem.getText().toLowerCase().contains("check"))) {
+					Check check = null;
+					String contextName = "";
+					if (item.getText().toLowerCase().contains("check")) {
 						check = (Check) item.getData();
 						TreeItem checkGrandParentItem = parentItem.getParentItem();
-						Context context = (Context)checkGrandParentItem.getData();
+						Context context = (Context) checkGrandParentItem.getData();
 						contextName = context.getName();
-					}else if(parentItem.getText().toLowerCase().contains("check")){
+					} else if (parentItem.getText().toLowerCase().contains("check")) {
 						check = (Check) parentItem.getData();
 						TreeItem checkParent = parentItem.getParentItem();
 						TreeItem checkGrandParentItem = checkParent.getParentItem();
-						Context context = (Context)checkGrandParentItem.getData();
+						Context context = (Context) checkGrandParentItem.getData();
 						contextName = context.getName();
 					}
 					int index = fList.getSelectionIndex();
@@ -1362,138 +1444,115 @@ public class Gui {
 							fName = fList.getItem(index);
 							List<F> temp;
 							temp = Db.getFList(contextName);
-							//
-							//
+
 							for (F f : temp) {
 								if (f.getText().equals(fName)) {
-									if (f.getReturnType().equals("boolean")) {
-					                    UnaryOperator op = UnaryOperator.EMPTY;
-															try{
-																if (opList.getItem(opListIndex).equals("!")) {
-																	op = UnaryOperator.NOT;
-																}
-															}catch(Exception e1){
-																console.append("\n  "+e1.getMessage());
-																break;
-															}
-															/*if (opList.getItem(opListIndex).equals("!")) {
-																op = UnaryOperator.NOT;
-															}*/
-															F fBool = new F(f.getText(), f.getCard(), f.getReturnType());
-															Predicate pred = new UnaryPredicate(op, fBool);
-															String guardOpSelected = guardOpList.getItem(guardOpListIndex);
-															GuardOperator guardOp = GuardOperator.EMPTY;
-															switch (guardOpSelected) {
-															case "and":
-																guardOp = GuardOperator.AND;
-																break;
-															case "or":
-																guardOp = GuardOperator.OR;
-																break;
-															case "xor":
-																guardOp = GuardOperator.XOR;
-																break;
-															}
-															if (!(check.getOperations().isEmpty())) {
-																if (guardOp.equals(GuardOperator.EMPTY)) {
-																	console.append("\nSELECT GUARD OPERATOR : can't choose Empty guard operator");
-																	break;
-																}
-															} else if ((check.getOperations().isEmpty())
-																	&& (!(guardOp.equals(GuardOperator.EMPTY)))) {
-																console.append("\nFIRST PREDICATE: INSERT EMPTY GUARD OP");
-																break;
-															}
-															Operation operation = new Operation(guardOp, pred);
 
-															check.getOperations().add(operation);
-															tree.removeAll();
-															fList.deselectAll();
-															opList.deselectAll();
-															guardOpList.deselectAll();
-															thList.deselectAll();
-															fillTreeModel2(tree, evl);
+									F function = new F(f.getText(), f.getCard(), f.getReturnType());
 
-									}else{
-					                    					F fInt = new F(f.getText(), f.getCard(), f.getReturnType());
-															BinaryPredicateOperator op = null;
-															String binOpSelected = opList.getItem(opListIndex);
-															// take operatore between F and Th
-															switch (binOpSelected) {
-															case "":
-																console.append("\nChoose an operator (Emoty op selected)");
-																break;
-															case ">":
-																op = BinaryPredicateOperator.GREATER;
-																break;
-															case ">=":
-																op = BinaryPredicateOperator.GREATER_OR_EQUAL;
-																break;
-															case "<":
-																op = BinaryPredicateOperator.LOWER;
-																break;
-															case "<=":
-																op = BinaryPredicateOperator.LOWER_OR_EQUAL;
-																break;
-															case "=":
-																op = BinaryPredicateOperator.EQUAL;
-																break;
-															case "<>":
-																op = BinaryPredicateOperator.DIFFERENT;
-																break;
-															}
-															int thIndex = thList.getSelectionIndex();
-															Threshold th = new Threshold();
-															if (thIndex > -1) {
-
-																th = new Threshold(thList.getItem(thIndex));
-															}
-															//take th selected
-															Predicate pred = new BinaryPredicate(fInt, th, op);
-
-															if ((guardOpListIndex < -1) && (guardOpListIndex > 3)) {
-																console.append("\nGuardOpList index out of bounds");
-															}
-															String guardOpSelected = guardOpList.getItem(guardOpListIndex);
-
-															GuardOperator guardOp;
-															switch (guardOpSelected) {
-															case "and":
-																guardOp = GuardOperator.AND;
-																break;
-															case "or":
-																guardOp = GuardOperator.OR;
-																break;
-															case "xor":
-																guardOp = GuardOperator.XOR;
-																break;
-															default:
-																guardOp = GuardOperator.EMPTY;
-															}
-															if ((!(check.getOperations().isEmpty()))&&(guardOp.equals(GuardOperator.EMPTY))) {
-																	console.append("\nSELECT GUARD OPERATOR , THE OPERATOR MUST BE OR,AND OR XOR");
-																	return;
-
-															} else if ((check.getOperations().isEmpty())
-																	&& (!(guardOp.equals(GuardOperator.EMPTY)))) {
-																console.append("\nFIRST PREDICATE, INSERT EMPTY GUARD OP");
-																return;
-															}
-															Operation operation = new Operation(guardOp, pred);
-
-															check.getOperations().add(operation);
-															fList.deselectAll();
-															opList.deselectAll();
-															guardOpList.deselectAll();
-															thList.deselectAll();
-															tree.removeAll();
-															fillTreeModel2(tree, evl);
-							
+									UnaryOperator op = UnaryOperator.EMPTY;
+									try {
+										if (opList.getItem(opListIndex).equals("!")) {
+											op = UnaryOperator.NOT;
+										}
+									} catch (Exception e1) {
+										console.append("\n  " + e1.getMessage());
+										break;
 									}
+
+									int thIndex = thList.getSelectionIndex();
+
+									Threshold th = new Threshold();
+									
+									//threshold selected
+									if (thIndex > -1) {
+
+//										th = new Threshold(thList.getItem(thIndex));
+//
+//										Predicate pred = new BinaryPredicate(function, th, op);
+//
+//										if ((guardOpListIndex < -1) && (guardOpListIndex > 3)) {
+//											console.append("\nGuardOpList index out of bounds");
+//										}
+//										String guardOpSelected = guardOpList.getItem(guardOpListIndex);
+//
+//										GuardOperator guardOp;
+//										switch (guardOpSelected) {
+//										case "and":
+//											guardOp = GuardOperator.AND;
+//											break;
+//										case "or":
+//											guardOp = GuardOperator.OR;
+//											break;
+//										case "xor":
+//											guardOp = GuardOperator.XOR;
+//											break;
+//										default:
+//											guardOp = GuardOperator.EMPTY;
+//										}
+//										if ((!(check.getOperations().isEmpty()))
+//												&& (guardOp.equals(GuardOperator.EMPTY))) {
+//											console.append(
+//													"\nSELECT GUARD OPERATOR , THE OPERATOR MUST BE OR,AND OR XOR");
+//											return;
+//
+//										} else if ((check.getOperations().isEmpty())
+//												&& (!(guardOp.equals(GuardOperator.EMPTY)))) {
+//											console.append("\nFIRST PREDICATE, INSERT EMPTY GUARD OP");
+//											return;
+//										}
+//										Operation operation = new Operation(guardOp, pred);
+//
+//										check.getOperations().add(operation);
+//										fList.deselectAll();
+//										opList.deselectAll();
+//										guardOpList.deselectAll();
+//										thList.deselectAll();
+//										tree.removeAll();
+//										fillTreeModel2(tree, evl);
+									} else {
+
+										//no threshold selected
+										Predicate pred = new UnaryPredicate(op, function);
+										String guardOpSelected = guardOpList.getItem(guardOpListIndex);
+										GuardOperator guardOp = GuardOperator.EMPTY;
+										switch (guardOpSelected) {
+										case "and":
+											guardOp = GuardOperator.AND;
+											break;
+										case "or":
+											guardOp = GuardOperator.OR;
+											break;
+										case "xor":
+											guardOp = GuardOperator.XOR;
+											break;
+										}
+										if (!(check.getOperations().isEmpty())) {
+											if (guardOp.equals(GuardOperator.EMPTY)) {
+												console.append(
+														"\nSELECT GUARD OPERATOR : can't choose Empty guard operator");
+												break;
+											}
+										} else if ((check.getOperations().isEmpty())
+												&& (!(guardOp.equals(GuardOperator.EMPTY)))) {
+											console.append("\nFIRST PREDICATE: INSERT EMPTY GUARD OP");
+											break;
+										}
+										Operation operation = new Operation(guardOp, pred);
+
+										check.getOperations().add(operation);
+										tree.removeAll();
+										fList.deselectAll();
+										opList.deselectAll();
+										guardOpList.deselectAll();
+										thList.deselectAll();
+										fillTreeModel2(tree, evl);
+									}
+
 								}
 							}
 						} catch (ClassNotFoundException | SQLException e1) {
-							console.append("\n"+e1.getMessage() );
+							console.append("\n" + e1.getMessage());
 						}
 
 					}
@@ -1531,12 +1590,13 @@ public class Gui {
 					selectedItems = tree.getSelection();
 					item = selectedItems[0];
 				} catch (ArrayIndexOutOfBoundsException exception) {
-					console.append("\nSelecet the correct parent element, e.g. 'check:' for add guard elements, or 'do' for add do()");
+					console.append(
+							"\nSelecet the correct parent element, e.g. 'check:' for add guard elements, or 'do' for add do()");
 
 					return;
 				}
 
-				//String fName = "";
+				// String fName = "";
 				TreeItem parentItem = item.getParentItem();
 
 				if (parentItem.getText().toLowerCase().contains("do")) {
@@ -1547,7 +1607,7 @@ public class Gui {
 					fillTreeModel2(tree, evl);
 				} else if (parentItem.getText().toLowerCase().equals("not")) {
 					TreeItem checkItem = parentItem.getParentItem();
-					
+
 					Operation op = (Operation) item.getData();
 					Check check = (Check) checkItem.getData();
 					check.getOperations().remove(op);
@@ -1563,17 +1623,236 @@ public class Gui {
 			}
 		});
 
+		tab2.setControl(outer);
+
+		Composite EOLouter = new Composite(folder, SWT.BORDER | SWT.FILL);
+
+		FormLayout EOLformLayout = new FormLayout();
+		EOLouter.setLayout(EOLformLayout);
+
+		Composite LibraryManagement = new Composite(EOLouter, SWT.BORDER);
+
+		FormData leftData = new FormData();
+		leftData.bottom = new FormAttachment(100, -10);
+		leftData.top = new FormAttachment(0, 10);
+		leftData.left = new FormAttachment(0, 5);
+		leftData.right = new FormAttachment(10, 0);
+		LibraryManagement.setLayoutData(leftData);
+
+		GridLayout libraryInternalLayout = new GridLayout();
+		libraryInternalLayout.numColumns = 1;
+		LibraryManagement.setLayout(libraryInternalLayout);
+
+		Button newEOLbutton = new Button(LibraryManagement, SWT.PUSH);
+		newEOLbutton.setText("Create new file");
+
+		GridData buttonLayout = new GridData();
+		buttonLayout.horizontalAlignment = SWT.END;
+		buttonLayout.verticalAlignment = SWT.TOP;
+		newEOLbutton.setLayoutData(buttonLayout);
+
+		org.eclipse.swt.widgets.List EOLLibrary = new org.eclipse.swt.widgets.List(LibraryManagement,
+				SWT.BORDER | SWT.V_SCROLL);
+
+		GridData LibraryList = new GridData();
+		LibraryList.grabExcessHorizontalSpace = true;
+		LibraryList.grabExcessVerticalSpace = true;
+		LibraryList.horizontalAlignment = SWT.FILL;
+		LibraryList.verticalAlignment = SWT.FILL;
+		EOLLibrary.setLayoutData(LibraryList);
+
+		Button saveAllButton = new Button(LibraryManagement, SWT.PUSH);
+		saveAllButton.setText("Save to DB");
+
+		GridData savebuttonLayout = new GridData();
+		savebuttonLayout.horizontalAlignment = SWT.END;
+		savebuttonLayout.verticalAlignment = SWT.TOP;
+		saveAllButton.setLayoutData(savebuttonLayout);
+
+		org.eclipse.swt.widgets.List EOLList = new org.eclipse.swt.widgets.List(EOLouter, SWT.BORDER | SWT.V_SCROLL);
+		EOLList.add("Select a file");
+
+		FormData eoldata = new FormData();
+		eoldata.left = new FormAttachment(LibraryManagement, 5);
+		eoldata.right = new FormAttachment(30, 0);
+		eoldata.bottom = new FormAttachment(100, -10);
+		eoldata.top = new FormAttachment(0, 10);
+		EOLList.setLayoutData(eoldata);
+
+		Composite centerth = new Composite(EOLouter, SWT.BORDER);
+
+		FormData centerdata = new FormData();
+		centerdata.left = new FormAttachment(EOLList, 5);
+		centerdata.bottom = new FormAttachment(100, -10);
+		centerdata.top = new FormAttachment(0, 10);
+		centerdata.right = new FormAttachment(80, 0);
+		centerth.setLayoutData(centerdata);
+
+		GridLayout EOLmethod = new GridLayout();
+		EOLmethod.numColumns = 1;
+		centerth.setLayout(EOLmethod);
+
+		Text eolcode = new Text(centerth, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+		eolcode.setText("");
+
+		GridData textLayout = new GridData();
+		textLayout.grabExcessHorizontalSpace = true;
+		textLayout.grabExcessVerticalSpace = true;
+		textLayout.horizontalAlignment = SWT.FILL;
+		textLayout.verticalAlignment = SWT.FILL;
+		eolcode.setLayoutData(textLayout);
+
+		Button ap = new Button(centerth, SWT.PUSH);
+		ap.setText("<-- Append to file");
+
+		GridData fdAp = new GridData();
+		fdAp.verticalAlignment = SWT.END;
+		fdAp.horizontalAlignment = SWT.BEGINNING;
+		ap.setLayoutData(fdAp);
+		
+		Button aptoDB = new Button(centerth, SWT.PUSH);
+		aptoDB.setText("Append to DB -->");
+
+		GridData fdAptodb = new GridData();
+		fdAptodb.verticalAlignment = SWT.END;
+		fdAptodb.horizontalAlignment = SWT.END;
+		aptoDB.setLayoutData(fdAptodb);
+
+		Composite DatabaseLibrary = new Composite(EOLouter, SWT.BORDER);
+
+		FormData rightdata = new FormData();
+		rightdata.left = new FormAttachment(centerth, 10);
+		rightdata.right = new FormAttachment(100, -5);
+		rightdata.bottom = new FormAttachment(100, -10);
+		rightdata.top = new FormAttachment(0, 10);
+		DatabaseLibrary.setLayoutData(rightdata);
+
+		GridLayout DBLayout = new GridLayout();
+		DBLayout.numColumns = 1;
+		DatabaseLibrary.setLayout(DBLayout);
+
+		Button fetchDBbutton = new Button(DatabaseLibrary, SWT.PUSH);
+		fetchDBbutton.setText("Get library");
+
+		GridData fetchLayout = new GridData();
+		fetchLayout.horizontalAlignment = SWT.END;
+		fetchLayout.verticalAlignment = SWT.TOP;
+		fetchDBbutton.setLayoutData(fetchLayout);
+
+		org.eclipse.swt.widgets.List EOLDoList = new org.eclipse.swt.widgets.List(DatabaseLibrary,
+				SWT.BORDER | SWT.V_SCROLL);
+
+		GridData EOLDoList_Layout = new GridData();
+		EOLDoList_Layout.horizontalAlignment = SWT.FILL;
+		EOLDoList_Layout.verticalAlignment = SWT.FILL;
+		EOLDoList_Layout.grabExcessHorizontalSpace = true;
+		EOLDoList_Layout.grabExcessVerticalSpace = true;
+		EOLDoList.setLayoutData(EOLDoList_Layout);
+
+		org.eclipse.swt.widgets.List EOLMetricList = new org.eclipse.swt.widgets.List(DatabaseLibrary,
+				SWT.BORDER | SWT.V_SCROLL);
+
+		GridData EOLMetricList_Layout = new GridData();
+		EOLMetricList_Layout.horizontalAlignment = SWT.FILL;
+		EOLMetricList_Layout.verticalAlignment = SWT.FILL;
+		EOLMetricList_Layout.grabExcessHorizontalSpace = true;
+		EOLMetricList_Layout.grabExcessVerticalSpace = true;
+		EOLMetricList.setLayoutData(EOLMetricList_Layout);
+
+		org.eclipse.swt.widgets.List EOLThList = new org.eclipse.swt.widgets.List(DatabaseLibrary,
+				SWT.BORDER | SWT.V_SCROLL);
+
+		GridData EOLThList_Layout = new GridData();
+		EOLThList_Layout.horizontalAlignment = SWT.FILL;
+		EOLThList_Layout.verticalAlignment = SWT.FILL;
+		EOLThList_Layout.grabExcessHorizontalSpace = true;
+		EOLThList_Layout.grabExcessVerticalSpace = true;
+		EOLThList.setLayoutData(EOLThList_Layout);
+
+		// Import EOL code from library
+		// MenuItem importEOLMenuItem = new MenuItem(EolMenu, SWT.PUSH);
+		// importEOLMenuItem.setText("Import EOL");
+		// importEOLMenuItem.addSelectionListener(new
+		// importEolListener(EOLoperations, EOLList, shell));
+
+		// Save EOL code to library
+		// MenuItem saveEOLMenuItem = new MenuItem(EolMenu, SWT.PUSH);
+		// saveEOLMenuItem.setText("Save EOL");
+		// saveEOLMenuItem.addSelectionListener(new saveEolListener(eolcode,
+		// shell));
+
+		EOLLibrary.addSelectionListener(new EOLfileSelected(EOLoperations, EOLLibrary, EOLList, workspace));
+		EOLList.addSelectionListener(new EOLoperationSelected(EOLoperations, EOLList, eolcode));
+
+		EOLDoList.addSelectionListener(new DB_Do_operationSelected(DBDoFunctions, EOLDoList, eolcode));
+		EOLMetricList.addSelectionListener(new DB_F_operationSelected(DBMetricFunctions, EOLMetricList, eolcode));
+		EOLThList.addSelectionListener(new DB_Th_operationSelected(DBThresholdFunctions, EOLThList, eolcode));
+
+		fetchDBbutton.addSelectionListener(new FetchSelectionListener(EOLMetricList, EOLDoList, EOLThList,
+				DBMetricFunctions, DBDoFunctions, DBThresholdFunctions));
+
+		newEOLbutton.addSelectionListener(new CreateEOLfileListener(shell, EOLLibrary, workspace));
+		saveAllButton.addSelectionListener(new saveEOLtoDBListener(workspace));
+
+		
+		ap.addSelectionListener(new saveEolListener(eolcode, EOLLibrary, workspace, EOLoperations, EOLList, shell));
+		aptoDB.addSelectionListener(new updateEOLonDBListener(eolcode, DBMetricFunctions, DBThresholdFunctions, DBDoFunctions, EOLDoList, EOLMetricList, EOLThList));
+
+		tab1.setControl(EOLouter);
+
+		Collection<File> allEols = FileUtils.listFiles(new File(workspace), new String[] { "eol" }, true);
+
+		if (allEols.isEmpty()) {
+			EOLLibrary.add("No files");
+		} else {
+			for (File f : allEols) {
+				EOLLibrary.add(f.getName());
+			}
+		}
+
+		Composite validationTab = new Composite(folder, SWT.BORDER | SWT.FILL);
+
+		tab3.setControl(validationTab);
+
+		FormLayout validation_formLayout = new FormLayout();
+		validationTab.setLayout(validation_formLayout);
+
+		org.eclipse.swt.widgets.List UMLLibrary = new org.eclipse.swt.widgets.List(validationTab,
+				SWT.BORDER | SWT.V_SCROLL);
+
+		FormData UMLListLayout = new FormData();
+		UMLListLayout.bottom = new FormAttachment(0, 0);
+		UMLListLayout.top = new FormAttachment(0, 10);
+
+		UMLLibrary.setLayoutData(UMLListLayout);
+
+		Button validate = new Button(validationTab, SWT.PUSH);
+		validate.setText("Validate model");
+
+		FormData validate_buttonLayout = new FormData();
+		validate_buttonLayout.top = new FormAttachment(UMLLibrary, 10);
+		validate.setLayoutData(validate_buttonLayout);
+
+		validate.addSelectionListener(new validateSelectionListener(shell, workspace, UMLLibrary));
+		// UMLLibrary.addSelectionListener(new EOLfileSelected(EOLoperations,
+		// UMLLibrary, workspace));
+
+		folder.pack();
+
 		shell.setMenuBar(menuBar);
 
 		shell.pack();
-
 	}
+
 	/**
-	  * this method populates the tree from the evl file 
-	  * @param		tree to populate		  
-	  * @param		evl to represent in a tree view   
-	  * @return		void    
-	  */
+	 * this method populates the tree from the evl file
+	 * 
+	 * @param tree
+	 *            to populate
+	 * @param evl
+	 *            to represent in a tree view
+	 * @return void
+	 */
 	private static void fillTreeModel2(Tree tree, Evl evl) {
 		tree.setRedraw(false);
 		for (Context c : evl.getContextList()) {
@@ -1591,10 +1870,10 @@ public class Gui {
 					checkItem.setText("check :");
 					checkItem.setData(check);
 					checkItem.setExpanded(true);
-					
+
 					TreeItem notCheckItem = new TreeItem(checkItem, SWT.NONE);
 					notCheckItem.setText("not");
-					
+
 					for (Operation op : check.getOperations()) {
 						if (op.getOp() != GuardOperator.EMPTY) {
 							TreeItem checkChild2 = new TreeItem(notCheckItem, SWT.NONE);
@@ -1630,15 +1909,15 @@ public class Gui {
 						titleItem.setData(fix.getTitle());
 
 					}
-						TreeItem doItem = new TreeItem(fixItem, SWT.NONE);
-						doItem.setText("do");
-						doItem.setData(fix.getDoList());
+					TreeItem doItem = new TreeItem(fixItem, SWT.NONE);
+					doItem.setText("do");
+					doItem.setData(fix.getDoList());
 
-						for (String doFun : fix.getDoList().getFunctions()) {
-							TreeItem doChildItem = new TreeItem(doItem, SWT.NONE);
-							doChildItem.setText(doFun);
-							doChildItem.setData(doFun);
-							// doChildItem.setExpanded(true);
+					for (String doFun : fix.getDoList().getFunctions()) {
+						TreeItem doChildItem = new TreeItem(doItem, SWT.NONE);
+						doChildItem.setText(doFun);
+						doChildItem.setData(doFun);
+						// doChildItem.setExpanded(true);
 						doItem.setExpanded(true);
 					}
 					fixItem.setExpanded(true);

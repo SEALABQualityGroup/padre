@@ -39,11 +39,83 @@
             <command
                   commandId="prova.plugin.commands.sampleCommand"
                   icon="icons/sample.gif"
-                  tooltip="Plugin Davide"
+                  tooltip="Visual Builder"
                   id="prova.plugin.toolbars.sampleCommand">
             </command>
          </toolbar>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="view.Operations"
+            id="view.Operations"
+            name="Operations"
+            restorable="true">
+      </view>
+      <view
+            class="view.F_OperationsOnDB"
+            id="view.F_OperationsOnDB"
+            name="F_OperationsOnDB"
+            restorable="true">
+      </view>
+      <view
+            class="view.Thresholds_OnDB"
+            id="view.Thresholds_OnDB"
+            name="Thresholds_OnDB"
+            restorable="true">
+      </view>
+      <view
+            class="view.Do_OperationsOnDB"
+            id="view.Do_OperationsOnDB"
+            name="Do_OperationsOnDB"
+            restorable="true">
+      </view>
+      <view
+            class="view.EVLtree"
+            icon="icons/evl.gif"
+            id="view.EVLtree"
+            name="EVLtree"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="perspectives.Visual_Builder"
+            id="perspectives.newper"
+            name="EVL Visual Builder">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="perspectives.newper">
+         <actionSet
+               id="org.eclipse.debug.ui.launchActionSet">
+         </actionSet>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="editors.LocalEolEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="false"
+            extensions="eol, eunit"
+            icon="icons/eol.gif"
+            id="editors.LocalEolEditor"
+            name="LocalEolEditor">
+      </editor>
+      <editor
+            class="editors.EolEditorForDB"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="false"
+            extensions="eol, eunit"
+            icon="icons/eol.gif"
+            id="editors.EolEditorForDB"
+            name="EolEditorForDB">
+      </editor>
    </extension>
 
 </plugin>

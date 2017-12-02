@@ -1,7 +1,6 @@
 package plugin.handlers;
 
 
-import java.awt.Container;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -11,11 +10,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import com.google.gson.Gson;
-
-import model.Check;
-import model.Context;
-import model.Do;
 import model.Evl;
 
 public class ProjectManagment {

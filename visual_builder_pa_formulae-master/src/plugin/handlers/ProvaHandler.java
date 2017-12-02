@@ -3,6 +3,7 @@ package plugin.handlers;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -36,9 +37,9 @@ public class ProvaHandler extends AbstractHandler {
 				shell,
 				"Plugin",
 				"Hello, Eclipse world");*/
-		Shell dialog = new Shell(shell);
-		
-		dialog.setText("Plugin");
+		Shell dialog = new Shell(shell, SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.MAX);
+		dialog.setSize(1920, 1080);
+		dialog.setText("Visual Builder");
 		
 		Gui g = new Gui();
 		g.createGui(dialog);
