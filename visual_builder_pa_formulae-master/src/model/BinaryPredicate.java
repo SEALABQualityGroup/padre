@@ -13,7 +13,14 @@ public class BinaryPredicate extends Predicate {
 	
 	private F left;
 	private Threshold right;
+	private UnaryOperator uop;
 	private BinaryPredicateOperator op;
+	
+	public BinaryPredicate(F left, Threshold right, UnaryOperator uop){
+		this.left = left;
+		this.right = right;
+		this.uop=uop;
+	}
 	public BinaryPredicate(F left, Threshold right, BinaryPredicateOperator op){
 		this.left = left;
 		this.right = right;
@@ -39,6 +46,13 @@ public class BinaryPredicate extends Predicate {
 		this.right = right;
 	}
 	@XmlElement
+	public UnaryOperator getUOp() {
+		return uop;
+	}
+	public void setUOp(UnaryOperator uop) {
+		this.uop = uop;
+	}
+	@XmlElement
 	public BinaryPredicateOperator getOp() {
 		return op;
 	}
@@ -46,7 +60,18 @@ public class BinaryPredicate extends Predicate {
 		this.op = op;
 	}
 	public String toString(){
-		return " "+left.toString()+op.toString()+right.toString()+" ";
+		
+		if (op != null) {
+			return " "+left.toString()+op.toString()+right.toString()+" ";
+		} else {
+			if (this.uop == UnaryOperator.EMPTY) {
+				return " " + op.toString() + left.toString() + "(" + right.toString()+"()) ";
+			}
+			return " " + op.toString() + "(" + left.toString() + "(" + right.toString()+"())) ";
+		}
+		
+		
+		
 	}	
 
 }
