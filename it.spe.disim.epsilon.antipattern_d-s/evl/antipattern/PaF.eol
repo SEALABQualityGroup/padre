@@ -59,7 +59,7 @@ operation Operation PaF_F_maxHwUtil(th_maxHwUtil : Real) : List(Node){
 	for(node in listOfProcessNode){
 		if(node.hasStereotype('GaExecHost') ){
 			var utilization = node.getValue(node.getStereotype('GaExecHost'), 'utilization')->first();
-	Â 		if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
+	 		if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
 				listOfProcessNodeWithUtilizationGreater.add(node);
 			}
 		}
