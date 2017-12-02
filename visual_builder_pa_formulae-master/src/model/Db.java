@@ -2,29 +2,50 @@ package model;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElement;
 
 import model.F;
 import model.Threshold;
+import model.Do_operation;
 
 public class Db {
-	
+
 	private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
-	static final String DB_URL = "jdbc:mysql://localhost/evl_visual_builder";
+	static final String DB_URL = "jdbc:mysql://localhost/local_visual_builder";
+	static final String Online_DB_URL = "jdbc:mysql://localhost/evl_visual_builder";
 	Connection dbConnection = null;
+	Connection OnlinedbConnection = null;
 
 	static final String USER = "root";
 	static final String PASS = "0001";
-	public Db(){
-		
+
+	public Db() {
+
 	}
+
 	public static Connection getConnection() throws SQLException, ClassNotFoundException {
 		Connection conn = null;
 
 		Class.forName(DRIVER_NAME);
 		// System.out.println("Connecting to a selected database...");
 		conn = DriverManager.getConnection(DB_URL, USER, PASS);
+		// System.out.println("Connected database successfully...");
+
+		return conn;
+
+	}
+	
+	public static Connection getOnlineConnection() throws SQLException, ClassNotFoundException {
+		Connection conn = null;
+
+		Class.forName(DRIVER_NAME);
+		// System.out.println("Connecting to a selected database...");
+		conn = DriverManager.getConnection(Online_DB_URL, USER, PASS);
 		// System.out.println("Connected database successfully...");
 
 		return conn;
@@ -38,6 +59,26 @@ public class Db {
 		Statement stmt = dbConnection.createStatement();
 
 		return stmt;
+	}
+	
+	public static List<Threshold> getThresholdList() throws ClassNotFoundException, SQLException {
+		Connection conn = Db.getConnection();
+		
+		List<Threshold> thresholdList = new ArrayList<Threshold>();
+		String sql1 = "SELECT name FROM thresholds";
+			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+			ResultSet rs1 = preparedStatement1.executeQuery();
+			while (rs1.next()) {
+				Threshold temp = new Threshold(rs1.getString(1));
+
+				thresholdList.add(temp);
+
+			}
+			rs1.close();
+		
+		conn.close();
+		return thresholdList;
 	}
 
 	public static List<Threshold> getThresholdList(String fName) throws ClassNotFoundException, SQLException {
@@ -79,6 +120,7 @@ public class Db {
 		conn.close();
 		return thresholdList;
 	}
+
 	public static List<String> getDo(String contextName) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM context WHERE name=?";
@@ -108,17 +150,18 @@ public class Db {
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 			preparedStatement1.setInt(1, id);
 			ResultSet rs1 = preparedStatement1.executeQuery();
-			
+
 			while (rs1.next()) {
 				doNameList.add(rs1.getString(1));
-				
+
 			}
 			rs1.close();
 		}
 		conn.close();
 		return doNameList;
 	}
-	public static List<F> getFListToCompare(String fName) throws ClassNotFoundException, SQLException{
+
+	public static List<F> getFListToCompare(String fName) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM f WHERE name=?";
 		PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -149,17 +192,17 @@ public class Db {
 			ResultSet rs1 = preparedStatement1.executeQuery();
 			while (rs1.next()) {
 				F f;
-				String name =rs1.getString(2);
+				String name = rs1.getString(2);
 				String card = "";
-				String returnType ="";
+				String returnType = "";
 				if (rs1.getBoolean(4)) {
-					card="unary";
-				}else{
-					card="binary";
+					card = "unary";
+				} else {
+					card = "binary";
 				}
 				if (rs1.getBoolean(3)) {
 					returnType = "boolean";
-				}else{
+				} else {
 					returnType = "real";
 				}
 				f = new F(name, card, returnType);
@@ -171,8 +214,9 @@ public class Db {
 		conn.close();
 		return fList;
 	}
+
 	public static List<F> getFList(String contextName) throws ClassNotFoundException, SQLException {
-		
+
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM context WHERE name=?";
 		PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -201,98 +245,840 @@ public class Db {
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 			preparedStatement1.setInt(1, id);
 			ResultSet rs1 = preparedStatement1.executeQuery();
-			
 
 			while (rs1.next()) {
-				
+
 				F f;
-				String name =rs1.getString(2);
+				String name = rs1.getString(2);
 				String card = "";
-				String returnType ="";
+				String returnType = "";
 				if (rs1.getBoolean(4)) {
-					card="unary";
-				}else{
-					card="binary";
+					card = "unary";
+				} else {
+					card = "binary";
 				}
 				if (rs1.getBoolean(3)) {
 					returnType = "boolean";
-				}else{
+				} else {
 					returnType = "real";
 				}
 				f = new F(name, card, returnType);
 				fList.add(f);
 			}
 			rs1.close();
-			
+
 		}
 		conn.close();
 		return fList;
 	}
-public static List<F> getFList() throws ClassNotFoundException, SQLException {
-		
-	Connection conn = Db.getConnection();
-	List<F> flist = new ArrayList<F>();
-	String sql1 = "SELECT * FROM f ";
-	PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
-	
-	ResultSet rs1 = preparedStatement1.executeQuery();
-	while (rs1.next()) {
-		F f;
-		String name =rs1.getString(2);
-		String card ="";
-		String returnType ="";
-		if (rs1.getBoolean(4)) {
-			card="unary";
-		}else{
-			card="binary";
-		}
-		if (rs1.getBoolean(3)) {
-			returnType = "boolean";
-		}else{
-			returnType = "real";
-		}
-		f = new F(name, card, returnType);
-		flist.add(f);
 
+	public static List<F> getFList() throws ClassNotFoundException, SQLException {
+
+		Connection conn = Db.getConnection();
+		List<F> flist = new ArrayList<F>();
+		String sql1 = "SELECT * FROM f ";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs1 = preparedStatement1.executeQuery();
+		while (rs1.next()) {
+			F f;
+			String name = rs1.getString(2);
+			String card = "";
+			String returnType = "";
+			if (rs1.getBoolean(4)) {
+				card = "unary";
+			} else {
+				card = "binary";
+			}
+			if (rs1.getBoolean(3)) {
+				returnType = "boolean";
+			} else {
+				returnType = "real";
+			}
+			f = new F(name, card, returnType);
+			flist.add(f);
+
+		}
+		rs1.close();
+		conn.close();
+		return flist;
 	}
-	rs1.close();
-	conn.close();
-	return flist;
-}
 	
+	public static List<Integer> getall_F_id() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<Integer> flist = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM f;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			flist.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return flist;
+	}
 	
-	public static List<String> getContexts() throws ClassNotFoundException, SQLException{
+	public static List<Integer> getall_F_id_Online() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+		List<Integer> flist = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM f;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			flist.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return flist;
+	}
+	
+	public static F_operation get_F_description_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		F_operation f = new F_operation();
+		String sql1 = "SELECT f.name, context.name, f_context.method FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id WHERE f.id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			String name = rs.getString(1);
+			String context = rs.getString(2);
+			String body = rs.getString(3);
+			
+			f = new F_operation(id, name, context, body);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return f;
+	}
+	
+	public static F_operation get_F_description_byId_Online(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+		F_operation f = new F_operation();
+		String sql1 = "SELECT f.name, context.name, f_context.method FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id WHERE f.id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			String name = rs.getString(1);
+			String context = rs.getString(2);
+			String body = rs.getString(3);
+			
+			f = new F_operation(id, name, context, body);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return f;
+	}
+	
+	public static String get_F_method_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+
+		String method = "";
+		
+		String sql1 = "SELECT method FROM f_context WHERE f_id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			method = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return method;
+	}
+	
+	public static void set_F_method_byId(int id, String method) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		
+		String sql1 = "UPDATE f_context SET method = ? WHERE f_id = ?;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+		preparedStatement1.setString(1, method);
+		preparedStatement1.setInt(2, id);
+
+		preparedStatement1.executeUpdate();
+
+		conn.close();
+		return;
+	}
+	
+	public static List<F_operation> getall_Metric_functions() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<F_operation> flist = new ArrayList<F_operation>();
+		String sql1 = "SELECT * FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+//			String name = rs.getString(2) + " for " + rs.getString(9) + " context";
+//			String method = rs.getString(7);
+//			
+			int id = rs.getInt(1);
+			String name = rs.getString(2);
+			String context = rs.getString(9);
+			String method = rs.getString(7);
+			
+			flist.add(new F_operation(id, name, context, method));
+
+		}
+		
+		rs.close();
+		conn.close();
+		return flist;
+	}
+	
+	public static List<Integer> getall_Do_id() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<Integer> do_list = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM do;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			do_list.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return do_list;
+	}
+	
+	public static List<Integer> getall_Do_id_Online() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+		List<Integer> do_list = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM do;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			do_list.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return do_list;
+	}
+	
+	public static Do_operation get_Do_description_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+
+		Do_operation redo = new Do_operation();
+		
+		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id WHERE do.id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			String name = rs.getString(2);
+			String context = rs.getString(7);
+			
+			redo = new Do_operation(id, name, context);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return redo;
+	}
+	
+	public static Do_operation get_Do_description_byId_Online(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+
+		Do_operation redo = new Do_operation();
+		
+		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id WHERE do.id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			String name = rs.getString(2);
+			String context = rs.getString(7);
+			
+			redo = new Do_operation(id, name, context);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return redo;
+	}
+	
+	public static String get_Do_method_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+
+		String method = "";
+		
+		String sql1 = "SELECT method FROM do_context WHERE do_id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			method = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return method;
+	}
+	
+	public static String get_Do_method_byId_Online(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+
+		String method = "";
+		
+		String sql1 = "SELECT method FROM do_context WHERE do_id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			method = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return method;
+	}
+	
+	public static void set_Do_method_byId(int id, String method) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		
+		String sql1 = "UPDATE do_context SET method = ? WHERE do_id = ?;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+		preparedStatement1.setString(1, method);
+		preparedStatement1.setInt(2, id);
+
+		preparedStatement1.executeUpdate();
+
+		conn.close();
+		return;
+	}
+	
+	public static List<Do_operation> getall_Do_functions() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<Do_operation> dolist = new ArrayList<Do_operation>();
+		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+//			String name = rs.getString(2) + " for " + rs.getString(7) + " context";
+//			String method = rs.getString(5);
+			
+			int id = rs.getInt(1);
+			String name = rs.getString(2);
+			String context = rs.getString(7);
+			String method = rs.getString(5);
+			
+			dolist.add(new Do_operation(id, name, context, method));
+
+		}
+		
+		rs.close();
+		conn.close();
+		return dolist;
+	}
+	
+	public static List<Integer> getall_Th_id() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<Integer> th_list = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM thresholds;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			th_list.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return th_list;
+	}
+	
+	public static List<Integer> getall_Th_id_Online() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+		List<Integer> th_list = new ArrayList<Integer>();
+		String sql1 = "SELECT id FROM thresholds;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			
+			th_list.add(id);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return th_list;
+	}
+	
+	public static String get_Th_name_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+
+		String threshold_name = null;
+		
+		String sql1 = "SELECT name FROM thresholds WHERE id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			threshold_name = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return threshold_name;
+	}
+	
+	public static String get_Th_name_byId_Online(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+
+		String threshold_name = null;
+		
+		String sql1 = "SELECT name FROM thresholds WHERE id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			threshold_name = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return threshold_name;
+	}
+	
+	public static String get_Th_method_byId(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+
+		String method = "";
+		
+		String sql1 = "SELECT method FROM thresholds WHERE id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			method = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return method;
+	}
+	
+	public static String get_Th_method_byId_Online(int id) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+
+		String method = "";
+		
+		String sql1 = "SELECT method FROM thresholds WHERE id = " + id + ";";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		if (rs.next()) {
+			
+			method = rs.getString(1);
+
+		}
+		
+		rs.close();
+		conn.close();
+		return method;
+	}
+	
+	public static void set_Th_method_byId(int id, String method) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		
+		String sql1 = "UPDATE thresholds SET method = ? WHERE id = ?;";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+		preparedStatement1.setString(1, method);
+		preparedStatement1.setInt(2, id);
+
+		preparedStatement1.executeUpdate();
+
+		conn.close();
+		return;
+	}
+	
+	public static List<Th_operation> getall_Threshold_functions() throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getConnection();
+		List<Th_operation> thlist = new ArrayList<Th_operation>();
+		String sql1 = "SELECT * FROM thresholds";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		ResultSet rs = preparedStatement1.executeQuery();
+		while (rs.next()) {
+			
+			int id = rs.getInt(1);
+			String name = rs.getString(2);
+			String method = rs.getString(3);
+			
+			thlist.add(new Th_operation(id, name, method));
+
+		}
+		
+		rs.close();
+		conn.close();
+		return thlist;
+	}
+
+	public static List<String> getContexts() throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql1 = "SELECT * FROM context";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 		ResultSet rs1 = preparedStatement1.executeQuery();
 		List<String> cList = new ArrayList<String>();
 		while (rs1.next()) {
-			
-			String name =rs1.getString(2);
+
+			String name = rs1.getString(2);
 			cList.add(name);
 		}
 		rs1.close();
 		conn.close();
 		return cList;
 	}
+
+	public static void insertContext(String context) throws ClassNotFoundException, SQLException {
+		Connection conn = Db.getConnection();
+		String sql1 = "INSERT IGNORE INTO context (name) VALUES ('" + context + "');";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+		preparedStatement1.executeUpdate();
+
+		conn.close();
+	}
+	
+	public static int insert_Threshold_function(String name, String method) throws ClassNotFoundException, SQLException
+	{
+		int th_id = -1;
+		Connection conn = Db.getConnection();
+		Map<String, String> thmap = new HashMap<String, String>();
+		String sql1 = "INSERT INTO thresholds (name,method) VALUES ('" + name + "','" + method + "');";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
+
+		preparedStatement1.executeUpdate();
+		ResultSet rs = preparedStatement1.getGeneratedKeys();
+		if (rs.next()) {
+			
+			th_id = rs.getInt(1);
+		}
+		
+		conn.close();
+		
+		return th_id;
+	}
+	
+	public static int insert_Do_function(String name, String context, String method) throws ClassNotFoundException, SQLException
+	{
+		
+		int context_id, do_id = -1;
+		Connection conn = Db.getConnection();
+		PreparedStatement preparedStatement;
+
+		//if not exists
+		insertContext(context);
+		
+		String select = "SELECT id FROM context WHERE name='" + context + "';";
+		preparedStatement = conn.prepareStatement(select);
+		
+		ResultSet rs = preparedStatement.executeQuery();
+		if (rs.next()) {
+			
+			context_id = rs.getInt(1);
+			
+			
+			String query = "INSERT INTO do (name) VALUES ('" + name + "');";
+			preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			preparedStatement.executeUpdate();
+			rs = preparedStatement.getGeneratedKeys();
+			if (rs.next()) {
+				
+				do_id = rs.getInt(1);
+				
+				String insert = "INSERT INTO do_context (do_id,context_id,method) VALUES (?,?,?);";
+				preparedStatement = conn.prepareStatement(insert);
+				preparedStatement.setInt(1, do_id);
+				preparedStatement.setInt(2, context_id);
+				preparedStatement.setString(3, method);
+				preparedStatement.executeUpdate();
+			}
+//			else
+//			{
+//				select = "SELECT id FROM do WHERE name='" + name + "';";
+//				preparedStatement = conn.prepareStatement(select);
+//				
+//				rs = preparedStatement.executeQuery();
+//				if (rs.next()) {
+//					
+//					do_id = rs.getInt(1);
+//					
+//					String insert = "INSERT INTO do_context (do_id,context_id,method) VALUES ('" + do_id + "','" + context_id + "','" + method + "');";
+//					preparedStatement = conn.prepareStatement(insert);
+//
+//					preparedStatement.executeUpdate();
+//				}
+//			}
+			
+		}
+		
+		rs.close();
+		conn.close();
+		
+		return do_id;
+	}
+	
+	public static int insert_Metric_function(String context, String name, String method, int return_bool) throws ClassNotFoundException, SQLException
+	{
+		int context_id, f_id = -1;
+		Connection conn = Db.getConnection();
+		PreparedStatement preparedStatement;
+
+		//if not exists
+		insertContext(context);
+		
+		String select = "SELECT id FROM context WHERE name='" + context + "';";
+		preparedStatement = conn.prepareStatement(select);
+		
+		ResultSet rs = preparedStatement.executeQuery();
+		if (rs.next()) {
+			
+			context_id = rs.getInt(1);
+			
+			String query = "INSERT INTO f (name,return_bool) VALUES ('" + name + "','" + return_bool + "');";
+			preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			preparedStatement.executeUpdate();
+			rs = preparedStatement.getGeneratedKeys();
+			if (rs.next()) {
+				
+				f_id = rs.getInt(1);
+				
+				String insert = "INSERT INTO f_context (f_id,context_id,method) VALUES (?,?,?);";
+				preparedStatement = conn.prepareStatement(insert);
+				preparedStatement.setInt(1, f_id);
+				preparedStatement.setInt(2, context_id);
+				preparedStatement.setString(3, method);
+				preparedStatement.executeUpdate();
+			}
+//			else 
+//			{
+//				select = "SELECT id FROM f WHERE name='" + name + "';";
+//				preparedStatement = conn.prepareStatement(select);
+//				
+//				rs = preparedStatement.executeQuery();
+//				if (rs.next()) {
+//					
+//					f_id = rs.getInt(1);
+//					
+//					String insert = "INSERT INTO f_context (f_id,context_id,method) VALUES ('" + f_id + "','" + context_id + "','" + method + "');";
+//					preparedStatement = conn.prepareStatement(insert);
+//
+//					preparedStatement.executeUpdate();
+//				}
+//			}
+			
+		}
+		
+		rs.close();
+		conn.close();
+		
+		return f_id;
+	}
+	
+	public static void insert_Do_functionOnline(String name, String context, String method) throws ClassNotFoundException, SQLException
+	{
+		
+		int context_id, do_id;
+		Connection conn = Db.getOnlineConnection();
+		PreparedStatement preparedStatement;
+
+		//if not exists
+		insertContext(context);
+		
+		String select = "SELECT id FROM context WHERE name='" + context + "';";
+		preparedStatement = conn.prepareStatement(select);
+		
+		ResultSet rs = preparedStatement.executeQuery();
+		if (rs.next()) {
+			
+			context_id = rs.getInt(1);
+			
+			
+			String query = "INSERT INTO do (name) VALUES ('" + name + "');";
+			preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			preparedStatement.executeUpdate();
+			rs = preparedStatement.getGeneratedKeys();
+			if (rs.next()) {
+				
+				do_id = rs.getInt(1);
+				
+				String insert = "INSERT INTO do_context (do_id,context_id,method) VALUES (?,?,?);";
+				preparedStatement = conn.prepareStatement(insert);
+				preparedStatement.setInt(1, do_id);
+				preparedStatement.setInt(2, context_id);
+				preparedStatement.setString(3, method);
+				preparedStatement.executeUpdate();
+			}
+			
+		}
+		
+		rs.close();
+		conn.close();
+	}
+	
+	public static void insert_Metric_functionOnline(String context, String name, String method, int return_bool) throws ClassNotFoundException, SQLException
+	{
+		int context_id, f_id;
+		Connection conn = Db.getOnlineConnection();
+		PreparedStatement preparedStatement;
+
+		//if not exists
+		insertContext(context);
+		
+		String select = "SELECT id FROM context WHERE name='" + context + "';";
+		preparedStatement = conn.prepareStatement(select);
+		
+		ResultSet rs = preparedStatement.executeQuery();
+		if (rs.next()) {
+			
+			context_id = rs.getInt(1);
+			
+			String query = "INSERT INTO f (name,return_bool) VALUES ('" + name + "','" + return_bool + "');";
+			preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			preparedStatement.executeUpdate();
+			rs = preparedStatement.getGeneratedKeys();
+			if (rs.next()) {
+				
+				f_id = rs.getInt(1);
+				
+				String insert = "INSERT INTO f_context (f_id,context_id,method) VALUES (?,?,?);";
+				preparedStatement = conn.prepareStatement(insert);
+				preparedStatement.setInt(1, f_id);
+				preparedStatement.setInt(2, context_id);
+				preparedStatement.setString(3, method);
+				preparedStatement.executeUpdate();
+			}
+			
+		}
+		
+		rs.close();
+		conn.close();
+	}
+	
+	public static void insert_Threshold_functionOnline(String name, String method) throws ClassNotFoundException, SQLException
+	{
+		Connection conn = Db.getOnlineConnection();
+		Map<String, String> thmap = new HashMap<String, String>();
+		String sql1 = "INSERT INTO thresholds (name,method) VALUES ('" + name + "','" + method + "');";
+		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
+
+		preparedStatement1.executeUpdate();
+		
+		conn.close();
+	}
+	
+	
 	public Connection getDbConnection() {
 		return dbConnection;
 	}
+	
+	public Connection getOnlineDbConnection() {
+		return OnlinedbConnection;
+	}
+
 	public void setDbConnection(Connection dbConnection) {
 		this.dbConnection = dbConnection;
 	}
+
 	public static String getDriverName() {
 		return DRIVER_NAME;
 	}
+
 	public static String getDbUrl() {
 		return DB_URL;
 	}
+
 	public static String getUser() {
 		return USER;
 	}
+
 	public static String getPass() {
 		return PASS;
 	}
-	
+
 }
+
+
