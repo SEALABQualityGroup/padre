@@ -13,6 +13,7 @@ package org.eclipse.epsilon.eol.dt.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.epsilon.common.dt.editor.AbstractModuleEditor;
 import org.eclipse.epsilon.common.dt.editor.outline.ModuleElementLabelProvider;
 import org.eclipse.epsilon.common.module.IModule;
@@ -22,11 +23,11 @@ import org.eclipse.epsilon.eol.dt.editor.outline.EolModuleElementLabelProvider;
 public class EolEditor extends AbstractModuleEditor {
 
 	public static final String ID = "org.eclipse.epsilon.eol.dt.editor.EolEditor";
-	
+
 	public EolEditor() {
 		this.addTemplateContributor(new EolEditorStaticTemplateContributor());
 		this.addTemplateContributor(new EolEditorStaticOperationTemplateContributor());
-		
+
 		EolEditorOperationTemplateContributor operationTemplateContributor = new EolEditorOperationTemplateContributor();
 		addTemplateContributor(operationTemplateContributor);
 		addModuleParsedListener(operationTemplateContributor);
@@ -38,9 +39,9 @@ public class EolEditor extends AbstractModuleEditor {
 		addModuleParsedListener(builtinTypesTemplateContributor);
 		EolEditorTokenTemplateContributor tokenTemplateContributor = new EolEditorTokenTemplateContributor();
 		addTemplateContributor(tokenTemplateContributor);
-		addModuleParsedListener(tokenTemplateContributor);		
+		addModuleParsedListener(tokenTemplateContributor);
 	}
-	
+
 	@Override
 	public List<String> getKeywords() {
 		ArrayList<String> keywords = new ArrayList<String>();
@@ -78,7 +79,7 @@ public class EolEditor extends AbstractModuleEditor {
 		keywords.add("model");
 		keywords.add("group");
 		keywords.add("as");
-		
+
 		return keywords;
 	}
 
@@ -115,5 +116,10 @@ public class EolEditor extends AbstractModuleEditor {
 		return true;
 	}
 
+	public void doSave(IProgressMonitor progressMonitor) {
+		// TODO Auto-generated method stub
+		super.doSave(progressMonitor);
+	}
 
+	
 }
