@@ -10,6 +10,7 @@ import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.models.IModel;
+import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolType;
 
@@ -148,8 +149,22 @@ public class NameExpression extends Expression {
 			toString += getText();
 		}else{
 			toString += getText();
-			for(AST child : getChildren()){
-				toString += child.rewrite();
+			
+			if (getSecondChild() != null)
+			{
+				if (getSecondChild().getType() == EolParser.POINT || getSecondChild().getType() == EolParser.ARROW || getSecondChild().getType() == EolParser.OPERATOR)
+				{
+					toString += "(" + getFirstChild().rewrite() + " | " + getSecondChild().rewrite() + ")";
+				}
+				else
+				{
+					toString += "(" + getFirstChild().rewrite() + getSecondChild().rewrite() + ")";
+				}
+				
+			}
+			else
+			{
+				toString += "(" + getFirstChild().rewrite() + ")";
 			}
 		}
 		return toString;

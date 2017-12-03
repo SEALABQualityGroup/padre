@@ -4,6 +4,7 @@ import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.parse.EolParser;
 
 public class ExpressionInBrackets extends Expression {
 	
@@ -37,11 +38,33 @@ public class ExpressionInBrackets extends Expression {
 	@Override
 	public String rewrite(){
 		String toString = "";
+		
+		//Indentazione
+		if (getParent().getType() == EolParser.BLOCK)
+		{
+			AST p = getParent();
+			while(p.getType() != EolParser.EOLMODULE && p.getType() != EolParser.T__92 && p.getType() != EolParser.T__84 && p.getType() != EolParser.T__89)
+			{
+				if (p.getType() != EolParser.HELPERMETHOD && p.getType() != EolParser.FOR && p.getType() != EolParser.IF && p.getType() != EolParser.T__86)
+				{
+					toString += "\t";
+				}
+				
+				p = p.getParent();
+			}
+		}
+		
+		
 		toString += getText();
 		for(AST child : getChildren()){
 			toString += child.rewrite();
 		}
 		toString += ")";
+		
+		if (getParent().getType() == EolParser.BLOCK)
+		{
+			toString += ";";
+		}
 		return toString;
 	}
 }

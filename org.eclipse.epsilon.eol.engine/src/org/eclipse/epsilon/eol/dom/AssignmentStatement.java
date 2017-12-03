@@ -1,10 +1,12 @@
 package org.eclipse.epsilon.eol.dom;
 
+import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
+import org.eclipse.epsilon.eol.parse.EolParser;
 
 public class AssignmentStatement extends Statement {
 	
@@ -97,6 +99,24 @@ public class AssignmentStatement extends Statement {
 	public void compile(EolCompilationContext context) {
 		targetExpression.compile(context);
 		valueExpression.compile(context);
+	}
+	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		
+		AST p = getParent();
+		while(p.getType() != EolParser.EOLMODULE)
+		{
+			if (p.getType() != EolParser.WHILE && p.getType() != EolParser.CASE && p.getType() != 36 && p.getType() != EolParser.HELPERMETHOD && p.getType() != EolParser.FOR && p.getType() != EolParser.IF)
+			{
+				toString += "\t";
+			}
+			p = p.getParent();
+		}
+		
+		toString += getFirstChild().rewrite() + " " + getText() + " " + getSecondChild().rewrite() + ";";
+		return toString;
 	}
 	
 }

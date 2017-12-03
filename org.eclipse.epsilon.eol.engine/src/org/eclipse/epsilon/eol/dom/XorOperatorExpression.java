@@ -22,4 +22,10 @@ public class XorOperatorExpression extends OperatorExpression {
 		}
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getFirstChild().rewrite() + " " + getText() + " " + getSecondChild().rewrite();
+		return toString;
+	}
 }

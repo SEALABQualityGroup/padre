@@ -8,6 +8,7 @@ import org.eclipse.epsilon.eol.exceptions.EolIllegalReturnException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 
 public class IfStatement extends Statement {
@@ -99,16 +100,46 @@ public class IfStatement extends Statement {
 	
 	@Override
 	public String rewrite(){
-		String toString = "";
-		toString += getText() +"(";
-		boolean first = true;
-		for(AST child : getChildren()){
-			toString += child.rewrite();
-			if(first){
-				toString += ")";
-				first = false;
+
+		String toString = "\n";
+		
+		//Indentazione
+		AST p = getParent();
+		while(p.getType() != EolParser.EOLMODULE && p.getType() != 89)
+		{
+			if (p.getType() != EolParser.WHILE && p.getType() != EolParser.CASE && p.getType() != 36 && p.getType() != EolParser.HELPERMETHOD && p.getType() != EolParser.FOR && p.getType() != EolParser.IF)
+			{
+				toString += "\t";
 			}
+			p = p.getParent();
 		}
+			
+		toString += "if" +"( ";
+		
+		AST first = getFirstChild();
+		AST second = getSecondChild();
+		AST third = getThirdChild();
+		
+		toString += first.rewrite() + " )\n";
+		
+		if (third != null)
+		{
+			toString += second.rewrite();
+			toString += toString.substring(0,  toString.indexOf("if")) + "else\n" + third.rewrite();
+		}
+		else
+		{
+			if (second instanceof OperationCallExpression)
+			{
+				toString += toString.substring(1, toString.indexOf("if")) + "\t" + second.rewrite() + ";";
+			}
+			else
+			{
+				toString += second.rewrite();
+			}
+			
+		}	
+		
 		return toString;
 	}
 }

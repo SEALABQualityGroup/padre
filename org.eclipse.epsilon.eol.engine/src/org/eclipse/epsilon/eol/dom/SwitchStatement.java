@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.epsilon.common.parse.AST;
+import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.flowcontrol.EolBreakException;
@@ -119,5 +120,40 @@ public class SwitchStatement extends Statement {
 		if (o1 == null && o2 == null) return true;
 		if (o1 == null || o2 == null) return false;
 		return o1.equals(o2);
+	}
+	
+	@Override
+	public String rewrite(){
+		
+		String toString = "\n";
+		
+		AST p = getParent();
+		while(p.getType() != EolParser.EOLMODULE)
+		{
+			if (p.getType() != EolParser.BLOCK)
+			{
+				toString += "\t";
+			}
+			p = p.getParent();
+		}
+			
+		toString += "switch (" + getFirstChild().rewrite() + ")\n";
+		
+		toString += toString.substring(1, toString.indexOf("switch")) + "{\n";
+		
+		for(AST child : getChildren())
+		{
+			if (child.getType() == EolParser.CASE)
+				toString += child.rewrite();
+			
+			if (child.getType() == EolParser.DEFAULT)
+			{
+				toString += "\n" + toString.substring(1, toString.indexOf("switch")) + "\t" + "default :\n" + child.getFirstChild().rewrite();
+			}
+				
+		}
+		
+		toString += "\n" + toString.substring(0, toString.indexOf("switch")) + "}"; 
+		return toString;
 	}
 }

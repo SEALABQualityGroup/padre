@@ -151,6 +151,18 @@ public class TypeExpression extends Expression {
 	public String rewrite(){
 		String toString = "";
 		toString += getText();
+		if (getFirstChild() != null)
+		{
+			if (getSecondChild() != null)
+			{
+				toString += "(" + getFirstChild().getText() + ", " + getThirdChild().rewrite() + ")";
+			}
+			else
+			{
+				toString += "(" + getFirstChild().getText() + ")";
+			}
+			
+		}
 		return toString;
 	}
 	

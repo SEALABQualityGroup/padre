@@ -26,4 +26,11 @@ public class MinusOperatorExpression extends EagerOperatorExpression {
 		return null;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getFirstChild().rewrite() + getText() + getSecondChild().rewrite();
+		return toString;
+	}
+	
 }

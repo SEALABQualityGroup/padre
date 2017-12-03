@@ -61,4 +61,11 @@ public class ItemSelectorExpression extends Expression {
 		
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getFirstChild().rewrite() + "[" + getSecondChild().rewrite() + "]";
+		return toString;
+	}
+	
 }

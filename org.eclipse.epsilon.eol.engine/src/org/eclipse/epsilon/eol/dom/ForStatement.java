@@ -3,6 +3,7 @@ package org.eclipse.epsilon.eol.dom;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -12,6 +13,7 @@ import org.eclipse.epsilon.eol.execute.Return;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
@@ -148,5 +150,32 @@ public class ForStatement extends Statement {
 	
 	public void setBodyStatementBlock(StatementBlock bodyStatementBlock) {
 		this.bodyStatementBlock = bodyStatementBlock;
+	}
+
+	@Override
+	public String rewrite(){
+		
+		String toString = "\n";
+		
+		AST p = getParent();
+		while(p.getType() != EolParser.EOLMODULE)
+		{
+			if (p.getType() != EolParser.BLOCK)
+			{
+				toString += "\t";
+			}
+			p = p.getParent();
+		}
+			
+		toString += "for" +"(";
+		
+		AST first = getFirstChild();
+		AST second = getSecondChild();
+		AST third = getThirdChild();
+		
+		toString += first.getFirstChild().getText() + " in " + second.rewrite() + ")\n";
+		toString += third.rewrite();
+		
+		return toString;
 	}
 }

@@ -15,6 +15,7 @@ import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContrib
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.simple.SimpleOperation;
 import org.eclipse.epsilon.eol.models.IModel;
+import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolNoType;
 
 public class OperationCallExpression extends FeatureCallExpression {
@@ -162,13 +163,43 @@ public class OperationCallExpression extends FeatureCallExpression {
 	@Override
 	public String rewrite(){
 		String toString = "";
+		
+		if (getParent() instanceof StatementBlock)
+		{
+			AST p = getParent();
+			while(p.getType() != EolParser.EOLMODULE && p.getType() != EolParser.T__92 && p.getType() != EolParser.T__84 && p.getType() != EolParser.T__89)
+			{
+				if (p.getType() != EolParser.WHILE && p.getType() != EolParser.ELSE && p.getType() != EolParser.CASE && p.getType() != 36 && p.getType() != EolParser.HELPERMETHOD && p.getType() != EolParser.FOR && p.getType() != EolParser.IF && p.getType() != EolParser.T__86)
+				{
+					toString += "\t";
+				}
+				
+				p = p.getParent();
+			}
+		}
+		
 		if(this.getSecondChild() != null){
-			toString += getFirstChild().rewrite() +getText() + getSecondChild().rewrite();
+			toString += getFirstChild().rewrite() + getText() + getSecondChild().rewrite();
 		}else{
-			toString += getText() + getFirstChild().rewrite();
+			//no parameters
+			if (getFirstChild().getFirstChild() == null)
+			{
+				toString += getText() + getFirstChild().rewrite() + "()";
+			}
+			else
+			{
+				if (getFirstChild().getFirstChild() instanceof StringLiteral || getFirstChild().getFirstChild().getType() == EolParser.OPERATOR)
+				{
+					toString += getText() + "(" + getFirstChild().rewrite() + ")";
+				}
+				else
+				{
+					toString += getText() + getFirstChild().rewrite();
+				}
+			}
 		}
 		if(getParent() instanceof StatementBlock){
-			toString += ";\n";
+			toString += ";";
 		}
 		return toString;
 	}

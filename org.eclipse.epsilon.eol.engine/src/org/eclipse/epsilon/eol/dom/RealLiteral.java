@@ -60,4 +60,11 @@ public class RealLiteral extends LiteralExpression {
 		this.value = value;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getText();
+		return toString;
+	}
+	
 }

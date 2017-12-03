@@ -57,4 +57,11 @@ public class NewInstanceExpression extends TypeInitialiser {
 		return parameterExpressions;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		
+		toString += "new " + getFirstChild().rewrite();
+		return toString;
+	}
 }

@@ -143,7 +143,7 @@ public class ConstraintContext extends AnnotatableModuleElement {
 		boolean first = true;
 		for(AST child : getChildren()){
 			if(first && child instanceof TypeExpression){
-				 toString += child.rewrite()+"{\n";
+				toString += child.rewrite() + " {\n";
 				 first = false;
 			}else{
 				toString += child.rewrite();

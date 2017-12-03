@@ -17,4 +17,10 @@ public class LessEqualOperatorExpression extends LessThanOperatorExpression {
 		return (Boolean) super.execute(o1, o2, context) || EolObjectComparator.equals(o1, o2);
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getFirstChild().rewrite() + " <= " + getSecondChild().rewrite() + "";
+		return toString;
+	}
 }

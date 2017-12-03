@@ -161,10 +161,22 @@ public class Constraint extends AnnotatableModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
+
+		//Indentazione
+		AST p = getParent();
+		while(p.getType() != 89)
+		{
+			if (p.getType() != 31 && p.getType() != 28 && p.getType() != 30)
+			{
+				toString += "\t";
+			}
+			p = p.getParent();
+		}
+		
 		if(getType() == EvlParser.CONSTRAINT){
-			toString += "critique "+ getText() + "{";
+			toString += "critique " + getText() + " {\n";
 		}else{
-			toString += "warning "+ getText() + "{";
+			toString += "warning " + getText() + " {\n";
 		}
 		for(AST child : getChildren()){
 			toString += child.rewrite();

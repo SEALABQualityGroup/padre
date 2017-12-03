@@ -8,6 +8,7 @@ import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.Return;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.parse.EolParser;
 
 public class StatementBlock extends AbstractExecutableModuleElement {
 	
@@ -63,11 +64,23 @@ public class StatementBlock extends AbstractExecutableModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
+
+		//Indentazione
+		AST p = getParent();
+		while(p.getType() != EolParser.EOLMODULE && p.getType() != EolParser.T__92 && p.getType() != EolParser.T__84 && p.getType() != 89)
+		{
+			if (p.getType() != EolParser.WHILE && p.getType() != EolParser.CASE && p.getType() != 36 && p.getType() != EolParser.ELSE && p.getType() != EolParser.IF && p.getType() != EolParser.HELPERMETHOD && p.getType() != EolParser.FOR && p.getType() != EolParser.T__86)
+			{
+				toString += "\t";
+			}
+			p = p.getParent();
+		}
+		
 		toString += "{\n";
 		for(AST child : getChildren()){
-			toString += "\t\t"+child.rewrite();
+			toString += child.rewrite() + "\n";
 		}
-		toString += "\t}\n";
+		toString += toString.substring(0,  toString.indexOf("{")) + "}";
 		return toString;
 	}
 }

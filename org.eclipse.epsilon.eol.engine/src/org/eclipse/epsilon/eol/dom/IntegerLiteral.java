@@ -47,4 +47,11 @@ public class IntegerLiteral extends LiteralExpression {
 		resolvedType = EolPrimitiveType.Integer;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getText();
+		return toString;
+	}
+	
 }

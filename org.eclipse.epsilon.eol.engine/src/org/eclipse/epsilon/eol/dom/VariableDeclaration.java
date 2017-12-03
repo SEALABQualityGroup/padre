@@ -8,6 +8,7 @@ import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
 
@@ -123,5 +124,39 @@ public class VariableDeclaration extends TypeInitialiser {
 	
 	public List<Expression> getParameterExpressions() {
 		return parameterExpressions;
+	}
+
+	@Override
+	public String rewrite(){
+		String toString = "";
+		
+		if (getParent().getType() != EolParser.OPERATOR && getParent().getType() != EolParser.ASSIGNMENT)
+		{
+			AST p = getParent();
+			while(p.getType() != EolParser.EOLMODULE)
+			{
+				if (p.getType() != EolParser.BLOCK)
+				{
+					toString += "\t";
+				}
+				p = p.getParent();
+			}
+		}
+		toString += "var ";
+		
+		if (getSecondChild() != null)
+		{
+			toString += getFirstChild().rewrite() + " : " + getSecondChild().rewrite();
+		}
+		else
+		{
+			toString += getFirstChild().rewrite();
+		}
+
+		if (getParent().getType() != EolParser.OPERATOR && getParent().getType() != EolParser.ASSIGNMENT)
+		{
+			toString += ";";
+		}
+		return toString;
 	}
 }

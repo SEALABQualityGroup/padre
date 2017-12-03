@@ -129,16 +129,17 @@ public class ExecutableBlock<T> extends AbstractExecutableModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
+		
 		if(getText().equals("guard")){
 			toString += "\t"+getText() + " :\n";
 			toString += "\t\t"+getFirstChild().rewrite();
 		}else if(getText().equals("do")){
-			toString += "\t"+getText();
+			toString += "\t" + getText() + "\n";
 			toString += getFirstChild().rewrite();
 		}else if(getText().equals("title") || getText().equals("message")){
 			toString += "\n\t" + getText() + " : " + getFirstChild().rewrite() + "\n";
 		}else if(getText().equals("check")){
-			toString += "\n" + getText() +getFirstChild().rewrite()+"\n";
+			toString += "\t\t" + getText() + ":\n" + getFirstChild().rewrite()+"\n";
 		}
 		return toString;
 	}

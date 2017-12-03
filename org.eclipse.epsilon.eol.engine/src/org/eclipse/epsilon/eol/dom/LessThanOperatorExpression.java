@@ -20,4 +20,10 @@ public class LessThanOperatorExpression extends EagerOperatorExpression {
 		return false;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "";
+		toString += getFirstChild().rewrite() + " < " + getSecondChild().rewrite() + "";
+		return toString;
+	}
 }

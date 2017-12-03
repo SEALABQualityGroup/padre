@@ -253,6 +253,14 @@ public class AST extends CommonTree implements ASTRewrite{
 		}		
 	}
 	
+	public AST getFifthChild() {
+		if (this.getChildCount() > 4) {
+			return cast(this.getChild(4));
+		} else {
+			return null;
+		}		
+	}
+	
 	
 	public Region getRegion() {
 		if (region == null) {
@@ -386,7 +394,6 @@ public class AST extends CommonTree implements ASTRewrite{
 	@Override
 	public String rewrite() {
 		String toString = "";
-		toString += "(";
 		int i = 1;
 		for(AST child : getChildren()){
 			toString += child.rewrite();
@@ -395,7 +402,6 @@ public class AST extends CommonTree implements ASTRewrite{
 				i++;
 			}
 		}
-		toString += ")";
 		return toString;
 	}
 }

@@ -69,7 +69,7 @@ public class Parameter extends AbstractModuleElement implements ICompilableModul
 	
 	@Override
 	public String toString(){
-		return getName() + ":" + getTypeName();
+		return getName() + " : " + getTypeName();
 	}
 	
 	public EolType getType(IEolContext context) throws EolRuntimeException{
@@ -111,4 +111,18 @@ public class Parameter extends AbstractModuleElement implements ICompilableModul
 		return typeExpression != null;
 	}
 
+	@Override
+	public String rewrite(){
+
+		if (getSecondChild() != null)
+		{
+			return getName() + " : " + getSecondChild().rewrite();
+		}
+		else
+		{
+			return getName();
+		}
+		
+		
+	}
 }

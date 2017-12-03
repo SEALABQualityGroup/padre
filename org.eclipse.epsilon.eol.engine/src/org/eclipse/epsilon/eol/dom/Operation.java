@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.epsilon.common.parse.AST;
+import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.compile.context.EolCompilationContext;
 import org.eclipse.epsilon.eol.exceptions.EolIllegalReturnException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -314,5 +315,89 @@ public class Operation extends AnnotatableModuleElement implements ICompilableMo
 		this.returnTypeExpression = returnTypeExpression;
 	}
 	
+	@Override
+	public String rewrite(){
+		String toString = "\n";
+		
+		if (getThirdChild().getType() == EolParser.PARAMLIST)
+		{
+			//Metodo con parametri
+			toString += "operation " + getFirstChild().getText() + " " + getSecondChild().getText() + "(" + getThirdChild().rewrite() + ")";
+			
+			if (getFourthChild().getType() == EolParser.BLOCK)
+			{
+				//returns void
+				toString += "\n{\n";
+				
+				for(AST statement : AstUtil.getChildren(getFourthChild())){
+					toString += statement.rewrite() + "\n";
+				}
+			}
+			else
+			{
+				//returns a type
+				toString += " : " + getFourthChild().rewrite() + "\n{\n";
+				
+				for(AST statement : AstUtil.getChildren(getFifthChild())){
+					toString += statement.rewrite() + "\n";
+				}
+			}
+			
+		}
+		else
+		{
+			if (getSecondChild().getType() == EolParser.PARAMLIST)
+			{
+				//metodo con parametri senza contesto
+				toString += "operation " + getFirstChild().getText() + "(" + getSecondChild().rewrite() + ")";
+				
+				if (getThirdChild().getType() == EolParser.BLOCK)
+				{
+					//returns void
+					toString += "\n{\n";
+					
+					for(AST statement : AstUtil.getChildren(getThirdChild())){
+						toString += statement.rewrite() + "\n";
+					}
+				}
+				else
+				{
+					//returns a type
+					toString += " : " + getThirdChild().rewrite() + "\n{\n";
+					
+					for(AST statement : AstUtil.getChildren(getFourthChild())){
+						toString += statement.rewrite() + "\n";
+					}
+				}
+			}
+			else
+			{
+				//Metodi threshold
+				if (getThirdChild().getType() == EolParser.BLOCK)
+				{
+					toString += "operation " + getFirstChild().getText() + "() : " + getSecondChild().rewrite() + "\n{\n";
+					
+					for(AST statement : AstUtil.getChildren(getThirdChild())){
+						toString += statement.rewrite() + "\n";
+					}
+				}
+				else
+				{
+					//metodi senza parametri
+					toString += "operation " + getFirstChild().getText() + " " + getSecondChild().getText() + "() : " + getThirdChild().rewrite() + "\n{\n";
+				
+					for(AST statement : AstUtil.getChildren(getFourthChild())){
+						toString += statement.rewrite() + "\n";
+					}
+				}
+			}
+			
+			
+		}
+		
+		toString += "}";
+		
+		return toString;
+	}
 }
 

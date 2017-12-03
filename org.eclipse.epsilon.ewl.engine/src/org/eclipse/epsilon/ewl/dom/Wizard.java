@@ -78,11 +78,11 @@ public class Wizard extends AnnotatableModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
-		toString += "wizard "+getText()+"{\n";
+		toString += "\nwizard "+getText()+"{\n";
 		for(AST child : getChildren()){
 			toString += child.rewrite();
 		}
-		toString += "}\n";
+		toString += "\n}\n";
 		return toString;
 	}
 }

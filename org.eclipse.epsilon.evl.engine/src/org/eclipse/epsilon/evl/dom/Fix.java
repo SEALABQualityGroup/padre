@@ -62,6 +62,18 @@ public class Fix extends AbstractModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
+
+		//Indentazione
+//		AST p = getParent();
+//		while(p.getType() != 89)
+//		{
+//			if (p.getType() != 31 && p.getType() != 28 && p.getType() != 30)
+//			{
+//				toString += "\t";
+//			}
+//			p = p.getParent();
+//		}
+		
 		toString += "fix {\n";
 		for(AST child : getChildren()){
 			toString += child.rewrite();

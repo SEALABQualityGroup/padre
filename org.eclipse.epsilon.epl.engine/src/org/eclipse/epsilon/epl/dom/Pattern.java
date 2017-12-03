@@ -90,7 +90,7 @@ public class Pattern extends AnnotatableModuleElement {
 	@Override
 	public String rewrite(){
 		String toString = "";
-		toString += "pattern "+getText() +"\n";
+		toString += "\npattern "+getText() +"\n";
 
 		int i = 1;
 		for(AST child : AstUtil.getChildren(this, EplParser.ROLE)){
@@ -110,10 +110,10 @@ public class Pattern extends AnnotatableModuleElement {
 		}
 		
 		for(AST child : AstUtil.getChildren(this, EplParser.ONMATCH)){
-			toString += "\n\t\t"+"onmatch ";
+			toString += "\n\t\t" + "onmatch\n";
 			toString += child.getFirstChild().rewrite();
 		}
-		toString += "}\n";
+		toString += "\n}\n";
 		return toString;
 	}
 }
