@@ -22,7 +22,7 @@ public class Db {
 	Connection OnlinedbConnection = null;
 
 	static final String USER = "root";
-	static final String PASS = "0001";
+	static final String PASS = "";
 
 	public Db() {
 
