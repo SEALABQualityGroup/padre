@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Check {
 	
+	private Context parent;
 	/**
 	  * This is the list of comparisons in the guard
 	  * 
@@ -29,13 +30,19 @@ public class Check {
 	   * @param operations List of {@link Operation}
 	   * 
 	   */
-	public Check(List<Operation> operations) {
+	public Check(Context parent, List<Operation> operations) {
 		super();
+		this.parent = parent;
 		this.operations=operations;
 	}
-	public Check(){
-		this.operations=new ArrayList<Operation>();
-		
+	
+	public Check(Context parent) {		
+		this.parent = parent;
+		this.operations=new ArrayList<Operation>();		
+	}
+	
+	public Context getContext() {
+		return parent;
 	}
 	@XmlElementWrapper(name="operations")
 	@XmlElement(name="operation")

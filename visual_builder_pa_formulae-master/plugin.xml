@@ -50,7 +50,7 @@
       <view
             class="view.Operations"
             id="view.Operations"
-            name="Operations"
+            name="EOL operations"
             restorable="true">
       </view>
       <view
@@ -75,7 +75,13 @@
             class="view.EVLtree"
             icon="icons/evl.gif"
             id="view.EVLtree"
-            name="EVLtree"
+            name="EVL Visual Builder"
+            restorable="true">
+      </view>
+      <view
+            class="view.EOL_Library_Tree"
+            id="view.EOL_Library_Tree"
+            name="EOL Library Tree"
             restorable="true">
       </view>
    </extension>

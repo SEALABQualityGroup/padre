@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Fix {
+	
+	private Context parent;
 	/**
 	  * This is the title shown when a fix construct is executed. 
 	  * 
@@ -30,15 +32,22 @@ public class Fix {
 	   * @param doList Listo of Do 
 	   * 
 	   */
-	public Fix(Title title, Do doList) {
+	public Fix(Context parent, Title title, Do doList) {
 		//super();
+		this.parent = parent;
 		this.title = title;
 		this.doList = doList;
 	}
-	public Fix(){
-		this.title=null;
-		this.doList = new Do();
+	public Fix(Context parent){
+		this.parent = parent;
+		this.title = null;
+		this.doList = new Do(parent);
 	}
+	
+	public Context getContext() {
+		return parent;
+	}
+	
 	public Title getTitle() {
 		return title;
 	}

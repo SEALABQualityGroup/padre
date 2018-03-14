@@ -456,7 +456,7 @@ public class Gui {
 							Context contParent = (Context) parent.getData();
 							Container cSelected = (Container) temp.getData();
 
-							Check checkNew = new Check();
+							Check checkNew = new Check(contParent);
 							// cSelected.setCheck(checkNew);
 							for (Context c : evl.getContextList()) {
 								if (c.equals(contParent)) {
@@ -526,7 +526,7 @@ public class Gui {
 							TreeItem parent = temp.getParentItem();
 							Container cSelected = (Container) temp.getData();
 							Context contextParent = (Context) parent.getData();
-							Fix fixNew = new Fix();
+							Fix fixNew = new Fix(contextParent);
 							List<Fix> fixList = cSelected.getFixList();
 							fixList.add(fixNew);
 							// cSelected.setFixList(fixList);
@@ -618,9 +618,9 @@ public class Gui {
 							tree.removeAll();
 							Container cont2add = null;
 							if (type.equals("critique")) {
-								cont2add = new Critique(contName);
+								cont2add = new Critique(contToAddParent, contName);
 							} else if (type.equals("constraint")) {
-								cont2add = new Constraint(contName);
+								cont2add = new Constraint(contToAddParent, contName);
 							}
 							// System.out.println(cont2add.toString());
 							for (Context c : evl.getContextList()) {

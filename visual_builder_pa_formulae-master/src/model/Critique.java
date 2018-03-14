@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Critique extends Container{
-	public Critique(String Name) {
-		super(Name);
+	public Critique(Context parent, String Name) {
+		super(parent, Name);
 		this.type="critique";
 	}
-	public Critique(){
-		super();
+	public Critique(Context parent){
+		super(parent);
 	}
 	public String toString(){
 		String res="critique "+name+"{\n";

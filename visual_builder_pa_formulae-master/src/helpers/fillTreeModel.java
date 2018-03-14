@@ -110,6 +110,9 @@ public class fillTreeModel {
 			item.setExpanded(true);
 
 		}
+		
+
+		importRoot.setExpanded(true);
 		tree.setRedraw(true);
 	}
 

@@ -15,13 +15,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Do {
 	
+	private Context parent;
 	private List<String> functions;
 	
-	public Do(){
-		
+	public Do(Context parent){
+		this.parent = parent;
 		functions = new ArrayList<String>();
 		
 	}
+	
+	public Context getContext() {
+		return parent;
+	}
+	
 	@XmlElementWrapper
 	@XmlElement
 	public List<String> getFunctions() {

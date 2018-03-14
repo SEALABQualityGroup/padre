@@ -12,12 +12,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Constraint extends Container {
 	
-	public Constraint(String Name) {
-		super(Name);
+	public Constraint(Context parent, String Name) {
+		super(parent, Name);
 		this.type="constraint";
 	}
-	public Constraint(){
-		super();
+	public Constraint(Context parent){
+		super(parent);
 	}
 	public String toString(){
 		String res="constraint "+name+"{\n";
