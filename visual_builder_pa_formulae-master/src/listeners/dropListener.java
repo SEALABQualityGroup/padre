@@ -10,15 +10,15 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TransferData;
 
 import helpers.fillTreeModel;
-import model.Evl;
-import model.ImportStatement;
+import model.EVL_Tree_Root;
+import model.EVL_Tree_ImportStatement;
 
 public class dropListener extends ViewerDropAdapter {
 
     private final TreeViewer viewer;
-    private final Evl evl;
+    private final EVL_Tree_Root evl;
 
-    public dropListener(TreeViewer viewer, Evl evl) {
+    public dropListener(TreeViewer viewer, EVL_Tree_Root evl) {
         super(viewer);
         this.viewer = viewer;
         this.evl = evl;
@@ -64,8 +64,8 @@ public class dropListener extends ViewerDropAdapter {
     	String[] segments = location.segments();
     	
     	String importFile = "\"" + segments[segments.length - 2] + "/" + segments[segments.length -1] + "\";\n";
-    	ImportStatement newImp = new ImportStatement(importFile);
-		List<ImportStatement> iList = evl.getImportList();
+    	EVL_Tree_ImportStatement newImp = new EVL_Tree_ImportStatement(importFile);
+		List<EVL_Tree_ImportStatement> iList = evl.getImportList();
 		iList.add(newImp);
 		evl.setImportList(iList);
 		

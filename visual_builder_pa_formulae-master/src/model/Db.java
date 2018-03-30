@@ -8,9 +8,8 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import model.F;
-import model.Threshold;
-import model.Do_operation;
+import model.EVL_Tree_Threshold;
+import model.EOL_Library_DO_Operation;
 
 public class Db {
 
@@ -24,10 +23,18 @@ public class Db {
 	static final String USER = "root";
 	static final String PASS = "";
 
+	/**
+	 * 
+	 */
 	public Db() {
 
 	}
 
+	/**
+	 * @return
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 */
 	public static Connection getConnection() throws SQLException, ClassNotFoundException {
 		Connection conn = null;
 
@@ -40,6 +47,11 @@ public class Db {
 
 	}
 	
+	/**
+	 * @return
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 */
 	public static Connection getOnlineConnection() throws SQLException, ClassNotFoundException {
 		Connection conn = null;
 
@@ -52,6 +64,11 @@ public class Db {
 
 	}
 
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public Statement getStatement() throws ClassNotFoundException, SQLException {
 		Class.forName(DRIVER_NAME);
 		dbConnection = DriverManager.getConnection(DB_URL, USER, PASS);
@@ -61,16 +78,21 @@ public class Db {
 		return stmt;
 	}
 	
-	public static List<Threshold> getThresholdList() throws ClassNotFoundException, SQLException {
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EVL_Tree_Threshold> getThresholdList() throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		
-		List<Threshold> thresholdList = new ArrayList<Threshold>();
+		List<EVL_Tree_Threshold> thresholdList = new ArrayList<EVL_Tree_Threshold>();
 		String sql1 = "SELECT name FROM thresholds";
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
 			ResultSet rs1 = preparedStatement1.executeQuery();
 			while (rs1.next()) {
-				Threshold temp = new Threshold(rs1.getString(1));
+				EVL_Tree_Threshold temp = new EVL_Tree_Threshold(rs1.getString(1));
 
 				thresholdList.add(temp);
 
@@ -81,7 +103,13 @@ public class Db {
 		return thresholdList;
 	}
 
-	public static List<Threshold> getThresholdList(String fName) throws ClassNotFoundException, SQLException {
+	/**
+	 * @param fName
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EVL_Tree_Threshold> getThresholdList(String fName) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM f WHERE name=?";
 		PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -103,14 +131,14 @@ public class Db {
 			}
 			rs2.close();
 		}
-		List<Threshold> thresholdList = new ArrayList<Threshold>();
+		List<EVL_Tree_Threshold> thresholdList = new ArrayList<EVL_Tree_Threshold>();
 		for (Integer id : thIdList) {
 			String sql1 = "SELECT name FROM thresholds WHERE id=?";
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 			preparedStatement1.setInt(1, id);
 			ResultSet rs1 = preparedStatement1.executeQuery();
 			while (rs1.next()) {
-				Threshold temp = new Threshold(rs1.getString(1));
+				EVL_Tree_Threshold temp = new EVL_Tree_Threshold(rs1.getString(1));
 
 				thresholdList.add(temp);
 
@@ -121,6 +149,12 @@ public class Db {
 		return thresholdList;
 	}
 
+	/**
+	 * @param contextName
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<String> getDo(String contextName) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM context WHERE name=?";
@@ -161,7 +195,13 @@ public class Db {
 		return doNameList;
 	}
 
-	public static List<F> getFListToCompare(String fName) throws ClassNotFoundException, SQLException {
+	/**
+	 * @param fName
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_F_Operation> getFListToCompare_deprecated(String fName) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM f WHERE name=?";
 		PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -184,28 +224,28 @@ public class Db {
 			rs2.close();
 
 		}
-		List<F> fList = new ArrayList<F>();
+		List<EOL_Library_F_Operation> fList = new ArrayList<EOL_Library_F_Operation>();
 		for (Integer id : fToCompIdList) {
 			String sql1 = "SELECT * FROM f WHERE id=?";
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 			preparedStatement1.setInt(1, id);
 			ResultSet rs1 = preparedStatement1.executeQuery();
 			while (rs1.next()) {
-				F f;
+				EOL_Library_F_Operation f;
 				String name = rs1.getString(2);
-				String card = "";
-				String returnType = "";
-				if (rs1.getBoolean(4)) {
-					card = "unary";
-				} else {
-					card = "binary";
-				}
-				if (rs1.getBoolean(3)) {
-					returnType = "boolean";
-				} else {
-					returnType = "real";
-				}
-				f = new F(name, card, returnType);
+//				String card = "";
+//				String returnType = "";
+//				if (rs1.getBoolean(4)) {
+//					card = "unary";
+//				} else {
+//					card = "binary";
+//				}
+//				if (rs1.getBoolean(3)) {
+//					returnType = "boolean";
+//				} else {
+//					returnType = "real";
+//				}
+				f = new EOL_Library_F_Operation();
 				fList.add(f);
 
 			}
@@ -215,7 +255,13 @@ public class Db {
 		return fList;
 	}
 
-	public static List<F> getFList(String contextName) throws ClassNotFoundException, SQLException {
+	/**
+	 * @param contextName
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_F_Operation> getFList_deprecated(String contextName) throws ClassNotFoundException, SQLException {
 
 		Connection conn = Db.getConnection();
 		String sql = "SELECT id FROM context WHERE name=?";
@@ -239,7 +285,7 @@ public class Db {
 			rs2.close();
 
 		}
-		List<F> fList = new ArrayList<F>();
+		List<EOL_Library_F_Operation> fList = new ArrayList<EOL_Library_F_Operation>();
 		for (Integer id : fIdList) {
 			String sql1 = "SELECT * FROM f WHERE id=?";
 			PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
@@ -248,21 +294,21 @@ public class Db {
 
 			while (rs1.next()) {
 
-				F f;
+				EOL_Library_F_Operation f;
 				String name = rs1.getString(2);
-				String card = "";
-				String returnType = "";
-				if (rs1.getBoolean(4)) {
-					card = "unary";
-				} else {
-					card = "binary";
-				}
-				if (rs1.getBoolean(3)) {
-					returnType = "boolean";
-				} else {
-					returnType = "real";
-				}
-				f = new F(name, card, returnType);
+//				String card = "";
+//				String returnType = "";
+//				if (rs1.getBoolean(4)) {
+//					card = "unary";
+//				} else {
+//					card = "binary";
+//				}
+//				if (rs1.getBoolean(3)) {
+//					returnType = "boolean";
+//				} else {
+//					returnType = "real";
+//				}
+				f = new EOL_Library_F_Operation();
 				fList.add(f);
 			}
 			rs1.close();
@@ -272,30 +318,35 @@ public class Db {
 		return fList;
 	}
 
-	public static List<F> getFList() throws ClassNotFoundException, SQLException {
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_F_Operation> getFList_deprecated() throws ClassNotFoundException, SQLException {
 
 		Connection conn = Db.getConnection();
-		List<F> flist = new ArrayList<F>();
+		List<EOL_Library_F_Operation> flist = new ArrayList<EOL_Library_F_Operation>();
 		String sql1 = "SELECT * FROM f ";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
 		ResultSet rs1 = preparedStatement1.executeQuery();
 		while (rs1.next()) {
-			F f;
+			EOL_Library_F_Operation f;
 			String name = rs1.getString(2);
-			String card = "";
-			String returnType = "";
-			if (rs1.getBoolean(4)) {
-				card = "unary";
-			} else {
-				card = "binary";
-			}
-			if (rs1.getBoolean(3)) {
-				returnType = "boolean";
-			} else {
-				returnType = "real";
-			}
-			f = new F(name, card, returnType);
+//			String card = "";
+//			String returnType = "";
+//			if (rs1.getBoolean(4)) {
+//				card = "unary";
+//			} else {
+//				card = "binary";
+//			}
+//			if (rs1.getBoolean(3)) {
+//				returnType = "boolean";
+//			} else {
+//				returnType = "real";
+//			}
+			f = new EOL_Library_F_Operation();
 			flist.add(f);
 
 		}
@@ -304,6 +355,11 @@ public class Db {
 		return flist;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_F_id() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -325,6 +381,11 @@ public class Db {
 		return flist;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_F_id_Online() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -346,10 +407,16 @@ public class Db {
 		return flist;
 	}
 	
-	public static F_operation get_F_description_byId(int id) throws ClassNotFoundException, SQLException
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static EOL_Library_F_Operation get_F_description_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
-		F_operation f = new F_operation();
+		EOL_Library_F_Operation f = new EOL_Library_F_Operation();
 		String sql1 = "SELECT f.name, context.name, f_context.method FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id WHERE f.id = " + id + ";";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
@@ -360,7 +427,7 @@ public class Db {
 			String context = rs.getString(2);
 			String body = rs.getString(3);
 			
-			f = new F_operation(id, name, context, body);
+			f = new EOL_Library_F_Operation(id, name, context, body);
 
 		}
 		
@@ -369,10 +436,16 @@ public class Db {
 		return f;
 	}
 	
-	public static F_operation get_F_description_byId_Online(int id) throws ClassNotFoundException, SQLException
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static EOL_Library_F_Operation get_F_description_byId_Online(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
-		F_operation f = new F_operation();
+		EOL_Library_F_Operation f = new EOL_Library_F_Operation();
 		String sql1 = "SELECT f.name, context.name, f_context.method FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id WHERE f.id = " + id + ";";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
@@ -383,7 +456,7 @@ public class Db {
 			String context = rs.getString(2);
 			String body = rs.getString(3);
 			
-			f = new F_operation(id, name, context, body);
+			f = new EOL_Library_F_Operation(id, name, context, body);
 
 		}
 		
@@ -392,6 +465,12 @@ public class Db {
 		return f;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_F_method_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -413,6 +492,12 @@ public class Db {
 		return method;
 	}
 	
+	/**
+	 * @param id
+	 * @param method
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void set_F_method_byId(int id, String method) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -428,10 +513,15 @@ public class Db {
 		return;
 	}
 	
-	public static List<F_operation> getall_Metric_functions() throws ClassNotFoundException, SQLException
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_F_Operation> getall_Metric_functions() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
-		List<F_operation> flist = new ArrayList<F_operation>();
+		List<EOL_Library_F_Operation> flist = new ArrayList<EOL_Library_F_Operation>();
 		String sql1 = "SELECT * FROM f JOIN f_context ON f.id = f_context.f_id JOIN context ON f_context.context_id = context.id;";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
@@ -446,7 +536,7 @@ public class Db {
 			String context = rs.getString(9);
 			String method = rs.getString(7);
 			
-			flist.add(new F_operation(id, name, context, method));
+			flist.add(new EOL_Library_F_Operation(id, name, context, method));
 
 		}
 		
@@ -455,6 +545,11 @@ public class Db {
 		return flist;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_Do_id() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -476,6 +571,11 @@ public class Db {
 		return do_list;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_Do_id_Online() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -497,11 +597,17 @@ public class Db {
 		return do_list;
 	}
 	
-	public static Do_operation get_Do_description_byId(int id) throws ClassNotFoundException, SQLException
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static EOL_Library_DO_Operation get_Do_description_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
 
-		Do_operation redo = new Do_operation();
+		EOL_Library_DO_Operation redo = new EOL_Library_DO_Operation();
 		
 		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id WHERE do.id = " + id + ";";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
@@ -512,7 +618,7 @@ public class Db {
 			String name = rs.getString(2);
 			String context = rs.getString(7);
 			
-			redo = new Do_operation(id, name, context);
+			redo = new EOL_Library_DO_Operation(id, name, context);
 
 		}
 		
@@ -521,11 +627,17 @@ public class Db {
 		return redo;
 	}
 	
-	public static Do_operation get_Do_description_byId_Online(int id) throws ClassNotFoundException, SQLException
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static EOL_Library_DO_Operation get_Do_description_byId_Online(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
 
-		Do_operation redo = new Do_operation();
+		EOL_Library_DO_Operation redo = new EOL_Library_DO_Operation();
 		
 		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id WHERE do.id = " + id + ";";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
@@ -536,7 +648,7 @@ public class Db {
 			String name = rs.getString(2);
 			String context = rs.getString(7);
 			
-			redo = new Do_operation(id, name, context);
+			redo = new EOL_Library_DO_Operation(id, name, context);
 
 		}
 		
@@ -545,6 +657,12 @@ public class Db {
 		return redo;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Do_method_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -566,6 +684,12 @@ public class Db {
 		return method;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Do_method_byId_Online(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -587,6 +711,12 @@ public class Db {
 		return method;
 	}
 	
+	/**
+	 * @param id
+	 * @param method
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void set_Do_method_byId(int id, String method) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -602,10 +732,15 @@ public class Db {
 		return;
 	}
 	
-	public static List<Do_operation> getall_Do_functions() throws ClassNotFoundException, SQLException
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_DO_Operation> getall_Do_functions() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
-		List<Do_operation> dolist = new ArrayList<Do_operation>();
+		List<EOL_Library_DO_Operation> dolist = new ArrayList<EOL_Library_DO_Operation>();
 		String sql1 = "SELECT * FROM do JOIN do_context ON do.id = do_context.do_id JOIN context ON do_context.context_id = context.id;";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
@@ -620,7 +755,7 @@ public class Db {
 			String context = rs.getString(7);
 			String method = rs.getString(5);
 			
-			dolist.add(new Do_operation(id, name, context, method));
+			dolist.add(new EOL_Library_DO_Operation(id, name, context, method));
 
 		}
 		
@@ -629,6 +764,11 @@ public class Db {
 		return dolist;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_Th_id() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -650,6 +790,11 @@ public class Db {
 		return th_list;
 	}
 	
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<Integer> getall_Th_id_Online() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -671,6 +816,12 @@ public class Db {
 		return th_list;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Th_name_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -692,6 +843,12 @@ public class Db {
 		return threshold_name;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Th_name_byId_Online(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -713,6 +870,12 @@ public class Db {
 		return threshold_name;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Th_method_byId(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -734,6 +897,12 @@ public class Db {
 		return method;
 	}
 	
+	/**
+	 * @param id
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static String get_Th_method_byId_Online(int id) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
@@ -755,6 +924,12 @@ public class Db {
 		return method;
 	}
 	
+	/**
+	 * @param id
+	 * @param method
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void set_Th_method_byId(int id, String method) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
@@ -770,10 +945,15 @@ public class Db {
 		return;
 	}
 	
-	public static List<Th_operation> getall_Threshold_functions() throws ClassNotFoundException, SQLException
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static List<EOL_Library_Th_Operation> getall_Threshold_functions() throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getConnection();
-		List<Th_operation> thlist = new ArrayList<Th_operation>();
+		List<EOL_Library_Th_Operation> thlist = new ArrayList<EOL_Library_Th_Operation>();
 		String sql1 = "SELECT * FROM thresholds";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 
@@ -784,7 +964,7 @@ public class Db {
 			String name = rs.getString(2);
 			String method = rs.getString(3);
 			
-			thlist.add(new Th_operation(id, name, method));
+			thlist.add(new EOL_Library_Th_Operation(id, name, method));
 
 		}
 		
@@ -793,6 +973,11 @@ public class Db {
 		return thlist;
 	}
 
+	/**
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static List<String> getContexts() throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql1 = "SELECT * FROM context";
@@ -809,6 +994,11 @@ public class Db {
 		return cList;
 	}
 
+	/**
+	 * @param context
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void insertContext(String context) throws ClassNotFoundException, SQLException {
 		Connection conn = Db.getConnection();
 		String sql1 = "INSERT IGNORE INTO context (name) VALUES ('" + context + "');";
@@ -818,11 +1008,18 @@ public class Db {
 		conn.close();
 	}
 	
+	/**
+	 * @param name
+	 * @param method
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static int insert_Threshold_function(String name, String method) throws ClassNotFoundException, SQLException
 	{
 		int th_id = -1;
 		Connection conn = Db.getConnection();
-		Map<String, String> thmap = new HashMap<String, String>();
+		//Map<String, String> thmap = new HashMap<String, String>();
 		String sql1 = "INSERT INTO thresholds (name,method) VALUES ('" + name + "','" + method + "');";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
 
@@ -838,6 +1035,14 @@ public class Db {
 		return th_id;
 	}
 	
+	/**
+	 * @param name
+	 * @param context
+	 * @param method
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static int insert_Do_function(String name, String context, String method) throws ClassNotFoundException, SQLException
 	{
 		
@@ -898,7 +1103,16 @@ public class Db {
 		return do_id;
 	}
 	
-	public static int insert_Metric_function(String context, String name, String method, int return_bool) throws ClassNotFoundException, SQLException
+	/**
+	 * @param context
+	 * @param name
+	 * @param method
+	 * @param return_bool
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public static int insert_Metric_function(String context, String name, String method) throws ClassNotFoundException, SQLException
 	{
 		int context_id, f_id = -1;
 		Connection conn = Db.getConnection();
@@ -915,7 +1129,7 @@ public class Db {
 			
 			context_id = rs.getInt(1);
 			
-			String query = "INSERT INTO f (name,return_bool) VALUES ('" + name + "','" + return_bool + "');";
+			String query = "INSERT INTO f (name) VALUES ('" + name + "');";
 			preparedStatement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			
 			preparedStatement.executeUpdate();
@@ -956,6 +1170,13 @@ public class Db {
 		return f_id;
 	}
 	
+	/**
+	 * @param name
+	 * @param context
+	 * @param method
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void insert_Do_functionOnline(String name, String context, String method) throws ClassNotFoundException, SQLException
 	{
 		
@@ -998,6 +1219,14 @@ public class Db {
 		conn.close();
 	}
 	
+	/**
+	 * @param context
+	 * @param name
+	 * @param method
+	 * @param return_bool
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void insert_Metric_functionOnline(String context, String name, String method, int return_bool) throws ClassNotFoundException, SQLException
 	{
 		int context_id, f_id;
@@ -1038,10 +1267,17 @@ public class Db {
 		conn.close();
 	}
 	
+	/**
+	 * This method inserts a new row in table "thresholds"
+	 * @param name Name of threshold operation
+	 * @param method Signature and body of threshold operation
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	public static void insert_Threshold_functionOnline(String name, String method) throws ClassNotFoundException, SQLException
 	{
 		Connection conn = Db.getOnlineConnection();
-		Map<String, String> thmap = new HashMap<String, String>();
+		//Map<String, String> thmap = new HashMap<String, String>();
 		String sql1 = "INSERT INTO thresholds (name,method) VALUES ('" + name + "','" + method + "');";
 		PreparedStatement preparedStatement1 = conn.prepareStatement(sql1);
 

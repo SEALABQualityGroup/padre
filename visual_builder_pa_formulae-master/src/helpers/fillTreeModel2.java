@@ -6,18 +6,18 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import model.Context2;
-import model.Do_operation;
-import model.F_operation;
-import model.Th_operation;
+import model.EOL_Library_Context_Item;
+import model.EOL_Library_DO_Operation;
+import model.EOL_Library_F_Operation;
+import model.EOL_Library_Th_Operation;
 
 public class fillTreeModel2 {
 
 	private Tree tree;
-	private List<Context2> context_list;
-	private List<Th_operation> th_list;
+	private List<EOL_Library_Context_Item> context_list;
+	private List<EOL_Library_Th_Operation> th_list;
 
-	public fillTreeModel2(Tree tree, List<Context2> contexts, List<Th_operation> thresholds) {
+	public fillTreeModel2(Tree tree, List<EOL_Library_Context_Item> contexts, List<EOL_Library_Th_Operation> thresholds) {
 		this.tree = tree;
 		this.context_list = contexts;
 		this.th_list = thresholds;
@@ -29,7 +29,7 @@ public class fillTreeModel2 {
 		TreeItem contextRoot = new TreeItem(tree, SWT.NONE);
 		contextRoot.setText("Context list");
 
-		for (Context2 i : context_list) {
+		for (EOL_Library_Context_Item i : context_list) {
 			TreeItem contextItem = new TreeItem(contextRoot, SWT.NONE);
 			contextItem.setText(i.getName());
 			contextItem.setData(i);
@@ -38,7 +38,7 @@ public class fillTreeModel2 {
 			effeList.setText("F");
 			effeList.setData(i);
 			
-			for (F_operation effeMap : i.geteffe()) {
+			for (EOL_Library_F_Operation effeMap : i.geteffe()) {
 				TreeItem effeItem = new TreeItem(effeList, SWT.NONE);
 				effeItem.setText(effeMap.getName());
 				effeItem.setData(i);
@@ -48,7 +48,7 @@ public class fillTreeModel2 {
 			duList.setText("Do");
 			duList.setData(i);
 			
-			for (Do_operation duMap : i.getdu()) {
+			for (EOL_Library_DO_Operation duMap : i.getdu()) {
 				TreeItem duItem = new TreeItem(duList, SWT.NONE);
 				duItem.setText(duMap.getName());
 				duItem.setData(i);
@@ -59,7 +59,7 @@ public class fillTreeModel2 {
 		TreeItem threshold_Root = new TreeItem(tree, SWT.NONE);
 		threshold_Root.setText("Thresholds list");
 		
-		for (Th_operation i : th_list) {
+		for (EOL_Library_Th_Operation i : th_list) {
 			TreeItem thItem = new TreeItem(threshold_Root, SWT.NONE);
 			thItem.setText(i.getName());
 			thItem.setData(i);

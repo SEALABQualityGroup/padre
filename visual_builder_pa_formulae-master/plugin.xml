@@ -1,86 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
-   <extension
-         point="org.eclipse.ui.commands">
-      <category
-            name="Sample Category"
-            id="prova.plugin.commands.category">
-      </category>
-      <command
-            name="Sample Command"
-            categoryId="prova.plugin.commands.category"
-            id="prova.plugin.commands.sampleCommand">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            commandId="prova.plugin.commands.sampleCommand"
-            class="plugin.handlers.ProvaHandler">
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="prova.plugin.commands.sampleCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M1+6"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <toolbar
-               id="prova.plugin.toolbars.sampleToolbar">
-            <command
-                  commandId="prova.plugin.commands.sampleCommand"
-                  icon="icons/sample.gif"
-                  tooltip="Visual Builder"
-                  id="prova.plugin.toolbars.sampleCommand">
-            </command>
-         </toolbar>
-      </menuContribution>
-   </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="view.Operations"
-            id="view.Operations"
-            name="EOL operations"
-            restorable="true">
-      </view>
-      <view
-            class="view.F_OperationsOnDB"
-            id="view.F_OperationsOnDB"
+            class="views.F_OperationsOnDB"
+            id="views.F_OperationsOnDB"
             name="F_OperationsOnDB"
             restorable="true">
       </view>
       <view
-            class="view.Thresholds_OnDB"
-            id="view.Thresholds_OnDB"
+            class="views.Thresholds_OnDB"
+            id="views.Thresholds_OnDB"
             name="Thresholds_OnDB"
             restorable="true">
       </view>
       <view
-            class="view.Do_OperationsOnDB"
-            id="view.Do_OperationsOnDB"
+            class="views.Do_OperationsOnDB"
+            id="views.Do_OperationsOnDB"
             name="Do_OperationsOnDB"
             restorable="true">
       </view>
       <view
-            class="view.EVLtree"
+            class="views.EVL_Tree"
             icon="icons/evl.gif"
-            id="view.EVLtree"
+            id="views.EVL_Tree"
             name="EVL Visual Builder"
             restorable="true">
       </view>
       <view
-            class="view.EOL_Library_Tree"
-            id="view.EOL_Library_Tree"
+            class="views.EOL_Library_Tree"
+            id="views.EOL_Library_Tree"
             name="EOL Library Tree"
             restorable="true">
       </view>
@@ -89,29 +39,21 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="perspectives.Visual_Builder"
-            id="perspectives.newper"
+            icon="icons/evl.gif"
+            id="perspectives.EVL_Visual_Builder"
             name="EVL Visual Builder">
       </perspective>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="perspectives.newper">
-         <actionSet
-               id="org.eclipse.debug.ui.launchActionSet">
-         </actionSet>
-      </perspectiveExtension>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="editors.LocalEolEditor"
+            class="editors.Local_EOL_Editor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="false"
             extensions="eol, eunit"
             icon="icons/eol.gif"
-            id="editors.LocalEolEditor"
-            name="LocalEolEditor">
+            id="editors.Local_EOL_Editor"
+            name="Local_EOL_Editor">
       </editor>
       <editor
             class="editors.EolEditorForDB"

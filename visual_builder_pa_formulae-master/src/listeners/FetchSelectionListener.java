@@ -9,9 +9,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
 import model.Db;
-import model.Do_operation;
-import model.F_operation;
-import model.Th_operation;
+import model.EOL_Library_DO_Operation;
+import model.EOL_Library_F_Operation;
+import model.EOL_Library_Th_Operation;
 
 
 public class FetchSelectionListener implements SelectionListener {
@@ -41,7 +41,7 @@ public class FetchSelectionListener implements SelectionListener {
 			
 			for (Integer id : f_id_list) {
 				
-				F_operation f = Db.get_F_description_byId(id);
+				EOL_Library_F_Operation f = Db.get_F_description_byId(id);
 				
 				EolMetricList.add(f.getName() + " for " + f.getContext());
 				
@@ -62,7 +62,7 @@ public class FetchSelectionListener implements SelectionListener {
 			
 			for (Integer id : do_id_list) {
 				
-				Do_operation redo = Db.get_Do_description_byId(id);
+				EOL_Library_DO_Operation redo = Db.get_Do_description_byId(id);
 				
 				EolDoList.add(redo.getName() + " for " + redo.getContext());
 				

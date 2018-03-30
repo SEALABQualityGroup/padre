@@ -8,17 +8,25 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+import helpers.EOL_Utils;
+import model.EOL_Library_Root;
+
+/**
+ * @author Stefano
+ *
+ */
 public class workspaceChangeListener implements IResourceChangeListener {
 
 	IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-	view.EOL_Library_Tree libraryview = (view.EOL_Library_Tree) page.findView("view.EOL_Library_Tree");
+	views.EOL_Library_Tree libraryview = (views.EOL_Library_Tree) page.findView("view.EOL_Library_Tree");
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
+	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 
 		// IPath Library_PATH = new Path(libraryview.path);
@@ -74,14 +82,12 @@ public class workspaceChangeListener implements IResourceChangeListener {
 
 			display.asyncExec(new Runnable() {
 				public void run() {
-
-
-					libraryview.populate(libraryview.path);
+					String library_path = ((EOL_Library_Root)libraryview.eoltree.getInput()).getPath();
+					EOL_Utils.update_EOL_Library_Data_Structure(library_path);
 				}
 			});
 		}
 
-//		libraryview.populate(libraryview.path, changed);
 	}
 
 };

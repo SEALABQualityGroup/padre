@@ -1,16 +1,18 @@
 package model;
 
 public enum UnaryOperator {
-	NOT,EMPTY;
-	
+
+	NOT, EMPTY;
+
 	public String toString() {
-		switch (this) { 
+		switch (this) {
 		case NOT:
 			return "not";
-			
+		default:
+			break;
+
 		}
 		return "";
 	}
-	
 
 }

@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Text;
 
 import it.spe.disim.univaq.porting.evl2exl.Evl2Epl;
 import it.spe.disim.univaq.porting.util.PortingUtil;
-import model.Evl;
+import model.EVL_Tree_Root;
 
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;

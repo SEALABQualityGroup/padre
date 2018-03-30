@@ -12,9 +12,10 @@ import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+import helpers.EOL_Utils;
 import model.Db;
-import view.F_OperationsOnDB;
-import view.Thresholds_OnDB;
+import views.F_OperationsOnDB;
+import views.Thresholds_OnDB;
 
 public class EolEditorForDB extends EolEditor {
 
@@ -65,7 +66,7 @@ public class EolEditorForDB extends EolEditor {
 				
 				AST old_operation = AstUtil.getChild(eolAST, 28);
 				
-				if (compare(old_operation, new_operation))
+				if (EOL_Utils.compare(old_operation, new_operation))
 				{
 					Db.set_Th_method_byId(th.selectedOpID, new_operation.rewrite());
 				}
@@ -94,28 +95,28 @@ public class EolEditorForDB extends EolEditor {
 				
 				AST old_operation = AstUtil.getChild(eolAST, 28);
 				
-				if (compare(old_operation, new_operation))
+				if (EOL_Utils.compare(old_operation, new_operation))
 				{
 					Db.set_F_method_byId(F.selectedOpID, new_operation.rewrite());
 				}
 				else
 				{
-					int return_bool = 0;
-
-					if (new_operation.getThirdChild().getType() == EolParser.PARAMLIST) {
-						// metodo con parametri
-						if (new_operation.getFourthChild().getText().equals("Boolean"))
-							return_bool = 1;
-
-					} else {
-						// semza parametri
-						if (new_operation.getThirdChild().getText().equals("Boolean"))
-							return_bool = 1;
-
-					}
+//					int return_bool = 0;
+//
+//					if (new_operation.getThirdChild().getType() == EolParser.PARAMLIST) {
+//						// metodo con parametri
+//						if (new_operation.getFourthChild().getText().equals("Boolean"))
+//							return_bool = 1;
+//
+//					} else {
+//						// semza parametri
+//						if (new_operation.getThirdChild().getText().equals("Boolean"))
+//							return_bool = 1;
+//
+//					}
 
 					Db.insert_Metric_function(new_operation.getFirstChild().getText(),
-							new_operation.getSecondChild().getText(), new_operation.rewrite(), return_bool);
+							new_operation.getSecondChild().getText(), new_operation.rewrite());
 				}
 				
 				super.doSave(progressMonitor);
@@ -137,7 +138,7 @@ public class EolEditorForDB extends EolEditor {
 			
 			AST old_operation = AstUtil.getChild(eolAST, 28);
 
-			if (compare(old_operation, new_operation))
+			if (EOL_Utils.compare(old_operation, new_operation))
 			{
 				Db.set_Do_method_byId(redo.selectedOpID, new_operation.rewrite());
 			}
@@ -164,34 +165,5 @@ public class EolEditorForDB extends EolEditor {
 			parseModule();
 	}
 
-	public boolean compare(AST oldOp, AST newOp) {
-
-		String firstold = oldOp.getFirstChild().getText();
-		String firstnew = newOp.getFirstChild().getText();
-		String secondold = oldOp.getSecondChild().getText();
-		String secondnew = newOp.getSecondChild().getText();
-		String thirdold = oldOp.getThirdChild().getText();
-		String thirdnew = newOp.getThirdChild().getText();
-
-		if (oldOp.getFourthChild() != null && newOp.getFourthChild() != null) {
-			String fourold = oldOp.getFourthChild().getText();
-			String fournew = newOp.getFourthChild().getText();
-
-			if (firstold.equals(firstnew) && secondold.equals(secondnew) && thirdold.equals(thirdnew)
-					&& fourold.equals(fournew))
-				return true;
-			else
-				return false;
-		}
-
-		if (oldOp.getFourthChild() == null && newOp.getFourthChild() == null) {
-			if (firstold.equals(firstnew) && secondold.equals(secondnew) && thirdold.equals(thirdnew))
-				return true;
-			else
-				return false;
-		}
-
-		return false;
-	}
-
+	
 }

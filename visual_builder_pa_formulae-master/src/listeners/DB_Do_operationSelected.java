@@ -10,7 +10,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
 import model.Db;
-import model.Do_operation;
+import model.EOL_Library_DO_Operation;
 
 
 public class DB_Do_operationSelected implements SelectionListener {

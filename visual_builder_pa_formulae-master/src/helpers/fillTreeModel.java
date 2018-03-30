@@ -4,23 +4,23 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import model.Check;
-import model.Container;
-import model.Context;
-import model.Evl;
-import model.Fix;
-import model.GuardOperator;
-import model.ImportStatement;
-import model.Message;
-import model.Operation;
-import model.Title;
+import model.EVL_Tree_CheckStatement;
+import model.EVL_Tree_Container;
+import model.EVL_Tree_Context_Item;
+import model.EVL_Tree_Root;
+import model.EVL_Tree_FixStatement;
+import model.BooleanOperators;
+import model.EVL_Tree_ImportStatement;
+import model.EVL_Tree_Message;
+import model.EVL_Tree_CheckOperation;
+import model.EVL_Tree_FixTitle;
 
 public class fillTreeModel {
 
 	private Tree tree;
-	private Evl evl;
+	private EVL_Tree_Root evl;
 
-	public fillTreeModel(Tree tree, Evl evl) {
+	public fillTreeModel(Tree tree, EVL_Tree_Root evl) {
 		this.tree = tree;
 		this.evl = evl;
 	}
@@ -31,22 +31,22 @@ public class fillTreeModel {
 		TreeItem importRoot = new TreeItem(tree, SWT.NONE);
 		importRoot.setText("import list");
 
-		for (ImportStatement i : evl.getImportList()) {
+		for (EVL_Tree_ImportStatement i : evl.getImportList()) {
 			TreeItem importItem = new TreeItem(importRoot, SWT.NONE);
 			importItem.setText(i.toString());
 			importItem.setData(i);
 		}
 
-		for (Context c : evl.getContextList()) {
+		for (EVL_Tree_Context_Item c : evl.getContextList()) {
 			TreeItem item = new TreeItem(tree, SWT.NONE);
 			item.setText("context " + c.getName());
 			item.setData(c);
-			for (Container cont : c.getContainers()) {
+			for (EVL_Tree_Container cont : c.getContainers()) {
 				TreeItem contItem = new TreeItem(item, SWT.NONE);
 				contItem.setText(cont.getType() + " " + cont.getName());
 				contItem.setData(cont);
 
-				Check check = cont.getCheck();
+				EVL_Tree_CheckStatement check = cont.getCheck();
 				if (check != null) {
 					TreeItem checkItem = new TreeItem(contItem, SWT.NONE);
 					checkItem.setText("check :");
@@ -56,8 +56,8 @@ public class fillTreeModel {
 					TreeItem notCheckItem = new TreeItem(checkItem, SWT.NONE);
 					notCheckItem.setText("not");
 
-					for (Operation op : check.getOperations()) {
-						if (op.getOp() != GuardOperator.EMPTY) {
+					for (EVL_Tree_CheckOperation op : check.getOperations()) {
+						if (op.getOp() != BooleanOperators.EMPTY) {
 							TreeItem checkChild2 = new TreeItem(notCheckItem, SWT.NONE);
 							checkChild2.setText(op.getOp().toString());
 							checkChild2.setData(op);
@@ -72,19 +72,19 @@ public class fillTreeModel {
 					notCheckItem.setExpanded(true);
 					checkItem.setExpanded(true);
 				}
-				Message message = cont.getMessage();
+				EVL_Tree_Message message = cont.getMessage();
 				if (message != null) {
 					TreeItem messageItem = new TreeItem(contItem, SWT.NONE);
 					messageItem.setText("message : " + message.getText());
 					messageItem.setData(message);
 				}
 
-				for (Fix fix : cont.getFixList()) {
+				for (EVL_Tree_FixStatement fix : cont.getFixList()) {
 					TreeItem fixItem = new TreeItem(contItem, SWT.NONE);
 					fixItem.setText("fix");
 					fixItem.setData(fix);
 
-					Title title = fix.getTitle();
+					EVL_Tree_FixTitle title = fix.getTitle();
 					if (title != null) {
 						TreeItem titleItem = new TreeItem(fixItem, SWT.NONE);
 						titleItem.setText("title : " + title.getText());

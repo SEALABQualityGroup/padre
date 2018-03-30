@@ -3,73 +3,50 @@ package model;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/** *
- *This is a predicate which F returns a Boolean value.
+/**
+ * It represents the atomic operation (with its unary operator) in check statement
  *
- *@author Davide Di Gironimo
  */
 @XmlRootElement
-public class UnaryPredicate extends Predicate {
-	private F f;
-	private F_operation f_op;
+public class UnaryPredicate {
+
+	private EOL_Library_F_Operation f_op;
 	private UnaryOperator op;
 	
-	
-	public UnaryPredicate(UnaryOperator op , F f){
-		this.f = f;
-		this.op=op;
-		
-	}
-	
-	public UnaryPredicate(UnaryOperator op , F_operation f){
+	public UnaryPredicate(UnaryOperator op , EOL_Library_F_Operation f){
 		this.f_op = f;
 		this.op=op;
-		
 	}
-	
-	public UnaryPredicate(){
+
+	public UnaryPredicate() {
 		super();
 	}
 	
-	
 	@XmlElement
-	public F_operation getF_operation() {
+	public EOL_Library_F_Operation getF_op() {
 		return f_op;
 	}
-	public void setF_operation(F_operation f) {
-		this.f_op = f;
-	}
-	
-	@XmlElement
-	public F getF() {
-		return f;
-	}
-	public void setF(F f) {
-		this.f = f;
+
+	public void setF_op(EOL_Library_F_Operation f_op) {
+		this.f_op = f_op;
 	}
 	
 	@XmlElement
 	public UnaryOperator getOp() {
 		return op;
 	}
+
 	public void setOp(UnaryOperator op) {
 		this.op = op;
 	}
 
-	public String toString(){
-		if (f != null) {
-			if (this.op == UnaryOperator.EMPTY) {
-				return " "+op.toString()+f.toString()+" ";
-			}
-			return  " "+op.toString()+"( "+f.toString()+" ) ";
-		} else {
-			if (this.op == UnaryOperator.EMPTY) {
-				return " " + op.toString() + f_op.toString() + "() ";
-			}
-			return  " " + op.toString() + "( " + f_op.toString() + "()) ";
+	public String toString() {
+		if (this.op == UnaryOperator.EMPTY) {
+			return " " + op.toString() + f_op.toString() + "() ";
 		}
+		return  " " + op.toString() + "( " + f_op.toString() + "()) ";
 		
-		
+		//TODO add thresholds
 	}
-	
+
 }

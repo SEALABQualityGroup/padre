@@ -49,22 +49,22 @@ public class saveEOLtoDBListener implements SelectionListener {
 
 					// metric functions
 					if (operation.getSecondChild().getText().startsWith("F_")) {
-						int return_bool = 0;
-
-						if (operation.getThirdChild().getType() == EolParser.PARAMLIST) {
-							// metodo con parametri
-							if (operation.getFourthChild().getText().equals("Boolean"))
-								return_bool = 1;
-
-						} else {
-							// semza parametri
-							if (operation.getThirdChild().getText().equals("Boolean"))
-								return_bool = 1;
-
-						}
+//						int return_bool = 0;
+//
+//						if (operation.getThirdChild().getType() == EolParser.PARAMLIST) {
+//							// metodo con parametri
+//							if (operation.getFourthChild().getText().equals("Boolean"))
+//								return_bool = 1;
+//
+//						} else {
+//							// semza parametri
+//							if (operation.getThirdChild().getText().equals("Boolean"))
+//								return_bool = 1;
+//
+//						}
 
 						Db.insert_Metric_function(operation.getFirstChild().getText(),
-								operation.getSecondChild().getText(), operation.rewrite(), return_bool);
+								operation.getSecondChild().getText(), operation.rewrite());
 
 						continue;
 					}

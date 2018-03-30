@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: it.spe.disim.univaq.it.plugin
 Bundle-SymbolicName: it.spe.disim.univaq.it.plugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: plugin.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.google.gson;bundle-version="2.2.4",

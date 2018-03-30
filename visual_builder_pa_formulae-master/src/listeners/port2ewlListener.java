@@ -15,7 +15,7 @@ import it.spe.disim.univaq.porting.util.PortingUtil;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-import model.Evl;
+import model.EVL_Tree_Root;
 
 public class port2ewlListener implements SelectionListener {
 	
