@@ -41,7 +41,7 @@ public class EVL_Tree_FixStatement {
 	 * Constructor of the class. It initialize the context to which this fix
 	 * belongs.
 	 * 
-	 * @param parent
+	 * @param context The name of the Context to which this Fix belongs
 	 */
 	public EVL_Tree_FixStatement(String context) {
 		this.context = context;

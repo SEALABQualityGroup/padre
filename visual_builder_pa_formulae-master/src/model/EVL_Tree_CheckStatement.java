@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * * It represent the <code>Check</code> construct
+ * It represent the <code>Check</code> construct
  * 
  * @author Davide Di Gironimo
  */
@@ -22,7 +22,7 @@ public class EVL_Tree_CheckStatement {
 	 * Constructor of the class. It initialize the
 	 * <code>EVL_Tree_CheckOperation</code> list.
 	 * 
-	 * @param parent
+	 * @param context
 	 *            The context to which this Check belongs
 	 * @param operations
 	 *            operations List of {@link EVL_Tree_CheckOperation}
@@ -31,9 +31,10 @@ public class EVL_Tree_CheckStatement {
 		this.context = context;
 		this.operations = operations;
 	}
-	
+
 	/**
-	 * @param context The context to which this Check belongs
+	 * @param context
+	 *            The context to which this Check belongs
 	 */
 	public EVL_Tree_CheckStatement(String context) {
 		this.context = context;
@@ -53,7 +54,7 @@ public class EVL_Tree_CheckStatement {
 	public String getContext() {
 		return context;
 	}
-	
+
 	public void setContext(String context) {
 		this.context = context;
 	}
@@ -69,7 +70,8 @@ public class EVL_Tree_CheckStatement {
 	}
 
 	/**
-	 * @param operations List of {@link EVL_Tree_CheckOperation} to add to the Check
+	 * @param operations
+	 *            List of {@link EVL_Tree_CheckOperation} to add to the Check
 	 * 
 	 */
 	public void setOperations(List<EVL_Tree_CheckOperation> operations) {

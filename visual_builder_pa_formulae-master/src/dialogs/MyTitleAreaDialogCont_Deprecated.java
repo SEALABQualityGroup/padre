@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Text;
 
 import model.Db;
 
-public class MyTitleAreaDialogCont extends TitleAreaDialog {
+public class MyTitleAreaDialogCont_Deprecated extends TitleAreaDialog {
 
 	private Combo c ;  
 
@@ -25,7 +25,7 @@ public class MyTitleAreaDialogCont extends TitleAreaDialog {
 	  private String title="Insert Context name",message="Insert the name of the Context",lab="Context Name";
 	  
 
-	  public MyTitleAreaDialogCont(Shell parentShell) {
+	  public MyTitleAreaDialogCont_Deprecated(Shell parentShell) {
 	    super(parentShell);
 	    
 	  }

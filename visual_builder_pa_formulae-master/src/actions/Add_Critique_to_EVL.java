@@ -12,11 +12,19 @@ import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Critique;
 import model.EVL_Tree_Root;
 
+/**
+ * It adds a Critique to selected Context
+ *
+ */
 public class Add_Critique_to_EVL extends Action {
 
 	TreeViewer EVLtree;
 	EVL_Tree_Context_Item contextSelected;
 
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The tree item representing the Context to which the Critique will be added
+	 */
 	public Add_Critique_to_EVL(TreeViewer tree, EVL_Tree_Context_Item s) {
 		this.EVLtree = tree;
 		this.contextSelected = s;

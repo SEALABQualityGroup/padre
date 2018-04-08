@@ -35,6 +35,10 @@ import listeners.workspaceChangeListener;
 import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_FixOperations;
 
+/**
+ * It is the view that contains the TreeViewer for the EOL library
+ *
+ */
 public class EOL_Library_Tree extends ViewPart {
 
 	AST eolAST;

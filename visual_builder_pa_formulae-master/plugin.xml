@@ -39,7 +39,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="perspectives.Visual_Builder"
-            icon="icons/evl.gif"
+            icon="icons/SEALAb.png"
             id="perspectives.EVL_Visual_Builder"
             name="EVL Visual Builder">
       </perspective>
@@ -64,6 +64,15 @@
             id="editors.EolEditorForDB"
             name="EolEditorForDB">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="perspectives.EVL_Visual_Builder">
+         <actionSet
+               id="org.eclipse.debug.ui.launchActionSet">
+         </actionSet>
+      </perspectiveExtension>
    </extension>
 
 </plugin>

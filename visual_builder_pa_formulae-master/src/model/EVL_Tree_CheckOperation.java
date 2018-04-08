@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * It's the Check's guard.
+ * It represents an operation of the Check guard.
  * 
  * @author Davide Di Gironimo
  */

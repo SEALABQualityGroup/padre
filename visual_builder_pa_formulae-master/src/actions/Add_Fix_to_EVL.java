@@ -10,11 +10,19 @@ import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Root;
 import model.EVL_Tree_FixStatement;
 
+/**
+ * It adds a Fix to the EVL tree
+ *
+ */
 public class Add_Fix_to_EVL extends Action{
 
 	TreeViewer EVLtree;
 	EVL_Tree_Container containerSelected;
 	
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The Constraint or Critique to which the Fix will be added
+	 */
 	public Add_Fix_to_EVL(TreeViewer tree, EVL_Tree_Container s) {
 		this.EVLtree = tree;
 		this.containerSelected = s;

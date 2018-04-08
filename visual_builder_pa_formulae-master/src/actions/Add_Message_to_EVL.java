@@ -10,11 +10,19 @@ import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Root;
 import model.EVL_Tree_Message;
 
+/**
+ * It allows to add the Message (quotes must be inserted manually)
+ *
+ */
 public class Add_Message_to_EVL extends Action{
 
 	TreeViewer EVLtree;
 	EVL_Tree_Container containerSelected;
 	
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The Constraint or Critique to which the Message will be added
+	 */
 	public Add_Message_to_EVL(TreeViewer tree, EVL_Tree_Container s) {
 		this.EVLtree = tree;
 		this.containerSelected = s;

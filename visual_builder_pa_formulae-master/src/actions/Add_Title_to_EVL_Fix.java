@@ -8,6 +8,11 @@ import dialogs.MyTitleAreaDialogFixTitle;
 import model.EVL_Tree_FixStatement;
 import model.EVL_Tree_FixTitle;
 
+/**
+ * It allows to add a title to the selected Fix of EVL
+ * (quotes are to be added manually)
+ *
+ */
 public class Add_Title_to_EVL_Fix extends Action{
 
 	TreeViewer EVLtree;

@@ -8,11 +8,19 @@ import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Root;
 
+/**
+ * It adds Check statement to EVL tree
+ *
+ */
 public class Add_Check_to_EVL extends Action{
 
 	TreeViewer EVLtree;
 	EVL_Tree_Container containerSelected;
 	
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The tree item representing the Constraint or Critique to which the Check will be added
+	 */
 	public Add_Check_to_EVL(TreeViewer tree, EVL_Tree_Container s) {
 		this.EVLtree = tree;
 		this.containerSelected = s;
