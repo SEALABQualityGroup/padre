@@ -252,7 +252,7 @@ public class Thresholds_OnDB extends ViewPart {
 
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-		bars.getToolBarManager().add(getOnlineLibrary);
+//		bars.getToolBarManager().add(getOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {

@@ -77,6 +77,13 @@ public class EOLLibraryContextFilter extends ViewerFilter {
 					else
 						return false;
 				}
+				if (box.get(0) instanceof EOL_Library_Th_Operation)
+				{
+					if ("Th".matches(operationType))
+						return true;
+					else
+						return false;
+				}
 			}
 		}
 		if (element instanceof EOL_Library_Context_Item)

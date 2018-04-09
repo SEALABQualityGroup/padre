@@ -15,7 +15,8 @@ public class EVL_Tree_CheckOperation {
 	 * Comparison Operator between a single "Predicate" in the guard
 	 * 
 	 */
-	private BooleanOperators op;
+	private BooleanOperators op;	
+
 	/**
 	 * Single "Predicate" in the guard
 	 * 
@@ -49,8 +50,12 @@ public class EVL_Tree_CheckOperation {
 		this.predicate = predicate;
 	}
 
+	public void setThreshold(String threshold) {
+		this.predicate.setThreshold(threshold);
+	}
+
 	public String toString() {
-		return op.toString() + predicate.toString();
+		return " " + op.toString() + predicate.toString();
 	}
 
 }

@@ -4,7 +4,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 
-import dialogs.MyTitleAreaDialogFixTitle;
+import dialogs.MessageDialogFixTitle;
 import model.EVL_Tree_FixStatement;
 import model.EVL_Tree_FixTitle;
 
@@ -26,7 +26,7 @@ public class Add_Title_to_EVL_Fix extends Action{
 	public void run() {
 
 		String title = "";
-		MyTitleAreaDialogFixTitle fixTitleDialog = new MyTitleAreaDialogFixTitle(EVLtree.getControl().getShell());
+		MessageDialogFixTitle fixTitleDialog = new MessageDialogFixTitle(EVLtree.getControl().getShell());
 		fixTitleDialog.create();
 		if (fixTitleDialog.open() == Window.OK) {
 			title = fixTitleDialog.getName();

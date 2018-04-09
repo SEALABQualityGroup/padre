@@ -7,15 +7,9 @@ import java.util.List;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.parse.EolParser;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import dialogs.OverwrittenOperationWarning;
-//import dialogs.SelectFileWarning;
 
 import org.apache.commons.io.FileUtils;
 
@@ -30,17 +24,14 @@ public class saveEolListener_depr implements SelectionListener {
 
 	AST eolAST;
 
-	private Shell shell;
-
 	public saveEolListener_depr(Text eolcode, org.eclipse.swt.widgets.List library, String workspace, List<AST> ops,
-			org.eclipse.swt.widgets.List visualops, Shell s) {
+			org.eclipse.swt.widgets.List visualops) {
 
 		this.eolcode = eolcode;
 		this.library = library;
 		this.workspace = workspace;
 		this.ops = ops;
 		this.visualops = visualops;
-		this.shell = s;
 	}
 
 	@Override
@@ -114,16 +105,16 @@ public class saveEolListener_depr implements SelectionListener {
 							
 							ops = tempOps;
 							
-							OverwrittenOperationWarning dialog = new OverwrittenOperationWarning(shell);
-							dialog.create();
-							
-							if (dialog.open() == Window.OK) {
-								return;
-							}
-							else{
-								return;
-							}
-							
+//							OverwrittenOperationWarning dialog = new OverwrittenOperationWarning(shell);
+//							dialog.create();
+//							
+//							if (dialog.open() == Window.OK) {
+//								return;
+//							}
+//							else{
+//								return;
+//							}
+//							
 						} else {
 							tempOps.add(operation);
 							visualops.add(operation.getSecondChild().getText() + " for "

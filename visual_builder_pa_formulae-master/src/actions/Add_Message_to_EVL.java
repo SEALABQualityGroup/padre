@@ -4,7 +4,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 
-import dialogs.MyTitleAreaDialogMessage;
+import dialogs.MessageDialogEVLMessage;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Root;
@@ -31,7 +31,7 @@ public class Add_Message_to_EVL extends Action{
 	public void run() {
 
 		String txtMsg = "";
-		MyTitleAreaDialogMessage dialogMessage = new MyTitleAreaDialogMessage(EVLtree.getControl().getShell());
+		MessageDialogEVLMessage dialogMessage = new MessageDialogEVLMessage(EVLtree.getControl().getShell());
 		dialogMessage.create();
 		if (dialogMessage.open() == Window.OK) {
 			txtMsg = dialogMessage.getName();

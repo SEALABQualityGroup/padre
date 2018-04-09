@@ -30,6 +30,7 @@ import actions.Add_Title_to_EVL_Fix;
 import actions.Export_EVL_as_XML;
 import actions.Hook_Do_operation_Context_Menu;
 import actions.Hook_F_operation_Context_Menu;
+import actions.Hook_TH_operation_Context_Menu;
 import actions.Import_EVL_from_XML;
 import actions.Save_EPL_file_Action;
 import actions.Save_EVL_file_Action;
@@ -40,6 +41,7 @@ import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.EOL_Library_Context_Item;
+import model.EVL_Tree_CheckOperation;
 import model.EVL_Tree_FixOperations;
 import model.EVL_Tree_Root;
 import model.EVL_Tree_FixStatement;
@@ -245,6 +247,16 @@ public class EVL_Tree extends ViewPart {
 								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
 						manager.add(chooseFoperations);
+					}
+					
+					if (s instanceof EVL_Tree_CheckOperation) {
+
+						Action chooseThoperations = new Hook_TH_operation_Context_Menu(tree, (EVL_Tree_CheckOperation) s);
+						chooseThoperations.setText("Choose Th");
+						chooseThoperations.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
+						manager.add(chooseThoperations);
 					}
 
 					if (s instanceof EVL_Tree_FixOperations) {
