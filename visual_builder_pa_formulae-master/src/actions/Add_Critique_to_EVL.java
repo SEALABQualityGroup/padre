@@ -6,17 +6,25 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 
-import dialogs.MyTitleAreaDialogCCName;
+import dialogs.MessageDialogCCName;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Critique;
 import model.EVL_Tree_Root;
 
+/**
+ * It adds a Critique to selected Context
+ *
+ */
 public class Add_Critique_to_EVL extends Action {
 
 	TreeViewer EVLtree;
 	EVL_Tree_Context_Item contextSelected;
 
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The tree item representing the Context to which the Critique will be added
+	 */
 	public Add_Critique_to_EVL(TreeViewer tree, EVL_Tree_Context_Item s) {
 		this.EVLtree = tree;
 		this.contextSelected = s;
@@ -24,7 +32,7 @@ public class Add_Critique_to_EVL extends Action {
 
 	public void run() {
 		String critiqueName = "";
-		MyTitleAreaDialogCCName dialog2 = new MyTitleAreaDialogCCName(EVLtree.getControl().getShell());
+		MessageDialogCCName dialog2 = new MessageDialogCCName(EVLtree.getControl().getShell());
 		dialog2.create();
 		if (dialog2.open() == Window.OK) {
 			critiqueName = dialog2.getName();

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/Visual_Builder_1.0.0.201804092032.jar" id="Visual_Builder" version="1.0.0.201804092032">
+      <category name="Epsilon_Tool"/>
+   </feature>
+   <category-def name="Epsilon_Tool" label="Epsilon Tool"/>
+</site>

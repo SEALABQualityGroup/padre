@@ -12,6 +12,10 @@ import org.eclipse.swt.widgets.FileDialog;
 import helpers.ProjectManagment;
 import model.EVL_Tree_Root;
 
+/**
+ * It allows to parse an XML containing an EVL data structure 
+ *
+ */
 public class Import_EVL_from_XML extends Action {
 	
 	private TreeViewer evltree;

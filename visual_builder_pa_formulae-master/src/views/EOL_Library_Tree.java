@@ -24,6 +24,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import actions.Add_Do_operation_to_EVL;
 import actions.Add_Operation_to_Check;
+import actions.Add_TH_operation_to_EVL;
 import actions.DoubleClick_EOL_operation_Action;
 import actions.NewEOL_operation_Action;
 import actions.Save_operation_OnDB_Action;
@@ -32,9 +33,14 @@ import contentProviders.EOLLibraryLabelProvider;
 import filters.EOLLibraryContextFilter;
 import listeners.DropListener_for_EOL_Library_Tree;
 import listeners.workspaceChangeListener;
+import model.EVL_Tree_CheckOperation;
 import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_FixOperations;
 
+/**
+ * It is the view that contains the TreeViewer for the EOL library
+ *
+ */
 public class EOL_Library_Tree extends ViewPart {
 
 	AST eolAST;
@@ -42,11 +48,6 @@ public class EOL_Library_Tree extends ViewPart {
 	public TreeViewer eoltree;
 	private EOLLibraryContextFilter treeFilter;
 
-	
-
-	/**
-	 * Costruttore
-	 */
 	public EOL_Library_Tree() {
 	}
 
@@ -73,21 +74,21 @@ public class EOL_Library_Tree extends ViewPart {
 		TreeItem nullRoot = new TreeItem(eoltree.getTree(), SWT.NONE);
 		nullRoot.setText("Drag and drop here the EOL library root directory");
 
-		Action newOperation = new NewEOL_operation_Action();
-		newOperation.setText("Add");
-		newOperation.setToolTipText("Add new operation");
-		newOperation.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+//		Action newOperation = new NewEOL_operation_Action();
+//		newOperation.setText("Add");
+//		newOperation.setToolTipText("Add new operation");
+//		newOperation.setImageDescriptor(
+//				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+//
+//		Action saveOperationsOnDB = new Save_operation_OnDB_Action();
+//		saveOperationsOnDB.setText("Save");
+//		saveOperationsOnDB.setToolTipText("Save all operation in DB");
+//		saveOperationsOnDB.setImageDescriptor(
+//				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEALL_EDIT));
 
-		Action saveOperationsOnDB = new Save_operation_OnDB_Action();
-		saveOperationsOnDB.setText("Save");
-		saveOperationsOnDB.setToolTipText("Save all operation in DB");
-		saveOperationsOnDB.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEALL_EDIT));
-
-		IActionBars bars = getViewSite().getActionBars();
-		bars.getToolBarManager().add(newOperation);
-		bars.getToolBarManager().add(saveOperationsOnDB);
+//		IActionBars bars = getViewSite().getActionBars();
+//		bars.getToolBarManager().add(newOperation);
+//		bars.getToolBarManager().add(saveOperationsOnDB);
 
 
 		
@@ -117,6 +118,12 @@ public class EOL_Library_Tree extends ViewPart {
 		this.treeFilter = treeFilter;
 	}
 
+	/**
+	 * It adds a context menu to all F operations available in the EOL library
+	 * 
+	 * @param check The Check statement selected in EVL tree
+	 * @param evltree The EVL tree
+	 */
 	public void hookContextMenu(EVL_Tree_CheckStatement check, TreeViewer evltree) {
 
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -193,6 +200,11 @@ public class EOL_Library_Tree extends ViewPart {
 		getSite().registerContextMenu(menuMgr, eoltree);
 	}
 
+	/**
+	 * It adds a context menu to all DO operations available in the EOL library
+	 * 
+	 * @param d The DO statement selected in EVL
+	 */
 	public void hookContextMenu(EVL_Tree_FixOperations d) {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
@@ -210,6 +222,37 @@ public class EOL_Library_Tree extends ViewPart {
 							.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
 					manager.add(set_Redo_Operation);
+
+				}
+			}
+		});
+		Menu menu = menuMgr.createContextMenu(eoltree.getControl());
+		eoltree.getControl().setMenu(menu);
+		getSite().registerContextMenu(menuMgr, eoltree);
+	}
+	
+	/**
+	 * It adds a context menu to all thresholds operations available in the EOL library
+	 * 
+	 * @param op The operation selected of the Check statement
+	 */
+	public void hookContextMenu(EVL_Tree_CheckOperation op) {
+		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		menuMgr.setRemoveAllWhenShown(true);
+		menuMgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				if (eoltree.getSelection().isEmpty()) {
+					return;
+				}
+
+				if (eoltree.getSelection() instanceof IStructuredSelection) {
+
+					Action set_Threshold_Operation = new Add_TH_operation_to_EVL(eoltree.getSelection(), op);
+					set_Threshold_Operation.setText("Add this threshold");
+					set_Threshold_Operation.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+							.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+
+					manager.add(set_Threshold_Operation);
 
 				}
 			}

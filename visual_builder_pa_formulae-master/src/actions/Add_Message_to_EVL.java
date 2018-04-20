@@ -4,17 +4,25 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 
-import dialogs.MyTitleAreaDialogMessage;
+import dialogs.MessageDialogEVLMessage;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_Root;
 import model.EVL_Tree_Message;
 
+/**
+ * It allows to add the Message (quotes must be inserted manually)
+ *
+ */
 public class Add_Message_to_EVL extends Action{
 
 	TreeViewer EVLtree;
 	EVL_Tree_Container containerSelected;
 	
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The Constraint or Critique to which the Message will be added
+	 */
 	public Add_Message_to_EVL(TreeViewer tree, EVL_Tree_Container s) {
 		this.EVLtree = tree;
 		this.containerSelected = s;
@@ -23,7 +31,7 @@ public class Add_Message_to_EVL extends Action{
 	public void run() {
 
 		String txtMsg = "";
-		MyTitleAreaDialogMessage dialogMessage = new MyTitleAreaDialogMessage(EVLtree.getControl().getShell());
+		MessageDialogEVLMessage dialogMessage = new MessageDialogEVLMessage(EVLtree.getControl().getShell());
 		dialogMessage.create();
 		if (dialogMessage.open() == Window.OK) {
 			txtMsg = dialogMessage.getName();

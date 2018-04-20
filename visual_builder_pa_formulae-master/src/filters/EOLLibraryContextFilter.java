@@ -11,6 +11,10 @@ import model.EOL_Library_Root;
 import model.EOL_Library_F_Operation;
 import model.EOL_Library_Th_Operation;
 
+/**
+ * It allows to filter the EOL library tree by a search string
+ *
+ */
 public class EOLLibraryContextFilter extends ViewerFilter {
 
 	private String searchString;
@@ -38,7 +42,6 @@ public class EOLLibraryContextFilter extends ViewerFilter {
 	 */
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		// TODO Auto-generated method stub
 
 		if (element instanceof EOL_Library_Root)
 		{
@@ -70,6 +73,13 @@ public class EOLLibraryContextFilter extends ViewerFilter {
 				if (box.get(0) instanceof EOL_Library_DO_Operation)
 				{
 					if ("Do".matches(operationType))
+						return true;
+					else
+						return false;
+				}
+				if (box.get(0) instanceof EOL_Library_Th_Operation)
+				{
+					if ("Th".matches(operationType))
 						return true;
 					else
 						return false;

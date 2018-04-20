@@ -13,6 +13,10 @@ import org.eclipse.swt.widgets.FileDialog;
 import helpers.ProjectManagment;
 import model.EVL_Tree_Root;
 
+/**
+ * It allows to export the EVL data structure as an XML file
+ *
+ */
 public class Export_EVL_as_XML extends Action {
 
 	private TreeViewer evltree;

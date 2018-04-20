@@ -30,6 +30,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+/**
+ * It allows to create an EVL Validation 'Run configuration' 
+ * But it is not parameterized, it need the EVL and UML model as parameters
+ * 
+ * @author Stefano
+ *
+ */
 public class validateSelectionListener implements SelectionListener {
 
 	private Shell shell;
@@ -60,8 +67,8 @@ public class validateSelectionListener implements SelectionListener {
 			}
 
 
-			IPath location = Path.fromOSString(namespace + "/bgcs.launch");
-			IFile f = workspace.getRoot().getFileForLocation(location);
+//			IPath location = Path.fromOSString(namespace + "/bgcs.launch");
+//			IFile f = workspace.getRoot().getFileForLocation(location);
 			
 			
 			

@@ -19,7 +19,8 @@ import model.EOL_Library_F_Operation;
 import model.EOL_Library_Th_Operation;
 
 /**
- * @author Stefano
+ * It contains a comparator for EOL operations
+ * and the code to initialize the EOL library data structure
  *
  */
 public class EOL_Utils {
@@ -132,8 +133,7 @@ public class EOL_Utils {
 								if (operation.getFirstChild().getText().equals(c.getName())) {
 									c.geteffe()
 											.add(new EOL_Library_F_Operation(operation.getSecondChild().getText(),
-													operation.getFirstChild().getText(), operation.rewrite(),
-													eol_file.getCanonicalPath()));
+													operation.getFirstChild().getText(), operation.rewrite(), eol_file.getAbsolutePath()));
 									found = true;
 								}
 							}
@@ -159,7 +159,7 @@ public class EOL_Utils {
 								c.getdu()
 										.add(new EOL_Library_DO_Operation(operation.getSecondChild().getText(),
 												operation.getFirstChild().getText(), operation.rewrite(),
-												eol_file.getCanonicalPath()));
+												eol_file.getAbsolutePath()));
 								found = true;
 							}
 						}
@@ -170,7 +170,7 @@ public class EOL_Utils {
 							List<EOL_Library_DO_Operation> nuovodu = new ArrayList<EOL_Library_DO_Operation>();
 							nuovodu.add(new EOL_Library_DO_Operation(operation.getSecondChild().getText(),
 									operation.getFirstChild().getText(), operation.rewrite(),
-									eol_file.getCanonicalPath()));
+									eol_file.getAbsolutePath()));
 							nuovo.setdu(nuovodu);
 							contexts.add(nuovo);
 						}
@@ -197,8 +197,9 @@ public class EOL_Utils {
 			IWorkbenchPage page1 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			views.EVL_Tree evlview = (views.EVL_Tree) page1.findView("views.EVL_Tree");
 
+			evlview.setEol_library_path(library_path);
 			evlview.setContexts(contexts);
-
+			evlview.setActions();
 			 
 		}
 	//}

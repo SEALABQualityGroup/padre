@@ -16,39 +16,26 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.UIJob;
 
 import filters.ContextFilter_Depr;
-import helpers.ShowView;
 import helpers.EOL_Utils;
-import helpers.fillTreeModel;
-import model.EVL_Tree_CheckStatement;
-import model.EVL_Tree_Context_Item;
 import model.Db;
-import model.EVL_Tree_FixOperations;
 import model.EOL_Library_DO_Operation;
-import model.EOL_Library_F_Operation;
-import model.EVL_Tree_FixStatement;
 
 public class Do_OperationsOnDB extends ViewPart {
 
@@ -60,12 +47,10 @@ public class Do_OperationsOnDB extends ViewPart {
 	private TableViewer tableViewer;
 
 	public Do_OperationsOnDB() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		// TODO Auto-generated method stub
 
 		DBDoFunctions = new ArrayList<Integer>();
 
@@ -295,7 +280,7 @@ public class Do_OperationsOnDB extends ViewPart {
 
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-		bars.getToolBarManager().add(getOnlineLibrary);
+//		bars.getToolBarManager().add(getOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {
@@ -335,156 +320,10 @@ public class Do_OperationsOnDB extends ViewPart {
 			}
 		});
 
-		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
 	}
 
-	// private ISelectionListener listener = new ISelectionListener() {
-	// public void selectionChanged(IWorkbenchPart sourcepart, ISelection selection)
-	// {
-	// // we ignore our own selections
-	// if (sourcepart instanceof view.EVLtree) {
-	// if (!selection.isEmpty()) {
-	// try {
-	// showSelection(sourcepart, selection);
-	// } catch (PartInitException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// } else {
-	// contextFilter.setSearchText(".*");
-	// }
-	// }
-	// };
 
-	public void chooseDo() {
-		// public void showSelection(IWorkbenchPart sourcepart, ISelection selection)
-		// throws PartInitException {
-		//
-		// if (selection instanceof IStructuredSelection) {
-		// Object selected = ((IStructuredSelection) selection).getFirstElement();
-
-		UIJob myjob = new ShowView("view.Do_OperationsOnDB", null);
-
-		// if (selected instanceof model.Do) {
-
-		try {
-			DBDoFunctions.clear();
-			List<Integer> do_id_list = Db.getall_Do_id();
-
-			List<String[]> items = new ArrayList<String[]>();
-
-			for (Integer id : do_id_list) {
-
-				EOL_Library_DO_Operation redo = Db.get_Do_description_byId(id);
-
-				items.add(new String[] { redo.getName(), redo.getContext() });
-
-				DBDoFunctions.add(id);
-
-			}
-
-			TreeItem[] selects;
-			TreeItem itemSelected;
-
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			views.EVL_Tree evlview = (views.EVL_Tree) page.findView("view.EVLtree");
-
-			selects = evlview.tree.getTree().getSelection();
-			itemSelected = selects[0];
-
-			TreeItem fixItem = itemSelected.getParentItem();
-			TreeItem invariant = fixItem.getParentItem();
-			TreeItem context = invariant.getParentItem();
-			EVL_Tree_Context_Item cont = (EVL_Tree_Context_Item) context.getData();
-
-			contextFilter.setSearchText(cont.getName());
-			contextFilter.set_indexing(DBDoFunctions);
-
-			tableViewer.setInput(items);
-
-			EVL_Tree_FixOperations redo = (EVL_Tree_FixOperations) itemSelected.getData();
-
-			hookContextMenu(evlview, redo);
-
-			myjob.schedule();
-
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// }
-		// }
-
-	}
-
-	private void hookContextMenu(views.EVL_Tree evlview, EVL_Tree_FixOperations d) {
-
-		Action set_Redo_Operation = new Action() {
-			public void run() {
-
-				TableItem[] selects;
-				TableItem itemSelected;
-
-				selects = tableViewer.getTable().getSelection();
-				itemSelected = selects[0];
-
-				itemSelected.getText(0);
-
-				int index = tableViewer.getTable().getSelectionIndex();
-
-				int operation_id = DBDoFunctions.get(index);
-
-				EOL_Library_DO_Operation redo;
-
-				try {
-					redo = Db.get_Do_description_byId(operation_id);
-
-					List<String> list = d.getFunctions();
-
-					list.add(redo.getName());
-					d.setFunctions(list);
-					evlview.tree.getTree().removeAll();
-
-					new fillTreeModel(evlview.tree.getTree(), evlview.evl).fill();
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		set_Redo_Operation.setText("Add to EVL tree");
-		set_Redo_Operation.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
-				if (tableViewer.getSelection().isEmpty()) {
-					return;
-				}
-
-				if (tableViewer.getSelection() instanceof IStructuredSelection) {
-
-					manager.add(set_Redo_Operation);
-
-				}
-			}
-		});
-		Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-		tableViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, tableViewer);
-	}
+	
 
 	@Override
 	public void setFocus() {

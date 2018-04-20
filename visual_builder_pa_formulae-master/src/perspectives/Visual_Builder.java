@@ -6,8 +6,9 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 /**
  * It represents the perspective of the plug-in, identified as EVL Visual Builder
+ * It allows to change the default size of views
  * 
- * @author Stefano
+ * @author Stefano Di Francesco
  *
  */
 public class Visual_Builder implements IPerspectiveFactory {

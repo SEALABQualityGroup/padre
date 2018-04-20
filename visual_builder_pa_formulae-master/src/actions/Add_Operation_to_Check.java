@@ -2,6 +2,8 @@ package actions;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -28,6 +30,12 @@ public class Add_Operation_to_Check extends Action {
 	private EVL_Tree_CheckStatement check;
 	private int comb;
 
+	/**
+	 * @param evltree The EVL TreeViewer
+	 * @param iSelection The tree item selected
+	 * @param check The Check statement to which the Operation will be added
+	 * @param comb The boolean operator to use
+	 */
 	public Add_Operation_to_Check(TreeViewer evltree, ISelection iSelection, EVL_Tree_CheckStatement check, int comb) {
 		super();
 		this.evltree = evltree;
@@ -94,12 +102,16 @@ public class Add_Operation_to_Check extends Action {
 
 			check.getOperations().add(operation);
 
-			String importFile = f.getEol_file();
+			String absolutePath = f.getEol_file();
+			IPath filePath = Path.fromOSString(absolutePath);
+			
+			String[] segments = filePath.segments();
+			String importString = segments[segments.length - 2] + "/" + segments[segments.length - 1];
 
 			List<EVL_Tree_ImportStatement> iList = evl.getImportList();
 
 			if (iList.isEmpty()) {
-				EVL_Tree_ImportStatement newImp = new EVL_Tree_ImportStatement(importFile);
+				EVL_Tree_ImportStatement newImp = new EVL_Tree_ImportStatement(importString);
 				iList.add(newImp);
 				evl.setImportList(iList);
 			} else {
@@ -107,7 +119,7 @@ public class Add_Operation_to_Check extends Action {
 
 				for (Object i : iList.toArray()) {
 					EVL_Tree_ImportStatement oldImp = (EVL_Tree_ImportStatement) i;
-					if (oldImp.getText().equals(importFile)) {
+					if (oldImp.getText().equals(importString)) {
 						flag = true;
 						break;
 					} else {
@@ -117,7 +129,7 @@ public class Add_Operation_to_Check extends Action {
 				}
 
 				if (!flag) {
-					EVL_Tree_ImportStatement newImp = new EVL_Tree_ImportStatement(importFile);
+					EVL_Tree_ImportStatement newImp = new EVL_Tree_ImportStatement(importString);
 					iList.add(newImp);
 					evl.setImportList(iList);
 				}

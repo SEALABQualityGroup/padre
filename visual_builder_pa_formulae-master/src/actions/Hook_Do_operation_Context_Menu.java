@@ -19,6 +19,10 @@ public class Hook_Do_operation_Context_Menu extends Action {
 	TreeViewer EVLtree;
 	EVL_Tree_FixOperations contextSelected;
 
+	/**
+	 * @param tree The EVL TreeViewer
+	 * @param s The list of DO
+	 */
 	public Hook_Do_operation_Context_Menu(TreeViewer tree, EVL_Tree_FixOperations s) {
 		this.EVLtree = tree;
 		this.contextSelected = s;

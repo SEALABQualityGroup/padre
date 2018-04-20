@@ -7,6 +7,13 @@ import org.eclipse.ui.PlatformUI;
 
 import model.EVL_Tree_CheckStatement;
 
+/**
+ * This action filters the library by F-type operations of the context passed
+ * as argument and activates context menu on these operations.
+ * 
+ * @author Stefano
+ *
+ */
 public class Hook_F_operation_Context_Menu extends Action {
 
 	TreeViewer EVLtree;

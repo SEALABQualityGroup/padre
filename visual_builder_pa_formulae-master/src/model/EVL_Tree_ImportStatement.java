@@ -3,7 +3,7 @@ package model;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author Stefano
+ * It represent the Import construct
  *
  */
 @XmlRootElement
@@ -51,6 +51,6 @@ public class EVL_Tree_ImportStatement {
 	// this.text = text;
 	// }
 	public String toString() {
-		return "import " + this.text;
+		return "import \"" + this.text + "\";";
 	}
 }

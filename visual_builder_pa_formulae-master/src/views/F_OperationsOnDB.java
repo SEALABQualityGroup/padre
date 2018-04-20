@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -25,31 +24,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.UIJob;
 
 import filters.ContextFilter_Depr;
-import helpers.ShowView;
 import helpers.EOL_Utils;
-import helpers.fillTreeModel;
-import model.EVL_Tree_CheckStatement;
-import model.EVL_Tree_Context_Item;
 import model.Db;
-import model.EOL_Library_DO_Operation;
 import model.EOL_Library_F_Operation;
-import model.BooleanOperators;
-import model.EVL_Tree_CheckOperation;
-import model.UnaryOperator;
-import model.UnaryPredicate;
 
 public class F_OperationsOnDB extends ViewPart {
 
@@ -61,12 +47,10 @@ public class F_OperationsOnDB extends ViewPart {
 	public int selectedOpID;
 
 	public F_OperationsOnDB() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		// TODO Auto-generated method stub
 
 		DBMetricFunctions = new ArrayList<Integer>();
 
@@ -295,7 +279,7 @@ public class F_OperationsOnDB extends ViewPart {
 
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-		bars.getToolBarManager().add(getOnlineLibrary);
+//		bars.getToolBarManager().add(getOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {
@@ -337,321 +321,6 @@ public class F_OperationsOnDB extends ViewPart {
 
 		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
 
-	}
-
-	// private ISelectionListener listener = new ISelectionListener() {
-	// public void selectionChanged(IWorkbenchPart sourcepart, ISelection selection)
-	// {
-	// // we ignore our own selections
-	// if (sourcepart instanceof view.EVLtree) {
-	// if (!selection.isEmpty()) {
-	// try {
-	// showSelection(sourcepart, selection);
-	// } catch (PartInitException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// }
-	// };
-
-	public void chooseF() {
-		// public void showSelection(IWorkbenchPart sourcepart, ISelection selection)
-		// throws PartInitException {
-		//
-		// if (selection instanceof IStructuredSelection) {
-		// Object selected = ((IStructuredSelection) selection).getFirstElement();
-		//
-		UIJob myjob = new ShowView("view.F_OperationsOnDB", null);
-
-		// if (selected instanceof Context) {
-		//
-		// Context c = (Context) selected;
-		//
-		// contextFilter.setSearchText(c.getName());
-		// tableViewer.refresh();
-		//
-		// myjob.schedule();
-		// }
-		// if (selected instanceof Critique || selected instanceof
-		// Constraint) {
-		//
-		// TreeItem[] selects;
-		// TreeItem itemSelected;
-		//
-		// view.EVLtree evlview = (view.EVLtree) sourcepart;
-		//
-		// selects = evlview.tree.getTree().getSelection();
-		// itemSelected = selects[0];
-		//
-		// TreeItem contextItem = itemSelected.getParentItem();
-		// Context context = (Context) contextItem.getData();
-		//
-		// contextFilter.setSearchText(context.getName());
-		// tableViewer.refresh();
-		//
-		// myjob.schedule();
-		//
-		// }
-		// if (selected instanceof Check) {
-
-		try {
-			DBMetricFunctions.clear();
-			List<Integer> f_id_list = Db.getall_F_id();
-
-			List<String[]> items = new ArrayList<String[]>();
-
-			for (Integer id : f_id_list) {
-
-				EOL_Library_F_Operation f = Db.get_F_description_byId(id);
-
-				items.add(new String[] { f.getName(), f.getContext() });
-
-				DBMetricFunctions.add(id);
-
-			}
-
-			TreeItem[] selects;
-			TreeItem itemSelected;
-
-			// view.EVLtree evlview = (view.EVLtree) sourcepart;
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			views.EVL_Tree evlview = (views.EVL_Tree) page.findView("view.EVLtree");
-
-			selects = evlview.tree.getTree().getSelection();
-			itemSelected = selects[0];
-
-			TreeItem invariantItem = itemSelected.getParentItem();
-			TreeItem contextItem = invariantItem.getParentItem();
-			EVL_Tree_Context_Item context = (EVL_Tree_Context_Item) contextItem.getData();
-
-			contextFilter.setSearchText(context.getName());
-			contextFilter.set_indexing(DBMetricFunctions);
-
-			tableViewer.setInput(items);
-
-			EVL_Tree_CheckStatement check = (EVL_Tree_CheckStatement) itemSelected.getData();
-
-			hookContextMenu(evlview, check);
-
-			myjob.schedule();
-
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// }
-		// }
-
-	}
-
-	private void hookContextMenu(views.EVL_Tree evlview, EVL_Tree_CheckStatement check) {
-
-		Action set_First_Operation = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 0);
-
-			}
-		};
-		set_First_Operation.setText("Add to EVL tree");
-		set_First_Operation.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_Negated_First_Operation = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 1);
-
-			}
-		};
-		set_Negated_First_Operation.setText("Add negated to EVL tree");
-		set_Negated_First_Operation.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_AND = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 2);
-
-			}
-		};
-		set_AND.setText("AND");
-		set_AND.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_OR = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 3);
-
-			}
-		};
-		set_OR.setText("OR");
-		set_OR.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_XOR = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 4);
-
-			}
-		};
-		set_XOR.setText("XOR");
-		set_XOR.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_Negated_AND = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 5);
-
-			}
-		};
-		set_Negated_AND.setText("NOT AND");
-		set_Negated_AND.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_Negated_OR = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 6);
-
-			}
-		};
-		set_Negated_OR.setText("NOT OR");
-		set_Negated_OR.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action set_Negated_XOR = new Action() {
-			public void run() {
-
-				generalAction(evlview, check, 7);
-
-			}
-		};
-		set_Negated_XOR.setText("NOT XOR");
-		set_Negated_XOR.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
-				if (tableViewer.getSelection().isEmpty()) {
-					return;
-				}
-
-				if (tableViewer.getSelection() instanceof IStructuredSelection) {
-
-					if (check.getOperations().isEmpty()) {
-						manager.add(set_First_Operation);
-						manager.add(set_Negated_First_Operation);
-					} else {
-						manager.add(set_AND);
-						manager.add(set_OR);
-						manager.add(set_XOR);
-						manager.add(set_Negated_AND);
-						manager.add(set_Negated_OR);
-						manager.add(set_Negated_XOR);
-					}
-
-				}
-			}
-		});
-		Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-		tableViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, tableViewer);
-	}
-
-	private void generalAction(views.EVL_Tree evlview, EVL_Tree_CheckStatement check, int comb) {
-		TableItem[] selects;
-		TableItem itemSelected;
-
-		selects = tableViewer.getTable().getSelection();
-		itemSelected = selects[0];
-
-		itemSelected.getText(0);
-
-		int index = tableViewer.getTable().getSelectionIndex();
-
-		int operation_id = DBMetricFunctions.get(index);
-
-		EOL_Library_F_Operation f;
-
-		try {
-
-			f = Db.get_F_description_byId(operation_id);
-
-			UnaryPredicate pred;
-			EVL_Tree_CheckOperation operation = null;
-
-			switch (comb) {
-			case 0:
-				pred = new UnaryPredicate(UnaryOperator.EMPTY, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.EMPTY, pred);
-
-				break;
-			case 1:
-				pred = new UnaryPredicate(UnaryOperator.NOT, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.EMPTY, pred);
-
-				break;
-			case 2:
-				pred = new UnaryPredicate(UnaryOperator.EMPTY, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.AND, pred);
-
-				break;
-			case 3:
-				pred = new UnaryPredicate(UnaryOperator.EMPTY, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.OR, pred);
-
-				break;
-			case 4:
-				pred = new UnaryPredicate(UnaryOperator.EMPTY, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.XOR, pred);
-
-				break;
-			case 5:
-				pred = new UnaryPredicate(UnaryOperator.NOT, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.AND, pred);
-
-				break;
-			case 6:
-				pred = new UnaryPredicate(UnaryOperator.NOT, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.OR, pred);
-
-				break;
-			case 7:
-				pred = new UnaryPredicate(UnaryOperator.NOT, f);
-
-				operation = new EVL_Tree_CheckOperation(BooleanOperators.XOR, pred);
-
-				break;
-			}
-
-			check.getOperations().add(operation);
-			evlview.tree.getTree().removeAll();
-
-			new fillTreeModel(evlview.tree.getTree(), evlview.evl).fill();
-
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	@Override

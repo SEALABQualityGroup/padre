@@ -12,7 +12,8 @@ public class UnaryPredicate {
 
 	private EOL_Library_F_Operation f_op;
 	private UnaryOperator op;
-	
+	private String threshold;
+
 	public UnaryPredicate(UnaryOperator op , EOL_Library_F_Operation f){
 		this.f_op = f;
 		this.op=op;
@@ -39,14 +40,29 @@ public class UnaryPredicate {
 	public void setOp(UnaryOperator op) {
 		this.op = op;
 	}
+	
+	public String getThreshold() {
+		return threshold;
+	}
+
+	public void setThreshold(String threshold) {
+		this.threshold = threshold;
+	}
 
 	public String toString() {
-		if (this.op == UnaryOperator.EMPTY) {
-			return " " + op.toString() + f_op.toString() + "() ";
+		if (threshold != null) {
+			if (this.op == UnaryOperator.EMPTY) {
+				return " " + op.toString() + f_op.toString() + "("+ threshold + "())";
+			}
+			return  " " + op.toString() + "( " + f_op.toString() + "("+ threshold + "())) ";
+		} else {
+			if (this.op == UnaryOperator.EMPTY) {
+				return " " + op.toString() + f_op.toString() + "()";
+			}
+			return  " " + op.toString() + "( " + f_op.toString() + "()) ";
 		}
-		return  " " + op.toString() + "( " + f_op.toString() + "()) ";
 		
-		//TODO add thresholds
+		
 	}
 
 }

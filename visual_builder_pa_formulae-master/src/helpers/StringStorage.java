@@ -7,10 +7,7 @@ import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
-/**
- * @author Stefano
- *
- */
+
 public class StringStorage implements IStorage {
 	  private String string;
 	  

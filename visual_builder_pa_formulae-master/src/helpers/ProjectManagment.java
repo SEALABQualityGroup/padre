@@ -12,6 +12,10 @@ import javax.xml.bind.Unmarshaller;
 
 import model.EVL_Tree_Root;
 
+/**
+ * It manages the marshalling of XML
+ *
+ */
 public class ProjectManagment {
 	public static void Save(EVL_Tree_Root evl, File evl_file) throws JAXBException{
 		// create JAXB context and instantiate marshaller
