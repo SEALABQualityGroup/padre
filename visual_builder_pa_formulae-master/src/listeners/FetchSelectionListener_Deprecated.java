@@ -1,26 +1,22 @@
 package listeners;
 
 import java.util.List;
-import java.util.Map;
 
-import org.eclipse.epsilon.common.parse.AST;
-import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
 import model.Db;
 import model.EOL_Library_DO_Operation;
 import model.EOL_Library_F_Operation;
-import model.EOL_Library_Th_Operation;
 
 
-public class FetchSelectionListener implements SelectionListener {
+public class FetchSelectionListener_Deprecated implements SelectionListener {
 
 	private org.eclipse.swt.widgets.List EolMetricList, EolDoList, EolThList;
 	private List<Integer> DBMetricFunctions, DBDoFunctions, DBThresholdFunctions;
 
 
-	public FetchSelectionListener(org.eclipse.swt.widgets.List MetricList, org.eclipse.swt.widgets.List DoList, org.eclipse.swt.widgets.List ThList, List<Integer> MetricFunctions, List<Integer> DoFunctions, List<Integer> ThresholdFunctions) {
+	public FetchSelectionListener_Deprecated(org.eclipse.swt.widgets.List MetricList, org.eclipse.swt.widgets.List DoList, org.eclipse.swt.widgets.List ThList, List<Integer> MetricFunctions, List<Integer> DoFunctions, List<Integer> ThresholdFunctions) {
 		
 		this.EolMetricList = MetricList;
 		this.EolDoList = DoList;

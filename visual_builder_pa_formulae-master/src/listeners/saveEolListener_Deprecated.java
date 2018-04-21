@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 import org.apache.commons.io.FileUtils;
 
-public class saveEolListener_depr implements SelectionListener {
+public class saveEolListener_Deprecated implements SelectionListener {
 
 	private Text eolcode;
 	private org.eclipse.swt.widgets.List library, visualops;
@@ -24,7 +24,7 @@ public class saveEolListener_depr implements SelectionListener {
 
 	AST eolAST;
 
-	public saveEolListener_depr(Text eolcode, org.eclipse.swt.widgets.List library, String workspace, List<AST> ops,
+	public saveEolListener_Deprecated(Text eolcode, org.eclipse.swt.widgets.List library, String workspace, List<AST> ops,
 			org.eclipse.swt.widgets.List visualops) {
 
 		this.eolcode = eolcode;

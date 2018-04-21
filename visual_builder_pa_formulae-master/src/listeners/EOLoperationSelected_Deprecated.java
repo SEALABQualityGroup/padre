@@ -8,7 +8,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
 
-public class EOLoperationSelected implements SelectionListener {
+public class EOLoperationSelected_Deprecated implements SelectionListener {
 
 	private List<AST> ops;
 	private org.eclipse.swt.widgets.List visualops;
@@ -16,7 +16,7 @@ public class EOLoperationSelected implements SelectionListener {
 
 	AST eolAST;
 
-	public EOLoperationSelected(List<AST> ops, org.eclipse.swt.widgets.List visualops, Text area) {
+	public EOLoperationSelected_Deprecated(List<AST> ops, org.eclipse.swt.widgets.List visualops, Text area) {
 		this.ops = ops;
 		this.visualops = visualops;
 		this.eolcode = area;

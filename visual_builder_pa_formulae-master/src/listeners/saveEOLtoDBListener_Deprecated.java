@@ -2,25 +2,23 @@ package listeners;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
 import model.Db;
 
-public class saveEOLtoDBListener implements SelectionListener {
+public class saveEOLtoDBListener_Deprecated implements SelectionListener {
 
 	private String workspace;
 
 	AST eolAST;
 
-	public saveEOLtoDBListener(String workspace) {
+	public saveEOLtoDBListener_Deprecated(String workspace) {
 
 		this.workspace = workspace;
 	}

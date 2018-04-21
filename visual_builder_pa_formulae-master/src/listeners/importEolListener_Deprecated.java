@@ -12,7 +12,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-public class importEolListener implements SelectionListener {
+public class importEolListener_Deprecated implements SelectionListener {
 
 	private List<AST> ops = new ArrayList<AST>();
 	private org.eclipse.swt.widgets.List visualops;
@@ -20,7 +20,7 @@ public class importEolListener implements SelectionListener {
 
 	AST eolAST;
 
-	public importEolListener(List<AST> ops, org.eclipse.swt.widgets.List visualops, Shell s) {
+	public importEolListener_Deprecated(List<AST> ops, org.eclipse.swt.widgets.List visualops, Shell s) {
 		this.ops = ops;
 		this.visualops = visualops;
 		this.shell = s;

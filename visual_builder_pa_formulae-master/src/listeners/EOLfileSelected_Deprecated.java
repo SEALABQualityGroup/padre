@@ -9,7 +9,7 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
-public class EOLfileSelected implements SelectionListener {
+public class EOLfileSelected_Deprecated implements SelectionListener {
 
 	private List<AST> ops;
 	private org.eclipse.swt.widgets.List visualops, library;
@@ -17,7 +17,7 @@ public class EOLfileSelected implements SelectionListener {
 
 	AST eolAST;
 
-	public EOLfileSelected(List<AST> ops, org.eclipse.swt.widgets.List library, org.eclipse.swt.widgets.List visualops, String workspace) {
+	public EOLfileSelected_Deprecated(List<AST> ops, org.eclipse.swt.widgets.List library, org.eclipse.swt.widgets.List visualops, String workspace) {
 		this.ops = ops;
 		this.visualops = visualops;
 		this.library = library;

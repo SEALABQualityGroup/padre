@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Text;
 
 import model.Db;
 
-public class updateEOLonDBListener implements SelectionListener {
+public class updateEOLonDBListener_Deprecated implements SelectionListener {
 
 	private Text eolcode;
 
@@ -21,7 +21,7 @@ public class updateEOLonDBListener implements SelectionListener {
 	AST eolAST;
 
 
-	public updateEOLonDBListener(Text eolcode, List<Integer> F_ops, List<Integer> Th_ops, List<Integer> Do_ops,
+	public updateEOLonDBListener_Deprecated(Text eolcode, List<Integer> F_ops, List<Integer> Th_ops, List<Integer> Do_ops,
 			org.eclipse.swt.widgets.List Do_visualops, org.eclipse.swt.widgets.List F_visualops, org.eclipse.swt.widgets.List Th_visualops) {
 
 		this.eolcode = eolcode;
