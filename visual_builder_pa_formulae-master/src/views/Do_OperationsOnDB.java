@@ -32,6 +32,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import actions.cloneOnlineLibrary_Action;
 import filters.ContextFilter_Depr;
 import helpers.EOL_Utils;
 import model.Db;
@@ -40,7 +41,7 @@ import model.EOL_Library_DO_Operation;
 public class Do_OperationsOnDB extends ViewPart {
 
 	private List<Integer> DBDoFunctions;
-	private Action getLocalLibrary, getOnlineLibrary;
+	private Action getLocalLibrary, getOnlineLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 	public int selectedOpID;
 	private ContextFilter_Depr contextFilter;
@@ -277,10 +278,16 @@ public class Do_OperationsOnDB extends ViewPart {
 		getOnlineLibrary.setToolTipText("Get online library");
 		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+		
+		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 2);
+		cloneOnlineLibrary.setText("Clone");
+		cloneOnlineLibrary.setToolTipText("Clone library");
+		cloneOnlineLibrary.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-//		bars.getToolBarManager().add(getOnlineLibrary);
+		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {

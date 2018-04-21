@@ -32,13 +32,14 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import actions.cloneOnlineLibrary_Action;
 import helpers.EOL_Utils;
 import model.Db;
 
 public class Thresholds_OnDB extends ViewPart {
 
 	private List<Integer> DBThresholdsFunctions;
-	private Action getLocalLibrary, getOnlineLibrary;
+	private Action getLocalLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 	public int selectedOpID;
 
@@ -154,105 +155,16 @@ public class Thresholds_OnDB extends ViewPart {
 		getLocalLibrary.setToolTipText("Get library");
 		getLocalLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		getOnlineLibrary = new Action() {
-			public void run() {
-
-				try {
-					DBThresholdsFunctions.clear();
-					List<Integer> th_id_list_Online = Db.getall_Th_id_Online();
-					List<Integer> th_id_list = Db.getall_Th_id();
-
-					List<String[]> items = new ArrayList<String[]>();
-					boolean flag;
-
-					for (Integer id : th_id_list_Online) {
-						flag = false;
-
-						for (Integer local_id : th_id_list) {
-
-							String th_name_Online = Db.get_Th_name_byId_Online(id);
-							String th_name = Db.get_Th_name_byId(local_id);
-
-							if (th_name_Online.equals(th_name)) {
-
-								// if the name is the same
-								String th_body_Online = Db.get_Th_method_byId_Online(id);
-								String th_body = Db.get_Th_method_byId(local_id);
-
-								EolModule eolM = new EolModule();
-								eolM.parse(th_body_Online);
-								AST OnlineEOLast = eolM.getAst();
-
-								AST OnlineOperation = AstUtil.getChild(OnlineEOLast, 28);
-
-								eolM.parse(th_body);
-								AST localEOLast = eolM.getAst();
-
-								AST LocalOperation = AstUtil.getChild(localEOLast, 28);
-
-								// check that the signature is the same too
-								if (EOL_Utils.compare(LocalOperation, OnlineOperation)) {
-
-									// if the method has been changed, update it on DB
-									if (!(th_body.equals(th_body_Online))) {
-										Db.set_Th_method_byId(local_id, OnlineOperation.rewrite());
-										flag = true;
-										items.add(new String[] { Db.get_Th_name_byId(local_id) });
-										DBThresholdsFunctions.add(local_id);
-										break;
-									} else {
-										flag = true;
-										items.add(new String[] { Db.get_Th_name_byId(local_id) });
-										DBThresholdsFunctions.add(local_id);
-										break; // otherwise go on with the next operation from online db
-									}
-
-								}
-							}
-						}
-
-						if (flag) {
-
-						} else {
-							// if no occurrences found go on inserting the new operation in the local DB
-							String th = Db.get_Th_name_byId_Online(id);
-							int th_id = Db.insert_Threshold_function(th, Db.get_Th_method_byId_Online(id));
-
-							items.add(new String[] { th });
-							DBThresholdsFunctions.add(th_id);
-						}
-
-					}
-
-					tableViewer.setInput(items);
-
-					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-					views.EVL_Tree evlview = (views.EVL_Tree) page.findView("view.EVLtree");
-
-					// evlview.setcontexts();
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		getOnlineLibrary.setText("Refresh");
-		getOnlineLibrary.setToolTipText("Get online library");
-		getOnlineLibrary.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+		
+		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 3);
+		cloneOnlineLibrary.setText("Clone");
+		cloneOnlineLibrary.setToolTipText("Clone library");
+		cloneOnlineLibrary.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-//		bars.getToolBarManager().add(getOnlineLibrary);
+		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {

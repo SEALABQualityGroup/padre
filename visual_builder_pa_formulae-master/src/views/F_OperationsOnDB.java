@@ -32,6 +32,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import actions.cloneOnlineLibrary_Action;
 import filters.ContextFilter_Depr;
 import helpers.EOL_Utils;
 import model.Db;
@@ -40,7 +41,7 @@ import model.EOL_Library_F_Operation;
 public class F_OperationsOnDB extends ViewPart {
 
 	private List<Integer> DBMetricFunctions;
-	private Action getLocalLibrary, getOnlineLibrary;
+	private Action getLocalLibrary, getOnlineLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 	private ContextFilter_Depr contextFilter;
 	private TableViewer tableViewer;
@@ -276,10 +277,17 @@ public class F_OperationsOnDB extends ViewPart {
 		getOnlineLibrary.setToolTipText("Get online library");
 		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+		
+		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 1);
+		cloneOnlineLibrary.setText("Clone");
+		cloneOnlineLibrary.setToolTipText("Clone library");
+		cloneOnlineLibrary.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
+		
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getToolBarManager().add(getLocalLibrary);
-//		bars.getToolBarManager().add(getOnlineLibrary);
+		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {
 			public void run() {
@@ -319,14 +327,11 @@ public class F_OperationsOnDB extends ViewPart {
 			}
 		});
 
-		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
-
 	}
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-
 	}
 
 }
