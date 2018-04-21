@@ -16,14 +16,12 @@ import helpers.EOL_Utils;
 import model.EOL_Library_Root;
 
 /**
- * @author Stefano
+ * It listens for changes to the library directory
  *
  */
 public class workspaceChangeListener implements IResourceChangeListener {
 
-	IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-	views.EOL_Library_Tree libraryview = (views.EOL_Library_Tree) page.findView("view.EOL_Library_Tree");
-
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
 	 */
@@ -82,7 +80,11 @@ public class workspaceChangeListener implements IResourceChangeListener {
 
 			display.asyncExec(new Runnable() {
 				public void run() {
-					String library_path = ((EOL_Library_Root)libraryview.eoltree.getInput()).getPath();
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					views.EOL_Library_Tree libraryview = (views.EOL_Library_Tree) page.findView("views.EOL_Library_Tree");
+
+					EOL_Library_Root r = (EOL_Library_Root)libraryview.eoltree.getInput();
+					String library_path = r.getPath();
 					EOL_Utils.update_EOL_Library_Data_Structure(library_path);
 				}
 			});
