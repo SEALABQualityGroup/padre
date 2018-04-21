@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-public class ContextFilter_Depr extends ViewerFilter {
+public class ContextFilter_not_used extends ViewerFilter {
 
 	private String searchString;
 

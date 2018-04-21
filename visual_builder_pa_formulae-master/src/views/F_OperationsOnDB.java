@@ -33,7 +33,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import actions.cloneOnlineLibrary_Action;
-import filters.ContextFilter_Depr;
 import helpers.EOL_Utils;
 import model.Db;
 import model.EOL_Library_F_Operation;
@@ -41,9 +40,9 @@ import model.EOL_Library_F_Operation;
 public class F_OperationsOnDB extends ViewPart {
 
 	private List<Integer> DBMetricFunctions;
-	private Action getLocalLibrary, getOnlineLibrary, cloneOnlineLibrary;
+	private Action getLocalLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
-	private ContextFilter_Depr contextFilter;
+//	private ContextFilter_not_used contextFilter;
 	private TableViewer tableViewer;
 	public int selectedOpID;
 
@@ -84,8 +83,8 @@ public class F_OperationsOnDB extends ViewPart {
 			}
 		});
 
-		contextFilter = new ContextFilter_Depr();
-		tableViewer.addFilter(contextFilter);
+//		contextFilter = new ContextFilter_not_used();
+//		tableViewer.addFilter(contextFilter);
 
 		Action putOnline = new Action() {
 			public void run() {
@@ -142,8 +141,8 @@ public class F_OperationsOnDB extends ViewPart {
 
 					}
 
-					contextFilter.setSearchText(".*");
-					contextFilter.set_indexing(null);
+//					contextFilter.setSearchText(".*");
+//					contextFilter.set_indexing(null);
 					tableViewer.setInput(items);
 
 					MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -180,7 +179,7 @@ public class F_OperationsOnDB extends ViewPart {
 		getLocalLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-		getOnlineLibrary = new Action() {
+		Action deprecated = new Action() {
 			public void run() {
 
 				try {
@@ -251,14 +250,9 @@ public class F_OperationsOnDB extends ViewPart {
 
 					}
 
-					contextFilter.setSearchText(".*");
-					contextFilter.set_indexing(null);
+//					contextFilter.setSearchText(".*");
+//					contextFilter.set_indexing(null);
 					tableViewer.setInput(items);
-					
-					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-					views.EVL_Tree evlview = (views.EVL_Tree) page.findView("view.EVLtree");
-					
-//					evlview.setcontexts();
 
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -273,9 +267,9 @@ public class F_OperationsOnDB extends ViewPart {
 
 			}
 		};
-		getOnlineLibrary.setText("Refresh");
-		getOnlineLibrary.setToolTipText("Get online library");
-		getOnlineLibrary.setImageDescriptor(
+		deprecated.setText("Refresh");
+		deprecated.setToolTipText("Get online library");
+		deprecated.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		
 		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 1);
