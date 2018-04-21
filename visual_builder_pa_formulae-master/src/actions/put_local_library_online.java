@@ -7,28 +7,28 @@ import java.util.List;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 
 import helpers.EOL_Utils;
 import model.Db;
 import model.EOL_Library_DO_Operation;
 import model.EOL_Library_F_Operation;
 
-public class Save_operation_OnDB_Action extends Action{
+/**
+ * It allows to save EOL files to the database, but it is incomplete.
+ * It needs to take all the EOL files from the local library.
+ *
+ */
+public class put_local_library_online extends Action{
 
 	AST eolAST;
 	
 	public void run() {
-		
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		views.EOL_Library_Tree eolview = (views.EOL_Library_Tree) page.findView("view.EOL_Library_Tree");
 
 		try {
 			EolModule eolM = new EolModule();
 
+			// Example of EOL file
 			eolM.parse(new File("C:\\Users\\Stefano\\Documents\\GitHub\\padre\\it.spe.disim.epsilon.antipattern_d-s\\evl\\library\\association.eol"));
 
 			eolAST = eolM.getAst();
