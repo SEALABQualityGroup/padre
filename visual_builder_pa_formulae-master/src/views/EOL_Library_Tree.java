@@ -106,8 +106,7 @@ public class EOL_Library_Tree extends ViewPart {
 		Transfer[] transferTypes = new Transfer[] { FileTransfer.getInstance() };
 		eoltree.addDropSupport(operations, transferTypes, new DropListener_for_EOL_Library_Tree(eoltree));
 
-		// listen for changes to the library made inside the same Eclipse environment
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(new workspaceChangeListener());
+		
 	}
 
 	public EOLLibraryContextFilter getTreeFilter() {

@@ -6,12 +6,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+import listeners.workspaceChangeListener;
 import model.EOL_Library_Context_Item;
 import model.EOL_Library_DO_Operation;
 import model.EOL_Library_Root;
@@ -71,7 +73,7 @@ public class EOL_Utils {
 
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		views.EOL_Library_Tree eolview = (views.EOL_Library_Tree) page.findView("views.EOL_Library_Tree");
-
+		
 		ArrayList<EOL_Library_Context_Item> contexts = new ArrayList<EOL_Library_Context_Item>();
 		ArrayList<EOL_Library_Th_Operation> thresholds = new ArrayList<EOL_Library_Th_Operation>();
 
@@ -163,6 +165,10 @@ public class EOL_Utils {
 
 		eolview.eoltree.setInput(root);
 		eolview.eoltree.setExpandedState(root, true);
+		
+		// listen for changes to the library made inside the same Eclipse environment
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(new workspaceChangeListener());
+
 
 		IWorkbenchPage page1 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		views.EVL_Tree evlview = (views.EVL_Tree) page1.findView("views.EVL_Tree");
