@@ -55,13 +55,12 @@ public class EVL_Tree extends ViewPart {
 	public EVL_Tree_Root evl;
 	public TreeViewer tree;
 	String eol_library_path;
-	private Action saveEVL, saveEPL, saveEWL, saveXMLaction, importXMLaction;
 
 	private TreeItem emptyTree_Placeholder;
-	
+
 	public EVL_Tree() {
 	}
-	
+
 	public String getEol_library_path() {
 		return eol_library_path;
 	}
@@ -78,7 +77,7 @@ public class EVL_Tree extends ViewPart {
 		tree = new TreeViewer(parent);
 		tree.setContentProvider(new EVL_Tree_ContentProvider());
 		tree.setLabelProvider(new EVL_Tree_LabelProvider());
-		
+
 		emptyTree_Placeholder = new TreeItem(tree.getTree(), SWT.NONE);
 		emptyTree_Placeholder.setText("No EOL library available");
 
@@ -89,63 +88,69 @@ public class EVL_Tree extends ViewPart {
 	}
 
 	/**
-	 * It sets all actions for toolbar elements
+	 * If not already done, it adds toolbar elements for EVL actions
 	 * 
 	 */
 	public void setActions() {
-		
-		importXMLaction = new Import_EVL_from_XML(tree, evl);
-		importXMLaction.setText("Save");
-		importXMLaction.setToolTipText("Import tree from XML");
-		importXMLaction.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(org.eclipse.ui.ide.IDE.SharedImages.IMG_OBJ_PROJECT));
-
-		saveXMLaction = new Export_EVL_as_XML(tree, evl);
-		saveXMLaction.setText("Save");
-		saveXMLaction.setToolTipText("Save tree as XML");
-		saveXMLaction.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
-
-		saveEVL = new Save_EVL_file_Action(tree, evl, eol_library_path);
-		saveEVL.setText("Save");
-		saveEVL.setToolTipText("Save EVL");
-		saveEVL.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVE_EDIT));
-
-		saveEPL = new Save_EPL_file_Action(tree, evl, eol_library_path);
-		saveEPL.setText("Save");
-		saveEPL.setToolTipText("Save EPL");
-		saveEPL.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
-
-		saveEWL = new Save_EWL_file_Action(tree, evl, eol_library_path);
-		saveEWL.setText("Save");
-		saveEWL.setToolTipText("Save EWL");
-		saveEWL.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
 		IActionBars bars = getViewSite().getActionBars();
-		bars.getToolBarManager().add(saveEVL);
-		bars.getToolBarManager().add(saveEPL);
-		bars.getToolBarManager().add(saveEWL);
-		bars.getToolBarManager().add(saveXMLaction);
-		bars.getToolBarManager().add(importXMLaction);
-		bars.updateActionBars();
+
+		if (bars.getToolBarManager().getItems().length == 0) {
+			Action importXMLaction = new Import_EVL_from_XML(tree, evl);
+			importXMLaction.setText("Save");
+			importXMLaction.setToolTipText("Import tree from XML");
+			importXMLaction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(org.eclipse.ui.ide.IDE.SharedImages.IMG_OBJ_PROJECT));
+
+			Action saveXMLaction = new Export_EVL_as_XML(tree, evl);
+			saveXMLaction.setText("Save");
+			saveXMLaction.setToolTipText("Save tree as XML");
+			saveXMLaction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
+
+			Action saveEVL = new Save_EVL_file_Action(tree, evl, eol_library_path);
+			saveEVL.setText("Save");
+			saveEVL.setToolTipText("Save EVL");
+			saveEVL.setImageDescriptor(
+					PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVE_EDIT));
+
+			Action saveEPL = new Save_EPL_file_Action(tree, evl, eol_library_path);
+			saveEPL.setText("Save");
+			saveEPL.setToolTipText("Save EPL");
+			saveEPL.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
+
+			Action saveEWL = new Save_EWL_file_Action(tree, evl, eol_library_path);
+			saveEWL.setText("Save");
+			saveEWL.setToolTipText("Save EWL");
+			saveEWL.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
+
+			bars.getToolBarManager().add(saveEVL);
+			bars.getToolBarManager().add(saveEPL);
+			bars.getToolBarManager().add(saveEWL);
+			bars.getToolBarManager().add(saveXMLaction);
+			bars.getToolBarManager().add(importXMLaction);
+			bars.updateActionBars();
+		}
+
 	}
+
 	/**
 	 * It adds list of context to pull down menu of the view
 	 * 
-	 * @param cts The list of context available in EOL library 
+	 * @param cts
+	 *            The list of context available in EOL library
 	 */
 	public void setContexts(List<EOL_Library_Context_Item> cts) {
 
 		Bundle bundle = Platform.getBundle("it.spe.disim.univaq.it.plugin");
 		URL fullPathString = bundle.getEntry("icons/context.gif");
-		
+
 		IActionBars bars = getViewSite().getActionBars();
 		IMenuManager dropdown_menu = bars.getMenuManager();
 		dropdown_menu.removeAll();
-		
+
 		for (EOL_Library_Context_Item s : cts) {
 
 			Action addContext_Action = new Action() {
@@ -162,13 +167,13 @@ public class EVL_Tree extends ViewPart {
 				}
 			};
 			addContext_Action.setText(s.getName());
-			addContext_Action.setToolTipText("Add to tree");			
+			addContext_Action.setToolTipText("Add to tree");
 			addContext_Action.setImageDescriptor(ImageDescriptor.createFromURL(fullPathString));
 
 			dropdown_menu.add(addContext_Action);
 			bars.updateActionBars();
 		}
-		
+
 		tree.setInput(null);
 		emptyTree_Placeholder = new TreeItem(tree.getTree(), SWT.NONE);
 		emptyTree_Placeholder.setText("To start building EVL choose a context from the arrow menu");
@@ -187,10 +192,10 @@ public class EVL_Tree extends ViewPart {
 				}
 
 				if (tree.getSelection() instanceof IStructuredSelection) {
-					
+
 					IStructuredSelection selection = (IStructuredSelection) tree.getSelection();
 					Object s = selection.getFirstElement();
-					
+
 					Bundle bundle = Platform.getBundle("it.spe.disim.univaq.it.plugin");
 
 					if (s instanceof EVL_Tree_Context_Item) {
@@ -248,10 +253,11 @@ public class EVL_Tree extends ViewPart {
 
 						manager.add(chooseFoperations);
 					}
-					
+
 					if (s instanceof EVL_Tree_CheckOperation) {
 
-						Action chooseThoperations = new Hook_TH_operation_Context_Menu(tree, (EVL_Tree_CheckOperation) s);
+						Action chooseThoperations = new Hook_TH_operation_Context_Menu(tree,
+								(EVL_Tree_CheckOperation) s);
 						chooseThoperations.setText("Choose Th");
 						chooseThoperations.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
@@ -261,7 +267,8 @@ public class EVL_Tree extends ViewPart {
 
 					if (s instanceof EVL_Tree_FixOperations) {
 
-						Action chooseDOoperations = new Hook_Do_operation_Context_Menu(tree, (EVL_Tree_FixOperations) s);
+						Action chooseDOoperations = new Hook_Do_operation_Context_Menu(tree,
+								(EVL_Tree_FixOperations) s);
 						chooseDOoperations.setText("Choose DO");
 						chooseDOoperations.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
