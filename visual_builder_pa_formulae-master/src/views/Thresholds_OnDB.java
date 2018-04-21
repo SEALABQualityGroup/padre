@@ -5,25 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IStorage;
-import org.eclipse.epsilon.common.parse.AST;
-import org.eclipse.epsilon.common.util.AstUtil;
-import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IStorageEditorInput;
@@ -33,13 +24,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import actions.cloneOnlineLibrary_Action;
-import helpers.EOL_Utils;
 import model.Db;
 
 public class Thresholds_OnDB extends ViewPart {
 
 	private List<Integer> DBThresholdsFunctions;
-	private Action getLocalLibrary, cloneOnlineLibrary;
+	private Action getOnlineLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 	public int selectedOpID;
 
@@ -68,40 +58,7 @@ public class Thresholds_OnDB extends ViewPart {
 			}
 		});
 
-		Action putOnline = new Action() {
-			public void run() {
-
-				TableItem[] selects;
-				TableItem itemSelected;
-
-				selects = tableViewer.getTable().getSelection();
-				itemSelected = selects[0];
-
-				itemSelected.getText(0);
-
-				int index = tableViewer.getTable().getSelectionIndex();
-
-				int operation_id = DBThresholdsFunctions.get(index);
-
-				try {
-					Db.insert_Threshold_functionOnline(Db.get_Th_name_byId(operation_id),
-							Db.get_Th_method_byId(operation_id));
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		putOnline.setText("Put online");
-		putOnline.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		getLocalLibrary = new Action() {
+		getOnlineLibrary = new Action() {
 			public void run() {
 
 				try {
@@ -122,25 +79,6 @@ public class Thresholds_OnDB extends ViewPart {
 
 					tableViewer.setInput(items);
 
-					MenuManager menuMgr = new MenuManager("#PopupMenu");
-					menuMgr.setRemoveAllWhenShown(true);
-					menuMgr.addMenuListener(new IMenuListener() {
-						public void menuAboutToShow(IMenuManager manager) {
-							if (tableViewer.getSelection().isEmpty()) {
-								return;
-							}
-
-							if (tableViewer.getSelection() instanceof IStructuredSelection) {
-
-								manager.add(putOnline);
-
-							}
-						}
-					});
-					Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-					tableViewer.getControl().setMenu(menu);
-					getSite().registerContextMenu(menuMgr, tableViewer);
-
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -151,9 +89,9 @@ public class Thresholds_OnDB extends ViewPart {
 
 			}
 		};
-		getLocalLibrary.setText("Refresh");
-		getLocalLibrary.setToolTipText("Get library");
-		getLocalLibrary.setImageDescriptor(
+		getOnlineLibrary.setText("Refresh");
+		getOnlineLibrary.setToolTipText("Get library");
+		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		
 		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 3);
@@ -163,7 +101,7 @@ public class Thresholds_OnDB extends ViewPart {
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
 		IActionBars bars = getViewSite().getActionBars();
-		bars.getToolBarManager().add(getLocalLibrary);
+		bars.getToolBarManager().add(getOnlineLibrary);
 		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {

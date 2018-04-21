@@ -1,6 +1,5 @@
 package views;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -17,7 +16,6 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -26,13 +24,10 @@ import actions.Add_Do_operation_to_EVL;
 import actions.Add_Operation_to_Check;
 import actions.Add_TH_operation_to_EVL;
 import actions.DoubleClick_EOL_operation_Action;
-import actions.NewEOL_operation_Action;
-import actions.Save_operation_OnDB_Action;
 import contentProviders.EOLLibraryContentProvider;
 import contentProviders.EOLLibraryLabelProvider;
 import filters.EOLLibraryContextFilter;
 import listeners.DropListener_for_EOL_Library_Tree;
-import listeners.workspaceChangeListener;
 import model.EVL_Tree_CheckOperation;
 import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_FixOperations;

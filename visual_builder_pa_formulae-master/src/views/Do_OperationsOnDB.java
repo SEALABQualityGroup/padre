@@ -6,21 +6,15 @@ import java.util.List;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IStorageEditorInput;
@@ -36,7 +30,7 @@ import model.EOL_Library_DO_Operation;
 public class Do_OperationsOnDB extends ViewPart {
 
 	private List<Integer> DBDoFunctions;
-	private Action getLocalLibrary, cloneOnlineLibrary;
+	private Action getOnlineLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 	public int selectedOpID;
 //	private ContextFilter_not_used contextFilter;
@@ -82,43 +76,7 @@ public class Do_OperationsOnDB extends ViewPart {
 //		contextFilter = new ContextFilter_not_used();
 //		tableViewer.addFilter(contextFilter);
 
-		Action putOnline = new Action() {
-			public void run() {
-
-				TableItem[] selects;
-				TableItem itemSelected;
-
-				selects = tableViewer.getTable().getSelection();
-				itemSelected = selects[0];
-
-				itemSelected.getText(0);
-
-				int index = tableViewer.getTable().getSelectionIndex();
-
-				int operation_id = DBDoFunctions.get(index);
-
-				EOL_Library_DO_Operation redo;
-
-				try {
-					redo = Db.get_Do_description_byId(operation_id);
-
-					Db.insert_Do_functionOnline(redo.getName(), redo.getContext(), Db.get_Do_method_byId(operation_id));
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		putOnline.setText("Put online");
-		putOnline.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		getLocalLibrary = new Action() {
+		getOnlineLibrary = new Action() {
 			public void run() {
 
 				try {
@@ -142,25 +100,6 @@ public class Do_OperationsOnDB extends ViewPart {
 
 					tableViewer.setInput(items);
 
-					MenuManager menuMgr = new MenuManager("#PopupMenu");
-					menuMgr.setRemoveAllWhenShown(true);
-					menuMgr.addMenuListener(new IMenuListener() {
-						public void menuAboutToShow(IMenuManager manager) {
-							if (tableViewer.getSelection().isEmpty()) {
-								return;
-							}
-
-							if (tableViewer.getSelection() instanceof IStructuredSelection) {
-
-								manager.add(putOnline);
-
-							}
-						}
-					});
-					Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-					tableViewer.getControl().setMenu(menu);
-					getSite().registerContextMenu(menuMgr, tableViewer);
-
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -171,9 +110,9 @@ public class Do_OperationsOnDB extends ViewPart {
 
 			}
 		};
-		getLocalLibrary.setText("Refresh");
-		getLocalLibrary.setToolTipText("Get library");
-		getLocalLibrary.setImageDescriptor(
+		getOnlineLibrary.setText("Refresh");
+		getOnlineLibrary.setToolTipText("Get library");
+		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		
 		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 2);
@@ -183,7 +122,7 @@ public class Do_OperationsOnDB extends ViewPart {
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
 
 		IActionBars bars = getViewSite().getActionBars();
-		bars.getToolBarManager().add(getLocalLibrary);
+		bars.getToolBarManager().add(getOnlineLibrary);
 		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {

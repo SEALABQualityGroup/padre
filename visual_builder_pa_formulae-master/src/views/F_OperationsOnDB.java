@@ -5,25 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IStorage;
-import org.eclipse.epsilon.common.parse.AST;
-import org.eclipse.epsilon.common.util.AstUtil;
-import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IStorageEditorInput;
@@ -33,14 +24,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import actions.cloneOnlineLibrary_Action;
-import helpers.EOL_Utils;
 import model.Db;
 import model.EOL_Library_F_Operation;
 
 public class F_OperationsOnDB extends ViewPart {
 
 	private List<Integer> DBMetricFunctions;
-	private Action getLocalLibrary, cloneOnlineLibrary;
+	private Action getOnlineLibrary, cloneOnlineLibrary;
 	private Action doubleClickAction;
 //	private ContextFilter_not_used contextFilter;
 	private TableViewer tableViewer;
@@ -85,44 +75,8 @@ public class F_OperationsOnDB extends ViewPart {
 
 //		contextFilter = new ContextFilter_not_used();
 //		tableViewer.addFilter(contextFilter);
-
-		Action putOnline = new Action() {
-			public void run() {
-
-				TableItem[] selects;
-				TableItem itemSelected;
-
-				selects = tableViewer.getTable().getSelection();
-				itemSelected = selects[0];
-
-				itemSelected.getText(0);
-
-				int index = tableViewer.getTable().getSelectionIndex();
-
-				int operation_id = DBMetricFunctions.get(index);
-
-				EOL_Library_F_Operation f;
-
-				try {
-					f = Db.get_F_description_byId(operation_id);
-
-					Db.insert_Metric_functionOnline(f.getContext(), f.getName(), f.getMethod(), 1);
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		putOnline.setText("Put online");
-		putOnline.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		getLocalLibrary = new Action() {
+		
+		getOnlineLibrary = new Action() {
 			public void run() {
 
 				try {
@@ -145,25 +99,6 @@ public class F_OperationsOnDB extends ViewPart {
 //					contextFilter.set_indexing(null);
 					tableViewer.setInput(items);
 
-					MenuManager menuMgr = new MenuManager("#PopupMenu");
-					menuMgr.setRemoveAllWhenShown(true);
-					menuMgr.addMenuListener(new IMenuListener() {
-						public void menuAboutToShow(IMenuManager manager) {
-							if (tableViewer.getSelection().isEmpty()) {
-								return;
-							}
-
-							if (tableViewer.getSelection() instanceof IStructuredSelection) {
-
-								manager.add(putOnline);
-
-							}
-						}
-					});
-					Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-					tableViewer.getControl().setMenu(menu);
-					getSite().registerContextMenu(menuMgr, tableViewer);
-
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -174,102 +109,9 @@ public class F_OperationsOnDB extends ViewPart {
 
 			}
 		};
-		getLocalLibrary.setText("Refresh");
-		getLocalLibrary.setToolTipText("Get library");
-		getLocalLibrary.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		Action deprecated = new Action() {
-			public void run() {
-
-				try {
-					DBMetricFunctions.clear();
-					List<Integer> f_id_list_Online = Db.getall_F_id_Online();
-					List<Integer> f_id_list = Db.getall_F_id();
-
-					List<String[]> items = new ArrayList<String[]>();
-					boolean flag;
-					for (Integer id : f_id_list_Online) {
-						flag = false;
-
-						for (Integer local_id : f_id_list) {
-
-							EOL_Library_F_Operation fOnline = Db.get_F_description_byId_Online(id);
-							EOL_Library_F_Operation f = Db.get_F_description_byId(local_id);
-
-							if (f.getName().equals(fOnline.getName())) {
-
-								// if the name is the same
-								EolModule eolM = new EolModule();
-								eolM.parse(fOnline.getMethod());
-								AST OnlineEOLast = eolM.getAst();
-
-								AST OnlineOperation = AstUtil.getChild(OnlineEOLast, 28);
-
-								eolM.parse(f.getMethod());
-								AST localEOLast = eolM.getAst();
-
-								AST LocalOperation = AstUtil.getChild(localEOLast, 28);
-
-								// check that the signature is the same too
-								if (EOL_Utils.compare(LocalOperation, OnlineOperation)) {
-
-									// if the method has been changed, update it on DB
-									if (!(f.getMethod().equals(fOnline.getMethod()))) {
-										Db.set_F_method_byId(local_id, OnlineOperation.rewrite());
-										items.add(new String[] { f.getName(), f.getContext() });
-										DBMetricFunctions.add(local_id);
-										flag = true;
-										break;
-									} else {
-										flag = true;
-										items.add(new String[] { f.getName(), f.getContext() });
-										DBMetricFunctions.add(local_id);
-										break; // otherwise go on with the next operation from online db
-									}
-
-								}
-							}
-						}
-
-						if (flag) {
-
-						} else {
-							// if no occurrences found go on inserting the new operation in the local DB
-
-							EOL_Library_F_Operation fOnline = Db.get_F_description_byId_Online(id);
-
-							items.add(new String[] { fOnline.getName(), fOnline.getContext() });
-
-//							int f_id = Db.insert_Metric_function(fOnline.getContext(), fOnline.getName(),
-//									fOnline.getMethod(), 1);
-							int f_id = Db.insert_Metric_function(fOnline.getContext(), fOnline.getName(),
-									fOnline.getMethod());
-							DBMetricFunctions.add(f_id);
-						}
-
-					}
-
-//					contextFilter.setSearchText(".*");
-//					contextFilter.set_indexing(null);
-					tableViewer.setInput(items);
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		};
-		deprecated.setText("Refresh");
-		deprecated.setToolTipText("Get online library");
-		deprecated.setImageDescriptor(
+		getOnlineLibrary.setText("Refresh");
+		getOnlineLibrary.setToolTipText("Get library");
+		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		
 		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 1);
@@ -280,7 +122,7 @@ public class F_OperationsOnDB extends ViewPart {
 
 		
 		IActionBars bars = getViewSite().getActionBars();
-		bars.getToolBarManager().add(getLocalLibrary);
+		bars.getToolBarManager().add(getOnlineLibrary);
 		bars.getToolBarManager().add(cloneOnlineLibrary);
 
 		doubleClickAction = new Action() {
