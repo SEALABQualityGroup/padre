@@ -80,7 +80,7 @@ public class EVL_Tree_CheckStatement {
 
 	public String toString() {
 		String res = "\t\tcheck:\n";
-		res += "\t\t\t\tNOT(";
+		res += "\t\t\t\tnot(";
 		for (EVL_Tree_CheckOperation op : this.getOperations()) {
 			res += op.toString();
 		}

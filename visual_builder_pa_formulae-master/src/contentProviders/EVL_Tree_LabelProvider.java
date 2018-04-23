@@ -50,7 +50,7 @@ public class EVL_Tree_LabelProvider extends LabelProvider {
 		}
 		
 		if (element instanceof EVL_Tree_CheckStatement) {
-			return "check: NOT";
+			return "check: not";
 		}
 		
 		if (element instanceof EVL_Tree_CheckOperation) {
