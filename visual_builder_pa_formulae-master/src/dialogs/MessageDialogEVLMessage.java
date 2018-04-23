@@ -21,7 +21,7 @@ public class MessageDialogEVLMessage extends TitleAreaDialog {
 	  
 
 	  private String contextName;
-	  private String title="Insert Messagge",message="Insert the content of message construct.",lab="Message";
+	  private String title="Insert Messagge",message="Insert the content of message construct. You need to insert quotes manually.",lab="Message";
 	  
 
 	  public MessageDialogEVLMessage(Shell parentShell) {

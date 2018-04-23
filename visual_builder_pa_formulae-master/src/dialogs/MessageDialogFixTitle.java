@@ -21,7 +21,7 @@ public class MessageDialogFixTitle extends TitleAreaDialog {
 	  
 
 	  private String contextName;
-	  private String title="Insert Fix Title",message="Insert the Title",lab="Title";
+	  private String title="Insert Fix Title",message="Quotes will be added automatically.",lab="Title";
 	  
 
 	  public MessageDialogFixTitle(Shell parentShell) {
