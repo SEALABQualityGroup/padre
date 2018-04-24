@@ -9,8 +9,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 
-import model.EVL_Tree_CheckStatement;
 import model.EOL_Library_F_Operation;
+import model.EVL_Tree_CheckBlock;
 import model.BooleanOperators;
 import model.EVL_Tree_ImportStatement;
 import model.EVL_Tree_Root;
@@ -22,12 +22,12 @@ import model.UnaryPredicate;
  * It adds operations to EVL check
  *
  */
-public class Add_Operation_to_Check extends Action {
+public class Add_Operation_to_Block extends Action {
 
 	TreeViewer evltree;
 	private EVL_Tree_Root evl;
 	IStructuredSelection selection;
-	private EVL_Tree_CheckStatement check;
+	private EVL_Tree_CheckBlock block;
 	private int comb;
 
 	/**
@@ -36,12 +36,12 @@ public class Add_Operation_to_Check extends Action {
 	 * @param check The Check statement to which the Operation will be added
 	 * @param comb The boolean operator to use
 	 */
-	public Add_Operation_to_Check(TreeViewer evltree, ISelection iSelection, EVL_Tree_CheckStatement check, int comb) {
+	public Add_Operation_to_Block(TreeViewer evltree, ISelection iSelection, EVL_Tree_CheckBlock block, int comb) {
 		super();
 		this.evltree = evltree;
 		this.evl = (EVL_Tree_Root)evltree.getInput();
 		this.selection = (IStructuredSelection)iSelection;
-		this.check = check;
+		this.block = block;
 		this.comb = comb;
 	}
 
@@ -100,7 +100,7 @@ public class Add_Operation_to_Check extends Action {
 				break;
 			}
 
-			check.getOperations().add(operation);
+			block.getBlocks_and_Operations().add(operation);
 
 			String absolutePath = f.getEol_file();
 			IPath filePath = Path.fromOSString(absolutePath);
@@ -139,7 +139,7 @@ public class Add_Operation_to_Check extends Action {
 			Object[] o = evltree.getExpandedElements();
 			evltree.setInput(evl);
 			evltree.setExpandedElements(o);
-			evltree.setExpandedState(check, true);
+			evltree.setExpandedState(block, true);
 		}
 
 	}

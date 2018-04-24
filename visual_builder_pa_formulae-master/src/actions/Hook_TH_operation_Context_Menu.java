@@ -6,7 +6,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import model.EVL_Tree_CheckOperation;
-import model.EVL_Tree_CheckStatement;
 
 /**
  * This action filters the library by F-type operations of the context passed

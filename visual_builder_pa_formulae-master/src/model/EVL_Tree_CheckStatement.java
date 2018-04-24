@@ -1,10 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -16,7 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class EVL_Tree_CheckStatement {
 
 	private String context;
-	private List<EVL_Tree_CheckOperation> operations;
+	private EVL_Tree_CheckBlock block;
+
+	
 
 	/**
 	 * Constructor of the class. It initialize the
@@ -27,9 +25,9 @@ public class EVL_Tree_CheckStatement {
 	 * @param operations
 	 *            operations List of {@link EVL_Tree_CheckOperation}
 	 */
-	public EVL_Tree_CheckStatement(String context, List<EVL_Tree_CheckOperation> operations) {
+	public EVL_Tree_CheckStatement(String context, EVL_Tree_CheckBlock block) {
 		this.context = context;
-		this.operations = operations;
+		this.block = block;
 	}
 
 	/**
@@ -38,11 +36,10 @@ public class EVL_Tree_CheckStatement {
 	 */
 	public EVL_Tree_CheckStatement(String context) {
 		this.context = context;
-		this.operations = new ArrayList<EVL_Tree_CheckOperation>();
 	}
 
 	/**
-	 * No arguments constructor available for XML unmarshalling
+	 * No arguments constructor necessary for XML
 	 */
 	public EVL_Tree_CheckStatement() {
 	}
@@ -58,33 +55,19 @@ public class EVL_Tree_CheckStatement {
 	public void setContext(String context) {
 		this.context = context;
 	}
-
-	/**
-	 * @return List of {@link EVL_Tree_CheckOperation} of the Check
-	 * 
-	 */
-	@XmlElementWrapper(name = "operations")
-	@XmlElement(name = "operation")
-	public List<EVL_Tree_CheckOperation> getOperations() {
-		return operations;
+	
+	@XmlElement
+	public EVL_Tree_CheckBlock getBlock() {
+		return block;
 	}
 
-	/**
-	 * @param operations
-	 *            List of {@link EVL_Tree_CheckOperation} to add to the Check
-	 * 
-	 */
-	public void setOperations(List<EVL_Tree_CheckOperation> operations) {
-		this.operations = operations;
+	public void setBlock(EVL_Tree_CheckBlock block) {
+		this.block = block;
 	}
 
 	public String toString() {
-		String res = "\t\tcheck:\n";
-		res += "\t\t\t\tnot(";
-		for (EVL_Tree_CheckOperation op : this.getOperations()) {
-			res += op.toString();
-		}
-		res += ")";
+		String res = "\t\tcheck:";
+		res += this.getBlock().toString();
 		res += "\n\t\t\t\n";
 
 		return res;

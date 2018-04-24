@@ -10,6 +10,7 @@ import model.EVL_Tree_Context_Item;
 import model.EVL_Tree_FixOperations;
 import model.EVL_Tree_FixStatement;
 import model.BooleanOperators;
+import model.EVL_Tree_CheckBlock;
 import model.EVL_Tree_ImportStatement;
 import model.EVL_Tree_Message;
 import model.EVL_Tree_CheckOperation;
@@ -50,7 +51,14 @@ public class EVL_Tree_LabelProvider extends LabelProvider {
 		}
 		
 		if (element instanceof EVL_Tree_CheckStatement) {
-			return "check: not";
+			return "check:";
+		}
+		
+		if (element instanceof EVL_Tree_CheckBlock) {
+			EVL_Tree_CheckBlock block = (EVL_Tree_CheckBlock) element;
+			String result = block.getOp().toString();
+			
+			return result;
 		}
 		
 		if (element instanceof EVL_Tree_CheckOperation) {

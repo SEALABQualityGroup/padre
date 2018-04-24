@@ -21,15 +21,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import actions.Add_Do_operation_to_EVL;
-import actions.Add_Operation_to_Check;
+import actions.Add_Operation_to_Block;
 import actions.Add_TH_operation_to_EVL;
 import actions.DoubleClick_EOL_operation_Action;
 import contentProviders.EOLLibraryContentProvider;
 import contentProviders.EOLLibraryLabelProvider;
 import filters.EOLLibraryContextFilter;
 import listeners.DropListener_for_EOL_Library_Tree;
+import model.EVL_Tree_CheckBlock;
 import model.EVL_Tree_CheckOperation;
-import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_FixOperations;
 
 /**
@@ -118,7 +118,7 @@ public class EOL_Library_Tree extends ViewPart {
 	 * @param check The Check statement selected in EVL tree
 	 * @param evltree The EVL tree
 	 */
-	public void hookContextMenu(EVL_Tree_CheckStatement check, TreeViewer evltree) {
+	public void hookContextMenu(EVL_Tree_CheckBlock block, TreeViewer evltree) {
 
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
@@ -131,14 +131,14 @@ public class EOL_Library_Tree extends ViewPart {
 
 				if (eoltree.getSelection() instanceof IStructuredSelection) {
 
-					if (check.getOperations().isEmpty()) {
+					if (block.getBlocks_and_Operations().isEmpty()) {
 
-						Action set_Operation = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 0);
+						Action set_Operation = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 0);
 						set_Operation.setText("Add to EVL tree");
 						set_Operation.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_Negated_Operation = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 1);
+						Action set_Negated_Operation = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 1);
 						set_Negated_Operation.setText("Add negated to EVL tree");
 						set_Negated_Operation.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
@@ -148,32 +148,32 @@ public class EOL_Library_Tree extends ViewPart {
 
 					} else {
 
-						Action set_AND = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 2);
+						Action set_AND = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 2);
 						set_AND.setText("AND");
 						set_AND.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_OR = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 3);
+						Action set_OR = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 3);
 						set_OR.setText("OR");
 						set_OR.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_XOR = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 4);
+						Action set_XOR = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 4);
 						set_XOR.setText("XOR");
 						set_XOR.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_NAND = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 5);
+						Action set_NAND = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 5);
 						set_NAND.setText("NOT AND");
 						set_NAND.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_NOR = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 6);
+						Action set_NOR = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 6);
 						set_NOR.setText("NOT OR");
 						set_NOR.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
-						Action set_NXOR = new Add_Operation_to_Check(evltree, eoltree.getSelection(), check, 7);
+						Action set_NXOR = new Add_Operation_to_Block(evltree, eoltree.getSelection(), block, 7);
 						set_NXOR.setText("NOT XOR");
 						set_NXOR.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));

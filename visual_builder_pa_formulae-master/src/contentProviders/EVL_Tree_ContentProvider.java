@@ -13,6 +13,7 @@ import model.EVL_Tree_FixOperations;
 import model.EVL_Tree_Root;
 import model.EVL_Tree_FixStatement;
 import model.EVL_Tree_ImportStatement;
+import model.EVL_Tree_CheckBlock;
 import model.EVL_Tree_CheckOperation;
 
 /**
@@ -78,7 +79,14 @@ public class EVL_Tree_ContentProvider implements ITreeContentProvider {
 		}
 		if (element instanceof EVL_Tree_CheckStatement) {
 			EVL_Tree_CheckStatement c = (EVL_Tree_CheckStatement)element;
-			if (c.getOperations().size() > 0)
+			if (c.getBlock() != null)
+				return true;
+			else 
+				return false;
+		}
+		if (element instanceof EVL_Tree_CheckBlock) {
+			EVL_Tree_CheckBlock c = (EVL_Tree_CheckBlock)element;
+			if (c.getBlocks_and_Operations().size() > 0)
 				return true;
 			else 
 				return false;
@@ -126,7 +134,14 @@ public class EVL_Tree_ContentProvider implements ITreeContentProvider {
 		
 		if (parentElement instanceof EVL_Tree_CheckStatement) {
 			EVL_Tree_CheckStatement box = (EVL_Tree_CheckStatement) parentElement;
-			return box.getOperations().toArray();
+			Object[] result = new Object[1];
+			result[0] = box.getBlock();
+			return result;
+		}
+		
+		if (parentElement instanceof EVL_Tree_CheckBlock) {
+			EVL_Tree_CheckBlock box = (EVL_Tree_CheckBlock) parentElement;
+			return box.getBlocks_and_Operations().toArray();
 		}
 		
 		if (parentElement instanceof EVL_Tree_FixStatement) {

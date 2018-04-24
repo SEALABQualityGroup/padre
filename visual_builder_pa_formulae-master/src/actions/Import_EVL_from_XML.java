@@ -8,6 +8,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import helpers.ProjectManagment;
 import model.EVL_Tree_Root;
@@ -42,6 +44,11 @@ public class Import_EVL_from_XML extends Action {
 				imported = ProjectManagment.Open(dir);
 				evl = imported;
 				evltree.setInput(evl);
+				
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				views.EVL_Tree evl_view = (views.EVL_Tree) page.findView("views.EVL_Tree");
+				
+				evl_view.setActions();
 			}			
 
 		} catch (FileNotFoundException | JAXBException e1) {

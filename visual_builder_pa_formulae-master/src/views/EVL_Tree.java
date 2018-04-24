@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 
+import actions.Add_Block_to_Selected_Item;
 import actions.Add_Check_to_EVL;
 import actions.Add_Constraint_to_EVL;
 import actions.Add_Critique_to_EVL;
@@ -40,7 +41,9 @@ import contentProviders.EVL_Tree_LabelProvider;
 import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
+import model.BooleanOperators;
 import model.EOL_Library_Context_Item;
+import model.EVL_Tree_CheckBlock;
 import model.EVL_Tree_CheckOperation;
 import model.EVL_Tree_FixOperations;
 import model.EVL_Tree_Root;
@@ -84,6 +87,18 @@ public class EVL_Tree extends ViewPart {
 		hookContextMenu();
 
 		getSite().setSelectionProvider(tree);
+		
+
+		IActionBars bars = getViewSite().getActionBars();
+		
+		Action importXMLaction = new Import_EVL_from_XML(tree, evl);
+		importXMLaction.setText("Save");
+		importXMLaction.setToolTipText("Import tree from XML");
+		importXMLaction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+				.getImageDescriptor(org.eclipse.ui.ide.IDE.SharedImages.IMG_OBJ_PROJECT));
+		
+		bars.getToolBarManager().add(importXMLaction);
+		bars.updateActionBars();
 
 	}
 
@@ -95,13 +110,8 @@ public class EVL_Tree extends ViewPart {
 
 		IActionBars bars = getViewSite().getActionBars();
 
-		if (bars.getToolBarManager().getItems().length == 0) {
-			Action importXMLaction = new Import_EVL_from_XML(tree, evl);
-			importXMLaction.setText("Save");
-			importXMLaction.setToolTipText("Import tree from XML");
-			importXMLaction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-					.getImageDescriptor(org.eclipse.ui.ide.IDE.SharedImages.IMG_OBJ_PROJECT));
-
+		if (bars.getToolBarManager().getItems().length < 2) {
+			
 			Action saveXMLaction = new Export_EVL_as_XML(tree, evl);
 			saveXMLaction.setText("Save");
 			saveXMLaction.setToolTipText("Save tree as XML");
@@ -130,7 +140,6 @@ public class EVL_Tree extends ViewPart {
 			bars.getToolBarManager().add(saveEPL);
 			bars.getToolBarManager().add(saveEWL);
 			bars.getToolBarManager().add(saveXMLaction);
-			bars.getToolBarManager().add(importXMLaction);
 			bars.updateActionBars();
 		}
 
@@ -246,11 +255,57 @@ public class EVL_Tree extends ViewPart {
 
 					if (s instanceof EVL_Tree_CheckStatement) {
 
-						Action chooseFoperations = new Hook_F_operation_Context_Menu(tree, (EVL_Tree_CheckStatement) s);
+						Action add_NOT_block = new Add_Block_to_Selected_Item(tree, (EVL_Tree_CheckStatement) s, new EVL_Tree_CheckBlock(BooleanOperators.NOT));
+						add_NOT_block.setText("Add negated block of operations");
+						add_NOT_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
+						manager.add(add_NOT_block);
+					}
+					
+					if (s instanceof EVL_Tree_CheckBlock) {
+						
+						EVL_Tree_CheckBlock myblock = (EVL_Tree_CheckBlock) s;
+
+						Action add_NOT_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.NOT));
+						add_NOT_block.setText("Add negated block of operations");
+						add_NOT_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+						
+						Action add_AND_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.AND));
+						add_AND_block.setText("AND a block of operations");
+						add_AND_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+						
+						Action add_NAND_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.NAND));
+						add_NAND_block.setText("AND NOT a block of operations");
+						add_NAND_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+						
+						Action add_OR_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.OR));
+						add_OR_block.setText("OR a block of operations");
+						add_OR_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+						
+						Action add_NOR_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.NOR));
+						add_NOR_block.setText("OR NOT a block of operations");
+						add_NOR_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+						
+						Action chooseFoperations = new Hook_F_operation_Context_Menu(tree, myblock);
 						chooseFoperations.setText("Choose F");
 						chooseFoperations.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
+						if (myblock.getBlocks_and_Operations().size() > 0) {
+							manager.add(add_AND_block);
+							manager.add(add_NAND_block);
+							manager.add(add_OR_block);
+							manager.add(add_NOR_block);
+						} else {
+							manager.add(add_NOT_block);
+						}
+						
 						manager.add(chooseFoperations);
 					}
 

@@ -10,8 +10,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import model.EVL_Tree_FixOperations;
-import model.EOL_Library_DO_Operation;
 import model.EOL_Library_Th_Operation;
 import model.EVL_Tree_CheckOperation;
 import model.EVL_Tree_ImportStatement;
