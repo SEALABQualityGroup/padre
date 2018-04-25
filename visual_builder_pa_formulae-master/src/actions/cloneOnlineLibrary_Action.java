@@ -9,11 +9,16 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 
+import dialogs.DBcredentialsDialog;
 import model.Db;
+import plugin.Activator;
 
 /**
  * It saves the online library of EOL files as local library in the folder
@@ -37,6 +42,34 @@ public class cloneOnlineLibrary_Action extends Action {
 	}
 
 	public void run() {
+		
+		if (Db.getDB_URL() == null || Db.getUSER() == null || Db.getPASS() == null) {
+			
+			IDialogSettings settings = Activator.getDefault().getDialogSettings();
+		    IDialogSettings section = settings.getSection("DBcredential");
+		    
+		    if (section == null) {
+
+				DBcredentialsDialog dbDialog = new DBcredentialsDialog(operations.getControl().getShell());
+				dbDialog.create();
+				if (dbDialog.open() == Window.OK) {
+					IDialogSettings section1 = settings.addNewSection("DBcredential");
+					List<String> result = dbDialog.getCredentials();
+					section1.put("url", result.get(0));
+					section1.put("user", result.get(1));
+					section1.put("pass", result.get(2));
+					Db.setDB_URL(section1.get("url"));
+			    	Db.setUSER(section1.get("user"));
+			    	Db.setPASS(section1.get("pass"));
+				} else {
+					return;
+				}
+		    } else {
+		    	Db.setDB_URL(section.get("url"));
+		    	Db.setUSER(section.get("user"));
+		    	Db.setPASS(section.get("pass"));
+		    }
+		}
 
 		FileDialog dialog = new FileDialog(operations.getControl().getShell(), SWT.SAVE);
 		dialog.setFilterNames(new String[] { "EOL Files (*.*eol)" });
@@ -83,9 +116,16 @@ public class cloneOnlineLibrary_Action extends Action {
 				break;
 			}
 
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		}
+		} catch (SQLException e) {
+			DialogSettings settings = (DialogSettings) Activator.getDefault().getDialogSettings();
+			settings.removeSection("DBcredential");
+			Db.setDB_URL(null);
+			Db.setUSER(null);
+			Db.setPASS(null);
+			e.printStackTrace();
+		} 
 
 		File file;
 		file = new File(dir);

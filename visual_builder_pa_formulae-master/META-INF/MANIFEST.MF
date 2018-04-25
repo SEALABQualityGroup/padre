@@ -25,3 +25,4 @@ Import-Package: org.antlr.runtime.tree,
  org.eclipse.epsilon.common.dt.editor.outline,
  org.eclipse.epsilon.eol.dt.editor
 Export-Package: view
+Bundle-Activator: plugin.Activator

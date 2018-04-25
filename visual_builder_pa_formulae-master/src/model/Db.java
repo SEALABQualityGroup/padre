@@ -15,13 +15,36 @@ public class Db {
 
 	private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
-	static final String DB_URL = "jdbc:mysql://localhost/local_visual_builder";
+//	static final String DB_URL = "jdbc:mysql://localhost/local_visual_builder";
 	Connection dbConnection = null;
-	Connection OnlinedbConnection = null;
 
-	static final String USER = "root";
-	static final String PASS = "";
+	static String DB_URL = null;
+	static String USER = null;
+	static String PASS = null;
+	
+    public static String getDB_URL() {
+		return DB_URL;
+	}
 
+	public static void setDB_URL(String dB_URL) {
+		DB_URL = dB_URL;
+	}
+
+	public static String getUSER() {
+		return USER;
+	}
+
+	public static void setUSER(String uSER) {
+		USER = uSER;
+	}
+
+	public static String getPASS() {
+		return PASS;
+	}
+
+	public static void setPASS(String pASS) {
+		PASS = pASS;
+	}
 	/**
 	 * 
 	 */
@@ -940,10 +963,6 @@ public class Db {
 	public Connection getDbConnection() {
 		return dbConnection;
 	}
-	
-	public Connection getOnlineDbConnection() {
-		return OnlinedbConnection;
-	}
 
 	public void setDbConnection(Connection dbConnection) {
 		this.dbConnection = dbConnection;
@@ -951,18 +970,6 @@ public class Db {
 
 	public static String getDriverName() {
 		return DRIVER_NAME;
-	}
-
-	public static String getDbUrl() {
-		return DB_URL;
-	}
-
-	public static String getUser() {
-		return USER;
-	}
-
-	public static String getPass() {
-		return PASS;
 	}
 
 }

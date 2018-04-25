@@ -6,12 +6,15 @@ import java.util.List;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
@@ -24,7 +27,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import actions.cloneOnlineLibrary_Action;
+import dialogs.DBcredentialsDialog;
 import model.Db;
+import plugin.Activator;
 
 public class Thresholds_OnDB extends ViewPart {
 
@@ -62,6 +67,35 @@ public class Thresholds_OnDB extends ViewPart {
 			public void run() {
 
 				try {
+
+					if (Db.getDB_URL() == null || Db.getUSER() == null || Db.getPASS() == null) {
+
+						IDialogSettings settings = Activator.getDefault().getDialogSettings();
+						IDialogSettings section = settings.getSection("DBcredential");
+
+						if (section == null) {
+
+							DBcredentialsDialog dbDialog = new DBcredentialsDialog(tableViewer.getControl().getShell());
+							dbDialog.create();
+							if (dbDialog.open() == Window.OK) {
+								IDialogSettings section1 = settings.addNewSection("DBcredential");
+								List<String> result = dbDialog.getCredentials();
+								section1.put("url", result.get(0));
+								section1.put("user", result.get(1));
+								section1.put("pass", result.get(2));
+								Db.setDB_URL(section1.get("url"));
+						    	Db.setUSER(section1.get("user"));
+						    	Db.setPASS(section1.get("pass"));
+							} else {
+								return;
+							}
+					    } else {
+					    	Db.setDB_URL(section.get("url"));
+					    	Db.setUSER(section.get("user"));
+					    	Db.setPASS(section.get("pass"));
+					    }
+					}
+
 					DBThresholdsFunctions.clear();
 					List<Integer> th_id_list = Db.getall_Th_id();
 
@@ -83,7 +117,11 @@ public class Thresholds_OnDB extends ViewPart {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
+					DialogSettings settings = (DialogSettings) Activator.getDefault().getDialogSettings();
+					settings.removeSection("DBcredential");
+					Db.setDB_URL(null);
+					Db.setUSER(null);
+					Db.setPASS(null);
 					e.printStackTrace();
 				}
 
@@ -93,7 +131,7 @@ public class Thresholds_OnDB extends ViewPart {
 		getOnlineLibrary.setToolTipText("Get library");
 		getOnlineLibrary.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-		
+
 		cloneOnlineLibrary = new cloneOnlineLibrary_Action(tableViewer, 3);
 		cloneOnlineLibrary.setText("Clone");
 		cloneOnlineLibrary.setToolTipText("Clone library");
