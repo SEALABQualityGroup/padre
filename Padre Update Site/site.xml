@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/Feature_padre_1.0.0.201804241819.jar" id="Feature_padre" version="1.0.0.201804241819">
+   <feature url="features/Padre_2.0.0.201804251939.jar" id="Padre" version="2.0.0.201804251939">
       <category name="Epsilon_tools"/>
    </feature>
    <category-def name="Epsilon_tools" label="Epsilon tools"/>
