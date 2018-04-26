@@ -56,7 +56,14 @@ public class EVL_Tree_LabelProvider extends LabelProvider {
 		
 		if (element instanceof EVL_Tree_CheckBlock) {
 			EVL_Tree_CheckBlock block = (EVL_Tree_CheckBlock) element;
-			String result = block.getOp().toString();
+			BooleanOperators op = block.getOp();
+			
+			String result = "";
+			if (op == BooleanOperators.EMPTY) {
+				result = "block";
+			} else {
+				result = op.toString();
+			}
 			
 			return result;
 		}

@@ -38,7 +38,6 @@ import actions.Save_EVL_file_Action;
 import actions.Save_EWL_file_Action;
 import contentProviders.EVL_Tree_ContentProvider;
 import contentProviders.EVL_Tree_LabelProvider;
-import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
 import model.BooleanOperators;
@@ -252,20 +251,15 @@ public class EVL_Tree extends ViewPart {
 								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 						manager.add(setFixTitle);
 					}
-
-					if (s instanceof EVL_Tree_CheckStatement) {
-
-						Action add_NOT_block = new Add_Block_to_Selected_Item(tree, (EVL_Tree_CheckStatement) s, new EVL_Tree_CheckBlock(BooleanOperators.NOT));
-						add_NOT_block.setText("Add negated block of operations");
-						add_NOT_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-
-						manager.add(add_NOT_block);
-					}
 					
 					if (s instanceof EVL_Tree_CheckBlock) {
 						
 						EVL_Tree_CheckBlock myblock = (EVL_Tree_CheckBlock) s;
+						
+						Action add_EMPTY_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.EMPTY));
+						add_EMPTY_block.setText("Add block of operations");
+						add_EMPTY_block.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+								.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
 						Action add_NOT_block = new Add_Block_to_Selected_Item(tree, myblock, new EVL_Tree_CheckBlock(BooleanOperators.NOT));
 						add_NOT_block.setText("Add negated block of operations");
@@ -303,6 +297,7 @@ public class EVL_Tree extends ViewPart {
 							manager.add(add_OR_block);
 							manager.add(add_NOR_block);
 						} else {
+							manager.add(add_EMPTY_block);
 							manager.add(add_NOT_block);
 						}
 						

@@ -3,6 +3,8 @@ package actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 
+import model.BooleanOperators;
+import model.EVL_Tree_CheckBlock;
 import model.EVL_Tree_CheckStatement;
 import model.EVL_Tree_Container;
 import model.EVL_Tree_Context_Item;
@@ -35,6 +37,10 @@ public class Add_Check_to_EVL extends Action{
 				for (EVL_Tree_Container container : c.getContainers()) {
 					if (container.equals(containerSelected)) {
 						container.setCheck(checkNew);
+						
+						EVL_Tree_CheckBlock bl = new EVL_Tree_CheckBlock(BooleanOperators.NOT);
+						bl.setContext(containerSelected.getContext());
+						checkNew.setBlock(bl);
 					}
 				}
 			}
@@ -44,5 +50,6 @@ public class Add_Check_to_EVL extends Action{
 		EVLtree.refresh();
 		EVLtree.setExpandedElements(ex);
 		EVLtree.setExpandedState(containerSelected, true);
+		EVLtree.setExpandedState(checkNew, true);
 	}
 }
