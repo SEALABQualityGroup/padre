@@ -70,7 +70,7 @@ public class DBcredentialsDialog extends TitleAreaDialog {
 		
 		Label pass_label = new Label(container, SWT.NONE);
 		pass_label.setText("Password");
-		DB_PASSWORD = new Text(container, SWT.BORDER);
+		DB_PASSWORD = new Text(container, SWT.PASSWORD | SWT.BORDER);
 		DB_PASSWORD.setLayoutData(db_URL);
 	}
 
@@ -91,7 +91,7 @@ public class DBcredentialsDialog extends TitleAreaDialog {
 	@Override
 	protected void okPressed() {
 		saveInput();
-		if (DB_URL.getText().isEmpty() || DB_USER.getText().isEmpty() || DB_PASSWORD.getText().isEmpty())
+		if (DB_URL.getText().isEmpty() || DB_USER.getText().isEmpty())
 			return;
 		super.okPressed();
 	}
