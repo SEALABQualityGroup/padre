@@ -34,6 +34,11 @@
             name="EOL Library Tree"
             restorable="true">
       </view>
+	  <view
+	  		class="view.PadreEVLValidationView"
+	    	icon="icons/evl.gif"
+	    	id="view.PadreEVLValidationView"
+	    	name="Performance Antipattern Detection and Refactoring Session"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -73,6 +78,30 @@
                id="org.eclipse.debug.ui.launchActionSet">
          </actionSet>
       </perspectiveExtension>
+   </extension>
+   
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="launching.launchers.PadreEvlLaunchConfigurationDelegate"
+            id="launching.PadreEvlLaunchConfigurationDelegate"
+            modes="run, debug"
+            name="PADRE Validation"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="launching.launchers.PadreEvlLaunchConfigurationTabGroup"
+            description="Create a configuration to launch a PADRE Validation"
+            id="launching.PadreEvlLaunchConfigurationTabGroup"
+            type="launching.PadreEvlLaunchConfigurationDelegate"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="launching.PadreEvlLaunchConfigurationDelegate"
+            icon="icons/evl.gif"
+            id="PADRE EVLValidation"/>
    </extension>
 
 </plugin>
