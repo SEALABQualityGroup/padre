@@ -1,7 +1,7 @@
 # Performance-driven softwAre moDel Refactoring framEwork (PADRE)
 
 ## Description
-## How to install
+## Installation
 ### System requirement
 ### Installation/Upgrading guide
 ## License
