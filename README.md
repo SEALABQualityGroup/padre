@@ -19,9 +19,9 @@ Official Github repository: https://github.com/SEALABQualityGroup/padre
     * EMF integration
     * GMF integration
     * UML integration
- 4. Cloning PADRE from https://github.com/SEALABQualityGroup/padre.git
- 5. Import in eclipse PADRE projects
- 6. Create a running configuration in:
+ 3. Cloning PADRE from https://github.com/SEALABQualityGroup/padre.git
+ 4. Import in eclipse PADRE projects
+ 5. Create a running configuration in:
    * EVL
      - Select an EVL file (e.g. padre/it.spe.disim.epsilon.antipattern_d-s/evl/AP-UML-MARTE.evl)
      - Give a name (e.g. BGCS)
@@ -42,7 +42,7 @@ Official Github repository: https://github.com/SEALABQualityGroup/padre
      1. Add new EMF/GMF wizard (from Eclipse preferences -> epsilon -> EMF/GMF wizards)
      2. Select an EWL files from workspace (e.g. padre/it.spe.disim.epsilon.antipattern_d-s/ewl/AP-UML-MARTE.ewl)
      3. Select the UML namespace uri (http://www.eclipse.org/uml2/5.0.0/UML)
- 7. enjoy :-)
+ 6. enjoy :-)
 
 ### SYSTEM REQUIREMENTS
  - MacOS Sierra (10.12.06);
