@@ -3,7 +3,6 @@ package analysis.performance.jmt.jmva.transformation.util;
 import java.io.File;
 import java.util.List;
 
-import org.apache.tools.ant.types.ResourceFactory;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -31,7 +30,7 @@ public class RegisterMetamodel {
 		Resource mmResource;
 		try {
 			mmResource = rs.getResource(uri, true);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			uri = URI.createFileURI(uri.path());
 			mmResource = rs.getResource(uri, true);
 		}
@@ -48,7 +47,7 @@ public class RegisterMetamodel {
 			EPackage.Registry.INSTANCE.put(nsURI, p);
 		}
 	}
-	
+
 	public static String getNsURI(File file) {
 		ResourceSet rs = new ResourceSetImpl();
 
@@ -57,7 +56,7 @@ public class RegisterMetamodel {
 		Resource mmResource;
 		try {
 			mmResource = rs.getResource(uri, true);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			uri = URI.createFileURI(uri.path());
 			mmResource = rs.getResource(uri, true);
 		}
@@ -75,32 +74,30 @@ public class RegisterMetamodel {
 		}
 		return "";
 	}
-	
-	
+
 	public static void packageRegistering(List<String> paths) {
-		//setResourceSet(new ResourceSetImpl());
+		// setResourceSet(new ResourceSetImpl());
 		ResourceSet rs = new ResourceSetImpl();
-		
 		
 		rs.getPackageRegistry().put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
 		rs.getPackageRegistry().put(StandardPackage.eNS_URI, StandardPackage.eINSTANCE);
-		rs.getPackageRegistry().put(org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
-				MARTEPackage.eINSTANCE);
-		rs.getPackageRegistry()
-				.put(org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI, GQAMPackage.eINSTANCE);
 		
+		rs.getPackageRegistry().put(org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI, MARTEPackage.eINSTANCE);
+		rs.getPackageRegistry().put(org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+				GQAMPackage.eINSTANCE);
+
 		rs.getPackageRegistry().put(JmtmodelPackage.eINSTANCE.getNsURI(), JmtmodelPackage.eINSTANCE);
-		
-		for(String path : paths) {
+
+		for (String path : paths) {
 			registerMetamodel(new File(path));
 		}
-		
+
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION,
 				MARTEFactory.eINSTANCE);
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION,
 				GQAMFactory.eINSTANCE);
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION,
 				UMLResource.Factory.INSTANCE);
-		
+
 	}
 }

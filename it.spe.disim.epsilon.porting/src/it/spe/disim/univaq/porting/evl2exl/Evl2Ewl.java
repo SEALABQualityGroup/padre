@@ -1,34 +1,20 @@
 package it.spe.disim.univaq.porting.evl2exl;
 
-import it.spe.disim.univaq.porting.Exl2Eyl;
-import it.spe.disim.univaq.porting.util.PortingUtil;
-
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
-import org.eclipse.epsilon.eol.dom.BooleanLiteral;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.dom.IfStatement;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.OperationCallExpression;
-import org.eclipse.epsilon.eol.dom.PlusOperatorExpression;
-import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
-import org.eclipse.epsilon.eol.dom.ReturnStatement;
-import org.eclipse.epsilon.eol.dom.Statement;
-import org.eclipse.epsilon.eol.dom.StatementBlock;
-import org.eclipse.epsilon.eol.dom.StringLiteral;
-import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.parse.EolParser;
-import org.eclipse.epsilon.epl.dom.Pattern;
-import org.eclipse.epsilon.epl.dom.Role;
-import org.eclipse.epsilon.epl.parse.EplParser;
-import org.eclipse.epsilon.evl.dom.Constraint;
-import org.eclipse.epsilon.evl.dom.ConstraintContext;
-import org.eclipse.epsilon.evl.dom.Fix;
 import org.eclipse.epsilon.evl.parse.EvlParser;
 import org.eclipse.epsilon.ewl.dom.Wizard;
 import org.eclipse.epsilon.ewl.parse.EwlParser;
+
+import it.spe.disim.univaq.porting.Exl2Eyl;
+import it.spe.disim.univaq.porting.util.PortingUtil;
 
 public class Evl2Ewl extends Exl2Eyl {
 

@@ -3,20 +3,12 @@ package analysis.performance.jmt.jmva.transformation;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.BasicExtendedMetaData;
-import org.eclipse.emf.ecore.util.ExtendedMetaData;
-import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.util.FileUtil;
 import org.eclipse.epsilon.common.util.StringProperties;
@@ -31,16 +23,6 @@ import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.tools.EolSystem;
 import org.eclipse.epsilon.etl.EtlModule;
-import org.eclipse.papyrus.MARTE.MARTEFactory;
-import org.eclipse.papyrus.MARTE.MARTEPackage;
-import org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMFactory;
-import org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage;
-import org.eclipse.uml2.uml.UMLPackage;
-import org.eclipse.uml2.uml.profile.standard.StandardPackage;
-import org.eclipse.uml2.uml.resource.UMLResource;
-
-import analysis.performance.jmt.jmva.transformation.util.RegisterMetamodel;
-import jmtmodel.JmtmodelPackage;
 
 public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 
@@ -72,8 +54,7 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 	 * @see EmfModel
 	 */
 	public EmfModel createEmfModel(String name, String model, String metamodel, boolean readOnLoad,
-			boolean storeOnDisposal)
-			throws EolModelLoadingException, URISyntaxException, EolModelElementTypeNotFoundException {
+			boolean storeOnDisposal){
 
 		EmfModel emfModel = new EmfModel();
 
@@ -81,29 +62,42 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 
 		properties.put(EmfModel.PROPERTY_NAME, name);
 
-		properties.put(EmfModel.PROPERTY_FILE_BASED_METAMODEL_URI, getFile(metamodel).toURI().toString());
-
-		properties.put(EmfModel.PROPERTY_MODEL_URI, getFile(model).toURI().toString());
+		try {
+			properties.put(EmfModel.PROPERTY_FILE_BASED_METAMODEL_URI, getFile(metamodel).toURI().toString());
+			properties.put(EmfModel.PROPERTY_MODEL_URI, getFile(model).toURI().toString());
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		properties.put(EmfModel.PROPERTY_READONLOAD, readOnLoad + "");
 
 		properties.put(EmfModel.PROPERTY_STOREONDISPOSAL, storeOnDisposal + "");
 
-		emfModel.load(properties, (IRelativePathResolver) null);
-
+		try {
+			emfModel.load(properties, (IRelativePathResolver) null);
+		} catch (EolModelLoadingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return emfModel;
 	}
 
-	public EmfModel createEmfModel(String name, String model, List<URI> metamodel, boolean readOnLoad,
-			boolean storedOnDisposal)
-			throws EolModelLoadingException, URISyntaxException, EolModelElementTypeNotFoundException {
+	public EmfModel createEmfModel(String name, String model, List<String> metamodel, boolean readOnLoad,
+			boolean storedOnDisposal){
 
 		EmfModel emfModel = new EmfModel();
 		emfModel.setName(name);
-		emfModel.setMetamodelFileUris(metamodel);
+		emfModel.setMetamodelUris(metamodel);
 		emfModel.setModelFile(model);
 		emfModel.setReadOnLoad(readOnLoad);
 		emfModel.setStoredOnDisposal(storedOnDisposal);
+		try {
+			emfModel.loadModelFromUri();
+		} catch (EolModelLoadingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		return emfModel;
 	}
@@ -141,8 +135,7 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 	 * @return
 	 * @throws URISyntaxException
 	 */
-	public EmfModel loadEmptyModel(String name, List<String> metamodelPath, String outPath)
-			throws URISyntaxException {
+	public EmfModel loadEmptyModel(String name, List<String> metamodelPath, String outPath){
 
 		EmfModel emfModel = new EmfModel();
 
@@ -159,7 +152,6 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 //		for (URI path : metamodelPath) {
 //			metamodelFiles.add(URI.createFileURI(path));
 //		}
-
 //		emfModel.setMetamodelFileUris(metamodelPath);
 		emfModel.setMetamodelUris(metamodelPath);
 		emfModel.setModelFileUri(URI.createFileURI(outPath));

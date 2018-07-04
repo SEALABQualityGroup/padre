@@ -1,14 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: it.spe.disim.univaq.it.plugin
-Bundle-SymbolicName: it.spe.disim.univaq.it.plugin;singleton:=true
+Bundle-SymbolicName: it.univaq.disim.sealab.padre;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.google.gson;bundle-version="2.2.4",
- it.spe.disim.epsilon.porting;bundle-version="1.0.0",
+ it.univaq.disim.sealab.padre.epsilon_porting;bundle-version="1.0.0",
  org.eclipse.epsilon.evl.engine;bundle-version="1.3.0",
- org.eclipse.emf.emfstore.common,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench,
@@ -22,25 +21,27 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.epsilon.emc.emf,
  org.apache.commons.lang3,
  org.apache.ant,
- it.spe.disim.univaq.it.plugin.performanceanalysis,
- org.eclipse.epsilon.common.dt,
  org.eclipse.epsilon.eol.dt,
- org.eclipse.uml2;bundle-version="5.3.0",
- org.eclipse.uml2.uml.profile.standard;bundle-version="1.0.100",
- org.eclipse.uml2.uml.resources;bundle-version="5.2.0",
  org.eclipse.papyrus.uml.profile;bundle-version="3.1.0",
- org.eclipse.papyrus.uml.resourceloading.profile;bundle-version="1.2.0",
  org.eclipse.epsilon.eol.engine,
- org.eclipse.epsilon.eol.tools;bundle-version="1.3.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ org.eclipse.epsilon.eol.tools;bundle-version="1.3.0",
+ org.eclipse.epsilon.common.dt;bundle-version="1.3.0",
+ it.univaq.disim.sealab.padre.performanceanalysis;bundle-version="1.0.0",
+ org.apache.commons.io,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8,
+ JavaSE-1.6,
+ JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/mysql-connector-java-5.1.21.jar, .
+Bundle-ClassPath: .,
+ lib/
 Import-Package: org.antlr.runtime.tree,
  org.eclipse.epsilon.common.dt.editor.outline,
  org.eclipse.epsilon.eol.dt.editor,
  org.eclipse.epsilon.etl,
  org.eclipse.epsilon.etl.execute.context,
  org.eclipse.papyrus.MARTE,
- org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM
+ org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM,
+ org.eclipse.uml2.uml.profile.standard
 Export-Package: view
 Bundle-Activator: plugin.Activator

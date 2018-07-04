@@ -3,7 +3,7 @@ package listeners;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.commons.io.FileUtils;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
@@ -11,7 +11,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
-import org.apache.commons.io.FileUtils;
 
 public class saveEolListener_Deprecated implements SelectionListener {
 

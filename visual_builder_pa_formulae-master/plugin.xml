@@ -83,7 +83,7 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="launching.launchers.PadreEvlLaunchConfigurationDelegate"
+            delegate="launching.launchers.PadreLaunchConfigurationDelegate"
             id="launching.PadreEvlLaunchConfigurationDelegate"
             modes="run, debug"
             name="PADRE Validation"/>
@@ -91,7 +91,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="launching.launchers.PadreEvlLaunchConfigurationTabGroup"
+            class="launching.launchers.PadreLaunchConfigurationTabGroup"
             description="Create a configuration to launch a PADRE Validation"
             id="launching.PadreEvlLaunchConfigurationTabGroup"
             type="launching.PadreEvlLaunchConfigurationDelegate"/>
@@ -103,5 +103,4 @@
             icon="icons/evl.gif"
             id="PADRE EVLValidation"/>
    </extension>
-
 </plugin>

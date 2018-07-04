@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins">
 		<accessrules>
@@ -7,6 +8,7 @@
 			<accessrule kind="accessible" pattern="org/eclipse/epsilon/evl/**"/>
 			<accessrule kind="accessible" pattern="org/eclipse/epsilon/eol/**"/>
 			<accessrule kind="accessible" pattern="it/spe/disim/univaq/porting/**"/>
+			<accessrule kind="accessible" pattern="org/apache/common/io/**"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
@@ -15,7 +17,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.epsilon.common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.epsilon.dependencies"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.epsilon.evl.engine"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/it.spe.disim.epsilon.porting"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/it.univaq.disim.sealab.padre.epsilon_porting"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.epsilon.eol.engine"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

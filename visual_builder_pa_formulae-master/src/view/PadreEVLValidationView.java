@@ -5,17 +5,17 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.common.dt.util.ListContentProvider;
 import org.eclipse.epsilon.emc.emf.AbstractEmfModel;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.evl.IEvlModule;
 import org.eclipse.epsilon.evl.dt.EvlPlugin;
 import org.eclipse.epsilon.evl.dt.views.ValidationView;
-import org.eclipse.epsilon.evl.dt.views.ValidationViewFixer;
 import org.eclipse.epsilon.evl.execute.FixInstance;
 import org.eclipse.epsilon.evl.execute.UnsatisfiedConstraint;
 import org.eclipse.jface.action.Action;
@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+
+
 
 import analysis.performance.jmt.jmva.UmlJmvaController;
 
@@ -76,17 +78,18 @@ public class PadreEVLValidationView extends ValidationView {
 				}
 				// Save the one-fix model
 				AbstractEmfModel model = (AbstractEmfModel) module.getContext().getModelRepository().getModels().get(0);
-				String relative_path = "Step_" + counter + "---" + unsatisfiedConstraint.getMessage() + "---"
-						+ fixInstance.getTitle();
-				_store_current_model(model,
+				String relative_path = "Step_" + counter + "---" + unsatisfiedConstraint.getMessage().trim() + "---"
+						+ fixInstance.getTitle().trim();
+				URI newURI = _store_current_model(model,
 						StringEscapeUtils.escapeXml(relative_path.replace('<', ' ').replace('>', ' ')));
 
 				// POSSIBLE POINT FOR PERF AN
 				boolean ans = module.getContext().getUserInput()
 						.confirm("Would you like to analyse the performance of the refactored model?", true);
 				if (ans) {
-					UmlJmvaController controller = new UmlJmvaController(model.getName());
-					controller.roundtripMVA();
+//					UmlJmvaController controller = new UmlJmvaController(CommonPlugin.asLocalURI(model.getResource().getURI()));
+					UmlJmvaController controller = new UmlJmvaController();
+					controller.roundtripMVA(newURI);
 					module.getContext().getUserInput().inform("Performance analysed!");
 				} else {
 					module.getContext().getUserInput().inform("Performance will not be analysed!");
@@ -154,8 +157,8 @@ public class PadreEVLValidationView extends ValidationView {
 		});
 	}
 
-	// it save the model as UML file in a sub-directory of name 'reason'
-	public boolean _store_current_model(AbstractEmfModel model, String reason) {
+	// it saves the model as UML file in a sub-directory named 'reason'
+	public URI _store_current_model(AbstractEmfModel model, String reason) {
 
 		URI oldUri = model.getResource().getURI();
 
@@ -185,13 +188,13 @@ public class PadreEVLValidationView extends ValidationView {
 			model.getResource().save(null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		} finally {
 			// reset old uri
 			model.getResource().setURI(oldUri);
 		}
 
-		return true;
+		return newUri;
 	}
 
 	@Override

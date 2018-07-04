@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Epsilon Standalone Examples Plug-in
-Bundle-SymbolicName: it.spe.disim.epsilon.porting;singleton:=true
+Bundle-SymbolicName: it.univaq.disim.sealab.padre.epsilon_porting;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

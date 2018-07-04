@@ -1,28 +1,33 @@
 package analysis.performance.jmt.jmva;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
-import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.profile.standard.StandardPackage;
 import org.osgi.framework.Bundle;
 
-import analysis.performance.jmt.jmva.transformation.ETL_Domain_Transformation;
-import analysis.performance.jmt.jmva.transformation.Uml2JmvaTransformation;
+import analysis.performance.jmt.jmva.transformation.ModelTransformation;
 import analysis.performance.jmt.jmva.transformation.util.RegisterMetamodel;
 import it.univaq.disim.sealab.padre.performance.analysis.launching.JmtModelGenerator;
 import it.univaq.disim.sealab.padre.performance.analysis.launching.JmvaExecutor;
 import it.univaq.disim.sealab.padre.performance.analysis.launching.JmvaFileGenerator;
-import it.univaq.disim.sealab.padre.performance.analysis.launching.Launcher;
 import it.univaq.disim.sealab.padre.performance.analysis.launching.UMLModelConformer;
 
 public class UmlJmvaController {
@@ -30,202 +35,197 @@ public class UmlJmvaController {
 	public static final String JMVA_EXTENSION = ".jmva";
 	public static final String DEFAULT_EXTENSION = ".xmi";
 
-	// private static final String PROJECT_BASEPATH =
-	// System.getProperty("user.dir").toString();
-	public static String PROJECT_BASEPATH = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
-			+ File.separator + "PADRE";// System.getProperty("user.dir").toString();
-	// private static final String ETL_BASEPATH = PROJECT_BASEPATH +
-	// "/resources/transformations/";
-	// private static final String UML_JMT_FWD_ETL_COMPLETE_PATH = ETL_BASEPATH +
-	// "UmlDeploymentDemands2Jmva.etl";
-	// private static final String UML_JMT_BWD_ETL_COMPLETE_PATH = ETL_BASEPATH +
-	// "Jmva2UmlDeploymentDemands.etl";
-	private static final String MM_BASEPATH = PROJECT_BASEPATH + "/resources/metamodels/";
-	private static final String JMT_MM_COMPLETE_PATH = MM_BASEPATH + "JMT/JMTModel.ecore";
-	private static final String TRACE_MM_COMPLETE_PATH = MM_BASEPATH + "Tracing/Trace.ecore";
-	private static final String ANT_BUILDS_BASEPATH = PROJECT_BASEPATH + "/resources/transformations/antlaunch/";
-	private static final String UML_JMT_FWD_ANT_BUILD_COMPLETE_PATH = ANT_BUILDS_BASEPATH + "forward/fwd.xml";
-	private static final String UML_JMT_BWD_ANT_BUILD_COMPLETE_PATH = ANT_BUILDS_BASEPATH + "backward/bwd.xml";
 	public static final int UML_JAVA_FWD_TRANSFORMATION = 0;
 	public static final int UML_JAVA_BWD_TRANSFORMATION = 1;
+	private String jmtMetamodelFilePath;
+	private String traceMetamodelFilePath;
+	private String uml2jmtEtlTransformation;
+	private String jmt2umlEtlTransformation;
 
-	private String in_umlModelFilePath;
-	private String in_umlModelFileName;
-	private String jmtModelPath;
-	private String jmtModelName;
-	private String traceModelPath;
-	private String traceModelName;
-	private String out_umlModelFilePath;
-	private String out_umlModelFileName;
-
-	public UmlJmvaController(String modelName) {
-		// this.in_umlModelFilePath =
-		// getClass().getResource("examples"+File.separator+"BGCS"+File.separator).toString();
-		try {
-			this.in_umlModelFilePath = new File(".").getCanonicalPath() + File.separator;
-			PROJECT_BASEPATH = this.in_umlModelFilePath;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // PROJECT_BASEPATH + in_umlModelFilePath;
-
-		// this.in_umlModelFileName -> resources/examples/BGCS/
-		this.in_umlModelFileName = modelName;
-		// this.jmtModelPath -> resources/examples/BGCS/performanceAnalysis/jmva
-		this.jmtModelPath = this.in_umlModelFilePath + "performanceAnalysis/jmva/";
-		this.jmtModelName = this.in_umlModelFileName;
-		// this.traceModelPath -> resources/examples/BGCS/performanceAnalysis/traces
-		this.traceModelPath = this.in_umlModelFilePath + "performanceAnalysis/traces/";
-		this.traceModelName = this.in_umlModelFileName;
-		// this.out_umlModelFileName -> resources/examples/BGCS/
-		this.out_umlModelFilePath = this.in_umlModelFilePath;
-		// BGCS-analysed
-		this.out_umlModelFileName = this.in_umlModelFileName + "-analysed";
+	public UmlJmvaController() {
+		jmtMetamodelFilePath = getFilePath(getBundle().getResource("metamodels/JMT/JMTModel.ecore").getPath());
+		traceMetamodelFilePath = getFilePath(
+				getBundle().getResource("metamodels/Tracing/Trace.ecore").getPath());
+		uml2jmtEtlTransformation = getFilePath(
+				getBundle().getResource("transformations/UmlDeploymentDemands2Jmva.etl").getPath());
+		jmt2umlEtlTransformation = getFilePath(
+				getBundle().getResource("transformations/Jmva2UmlDeploymentDemands.etl").getPath());
 	}
 
-	public void roundtripMVA() throws CoreException {
-		// String in_umlModelAbsFilePath = this.in_umlModelFilePath +
-		// this.in_umlModelFileName + UML_EXTENSION;
-		// String jmtModelAbsFilePath = this.jmtModelPath + this.jmtModelName +
-		// DEFAULT_EXTENSION;
-		// String jmvaAbsFilePath = this.jmtModelPath + this.jmtModelName +
-		// JMVA_EXTENSION;
-		// String traceModelAbsFilePath = this.traceModelPath + this.traceModelName +
-		// DEFAULT_EXTENSION;
-		// String out_umlModelAbsFilePath = this.out_umlModelFilePath +
-		// this.out_umlModelFileName + UML_EXTENSION;
+	// public UmlJmvaController(URI modelUri) {// IPath path = new
+	// Path(modelUri.toFileString()); //sourceModel}
 
-		// resources/examples/BGCS/BGCS.uml
-		String in_umlModelAbsFilePath = getFilePath("examples/BGCS/BGCS.uml");
-		// getBundle().getResource("examples/BGCS/BGCS.uml").getPath();
-
-		// resources/examples/BGCS/performanceAnalysis/jmva/BGCS.xmi
-		String jmtModelAbsFilePath = getFilePath("examples/BGCS/performanceAnalysis/jmva/BGCS.xmi");
-
-		String jmvaAbsFilePath = getFilePath("examples/BGCS/performanceAnalysis/jmva/BGCS.jmva");
-
-		String traceModelAbsFilePath = getFilePath(
-				getBundle().getResource("examples/BGCS/performanceAnalysis/traces/").getPath()).concat("BGCS.xmi");
-
-		String out_umlModelAbsFilePath = getFilePath(getBundle().getResource("examples/BGCS/").getPath())
-				.concat("BGCS-analysed.uml");
-
-		String out_traceModelAbsFilePath = getFilePath(getBundle().getResource("metamodels/Tracing/").getPath())
-				.concat("Trace.xml");
-
-		String out_jmtModelAbsFilePath = getFilePath(
-				getBundle().getResource("examples/BGCS/performanceAnalysis/jmva").getPath()).concat("BGCS-JMVA.xmi");
-
-		String jmtMetamodelFilePath = getFilePath("metamodels/JMT/JMTModel.ecore");
-		String traceMetamodelFilePath = getFilePath("metamodels/Tracing/Trace.ecore");
-		// String uml2jmtFwdAntBuild =
-		// getFilePath("transformations/antlaunch/forward/fwd.xml");
-
-		String uml2jmtEtlTransformation = getFilePath("transformations/UmlDeploymentDemands2Jmva.etl");
-
-		// this.out_umlModelFilePath + this.out_umlModelFileName + UML_EXTENSION;
-
-		// Launcher fwdLauncher = new Launcher(in_umlModelAbsFilePath,
-		// jmtMetamodelFilePath, jmtModelAbsFilePath,
-		// traceMetamodelFilePath, traceModelAbsFilePath, uml2jmtFwdAntBuild);
-		// fwdLauncher.runAntScript();
-
-		// ETL TRANSFORMATION BY JAVA CODE
-
-		// ETL_Domain_Transformation uml2jmva = new
-		// ETL_Domain_Transformation(traceMetamodelFilePath);
-
-		Uml2JmvaTransformation uml2jmva = new Uml2JmvaTransformation(traceMetamodelFilePath, uml2jmtEtlTransformation,
-				in_umlModelAbsFilePath, out_umlModelAbsFilePath);
-
-		RegisterMetamodel.packageRegistering(Arrays.asList(new String[] { traceMetamodelFilePath }));
-
-		EmfModel sourceModel = null;
-		try {
-			sourceModel = uml2jmva.createEmfModel("UML", in_umlModelAbsFilePath,
-					Arrays.asList(new URI[] { URI.createURI("http://www.eclipse.org/uml2/5.0.0/UML"),
-							URI.createURI("http://www.eclipse.org/papyrus/MARTE/1"),
-							URI.createURI("http://www.eclipse.org/uml2/5.0.0/UML/Profile/Standard"),
-							URI.createURI("http://www.eclipse.org/emf/2002/Ecore") }),
-					true, false);
-		} catch (EolModelLoadingException | EolModelElementTypeNotFoundException | URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	private IFile getFile(URI uri) {
+		String scheme = uri.scheme();
+		if ("platform".equals(scheme) && uri.segmentCount() > 1 && "resource".equals(uri.segment(0))) {
+			StringBuffer platformResourcePath = new StringBuffer();
+			for (int j = 1, size = uri.segmentCount(); j < size; ++j) {
+				platformResourcePath.append('/');
+				platformResourcePath.append(uri.segment(j));
+			}
+			return ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(platformResourcePath.toString()));
 		}
-		uml2jmva.addModel(sourceModel);
+		return null;
+	}
 
-		// TODO error at resouce.getResources().get(0) TO BE CHECKED
-		EmfModel traceModel = null;
-		try {
-			traceModel = uml2jmva.loadEmptyModel("Trace",
-					Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(traceMetamodelFilePath)) }),
-					out_traceModelAbsFilePath);
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		uml2jmva.addModel(traceModel);
-
-		EmfModel jmtModel = null;
-		try {
-			jmtModel = uml2jmva.loadEmptyModel("jmtmodel",
-					Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(jmtMetamodelFilePath)) }),
-					out_jmtModelAbsFilePath);
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		uml2jmva.addModel(jmtModel);
+	public void roundtripMVA(URI modelURI) {
+		IFile modelFile = getFile(modelURI);
+		IFolder containerFolder = (IFolder) modelFile.getParent();
+		IFolder perfAnalysisOutputFolder = containerFolder.getFolder("performanceAnalysis");
 
 		try {
-			uml2jmva.run(null);
-		} catch (Exception e) {
+			create(perfAnalysisOutputFolder);
+		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		// // model in
-		// uml2jmva.setSourceName("BGCS");
-		// uml2jmva.setMetamodel_in("metamodels/Tree.ecore");
-		// uml2jmva.setModel_in("models/tree.model");
-		//
-		// // model out
-		// uml2jmva.setTargetName("Target");
-		// uml2jmva.setMetamodel_out("metamodels/Graph.ecore");
-		// uml2jmva.setTargetPath("resources/models/outcome/outcome.model");
+		IFolder jmvaOutputFolder = perfAnalysisOutputFolder.getFolder("jmva");
+		IFolder tracesOutputFolder = perfAnalysisOutputFolder.getFolder("traces");
+		try {
+			jmvaOutputFolder.create(false, true, getMonitor());
+			tracesOutputFolder.create(false, true, getMonitor());
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String modelName = "BGCS.jmva";
+		IFile jmvaFile = jmvaOutputFolder.getFile(modelName);
+		IFile jmtFile = jmvaOutputFolder.getFile("BGCS.xmi");
+		IFile tracesFile = tracesOutputFolder.getFile("trace.xml");
+		IFile analysedModel = perfAnalysisOutputFolder.getFile("analysed"+modelFile.getFileExtension());
+		
+		uml2jmt(modelURI, tracesFile, jmtFile);
+		
+		jmvaGenerator(jmvaFile.getLocation(), jmtFile.getLocation());
+				
+		jmt2uml(modelURI, analysedModel, tracesFile, jmtFile);
+		
+		UMLModelConformer mc = new UMLModelConformer(UMLModelConformer.OVERWRITE_MODE);
+		mc.conform(analysedModel.getLocation().toString());
+	}
+	
+	private void jmvaGenerator(IPath jmvaPath, IPath jmtPath) {
+		JmvaFileGenerator jmvaFileGen = new JmvaFileGenerator(jmvaPath.toString());
+		jmvaFileGen.generate(jmtPath.toString());
+		JmvaExecutor.run(jmvaPath.toString());
+		JmtModelGenerator jmtModelGen = new JmtModelGenerator();
+		jmtModelGen.generate(jmvaPath.toString(), jmtPath.toString());
+	}
+	
+	private void jmt2uml(URI modelURI, IFile analysedModelFile, IFile tracesFile, IFile jmtFile) {
+		ModelTransformation jmva2uml = new ModelTransformation(jmt2umlEtlTransformation);
+		RegisterMetamodel.packageRegistering(Arrays.asList(new String[] { traceMetamodelFilePath }));
 
-		// transformation
-		// uml2jmva.setTransformation("transformations/Tree2Graph.etl");
+		jmva2uml.addModel(jmva2uml.createEmfModel("UML", modelURI,
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				true, true));
 
-		// END $$$$ ETL TRANSFORMATION BY JAVA CODE $$$$$
+		jmva2uml.addModel(jmva2uml.loadEmptyModel("UMLPerf",
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				analysedModelFile.getLocation().toString()));
 
-		// Launcher fwdLauncher = new Launcher(in_umlModelAbsFilePath,
-		// jmtModelAbsFilePath, traceModelAbsFilePath);
-		// fwdLauncher.runAntScript(0);
-		JmvaFileGenerator jmvaFileGen = new JmvaFileGenerator();
-		jmvaFileGen.generate(jmtModelAbsFilePath);
+		jmva2uml.addModel(jmva2uml.createEmfModel("Trace", tracesFile.getLocation().toString(),
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(traceMetamodelFilePath)) }), true,
+				false));
 
-		// JmvaExecutor.run(jmvaAbsFilePath);
-		JmvaExecutor.run(jmvaAbsFilePath.substring(0, jmvaAbsFilePath.length() - 5) + "-JMVA-working.jmva");
+		jmva2uml.addModel(jmva2uml.createEmfModel("jmtmodel", jmtFile.getLocation().toString(),
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(jmtMetamodelFilePath)) }), true,
+				false));
+
+		jmva2uml.run();
+	}
+	
+	private void uml2jmt(URI modelURI, IFile tracesFile, IFile jmtFile) {
+		ModelTransformation uml2jmva = new ModelTransformation(uml2jmtEtlTransformation);
+		RegisterMetamodel.packageRegistering(Arrays.asList(new String[] { traceMetamodelFilePath }));
+		uml2jmva.addModel(uml2jmva.createEmfModel("UML", modelURI,
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				true, false));
+		uml2jmva.addModel(uml2jmva.loadEmptyModel("Trace",
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(traceMetamodelFilePath)) }),
+				tracesFile.getLocation().toString()));
+		uml2jmva.addModel(uml2jmva.loadEmptyModel("jmtmodel",
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(jmtMetamodelFilePath)) }),
+				jmtFile.getLocation().toString()));
+		uml2jmva.run();
+	}
+
+	public void roundtripMVA() {
+
+		String in_umlModelAbsFilePath = getFilePath(
+				getBundle().getResource("examples/BGCS/BGCS-Papyrus.uml").getPath());
+
+		String jmvaAbsFilePath = getFilePath(
+				getBundle().getResource("examples/BGCS/performanceAnalysis/jmva/").getPath()).concat("/BGCS.jmva");
+
+		String out_umlModelAbsFilePath = getFilePath(getBundle().getResource("examples/BGCS/").getPath())
+				.concat("/BGCS-analysed.uml");
+
+		String out_traceModelAbsFilePath = getFilePath(
+				getBundle().getResource("examples/BGCS/performanceAnalysis/traces/").getPath()).concat("/Trace.xml");
+
+		String out_jmtModelAbsFilePath = getFilePath(
+				getBundle().getResource("examples/BGCS/performanceAnalysis/jmva/").getPath()).concat("/BGCS.xmi");
+
+
+		ModelTransformation uml2jmva = new ModelTransformation(uml2jmtEtlTransformation);
+		RegisterMetamodel.packageRegistering(Arrays.asList(new String[] { traceMetamodelFilePath }));
+		uml2jmva.addModel(uml2jmva.createEmfModel("UML", in_umlModelAbsFilePath,
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				true, false));
+		uml2jmva.addModel(uml2jmva.loadEmptyModel("Trace",
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(traceMetamodelFilePath)) }),
+				out_traceModelAbsFilePath));
+		uml2jmva.addModel(uml2jmva.loadEmptyModel("jmtmodel",
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(jmtMetamodelFilePath)) }),
+				out_jmtModelAbsFilePath));
+
+		uml2jmva.run();
+
+		JmvaFileGenerator jmvaFileGen = new JmvaFileGenerator(jmvaAbsFilePath);
+		jmvaFileGen.generate(out_jmtModelAbsFilePath);
+
+		JmvaExecutor.run(jmvaAbsFilePath);
 
 		JmtModelGenerator jmtModelGen = new JmtModelGenerator();
-		// jmtModelGen.generate(jmvaAbsFilePath);
-		jmtModelGen.generate(jmvaAbsFilePath.substring(0, jmvaAbsFilePath.length() - 5) + "-JMVA-working.jmva");
+		jmtModelGen.generate(jmvaAbsFilePath, out_jmtModelAbsFilePath);
 
-		// Launcher bwdLauncher = new Launcher(in_umlModelAbsFilePath,
-		// JMT_MM_COMPLETE_PATH, jmtModelAbsFilePath, TRACE_MM_COMPLETE_PATH,
-		// traceModelAbsFilePath, UML_JMT_BWD_ANT_BUILD_COMPLETE_PATH);
-		Launcher bwdLauncher = new Launcher(in_umlModelAbsFilePath, JMT_MM_COMPLETE_PATH,
-				jmtModelAbsFilePath.substring(0, jmtModelAbsFilePath.length() - 4) + "-JMVA-working.xmi",
-				TRACE_MM_COMPLETE_PATH, traceModelAbsFilePath, out_umlModelAbsFilePath,
-				UML_JMT_BWD_ANT_BUILD_COMPLETE_PATH);
-		bwdLauncher.runAntScript();
-		// //Launcher bwdLauncher = new Launcher(in_umlModelAbsFilePath,
-		// jmtModelAbsFilePath, traceModelAbsFilePath, out_umlModelAbsFilePath);
-		// Launcher bwdLauncher = new Launcher(in_umlModelAbsFilePath,
-		// jmtModelAbsFilePath.substring(0, jmtModelAbsFilePath.length() - 4) +
-		// "-JMVA-working.xmi", traceModelAbsFilePath, out_umlModelAbsFilePath);
-		// bwdLauncher.runAntScript(1);
+		/** INKOVING BWD TRANSFORMATION **/
+
+		ModelTransformation jmva2uml = new ModelTransformation(jmt2umlEtlTransformation);
+		RegisterMetamodel.packageRegistering(Arrays.asList(new String[] { traceMetamodelFilePath }));
+
+		jmva2uml.addModel(uml2jmva.createEmfModel("UML", in_umlModelAbsFilePath,
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				true, true));
+
+		jmva2uml.addModel(uml2jmva.loadEmptyModel("UMLPerf",
+				Arrays.asList(new String[] { UMLPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTEPackage.eNS_URI,
+						StandardPackage.eNS_URI, org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
+						EcorePackage.eNS_URI }),
+				out_umlModelAbsFilePath));
+
+		jmva2uml.addModel(uml2jmva.createEmfModel("Trace", out_traceModelAbsFilePath,
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(traceMetamodelFilePath)) }), true,
+				false));
+
+		jmva2uml.addModel(uml2jmva.createEmfModel("jmtmodel", out_jmtModelAbsFilePath,
+				Arrays.asList(new String[] { RegisterMetamodel.getNsURI(new File(jmtMetamodelFilePath)) }), true,
+				false));
+
+		jmva2uml.run();
 
 		UMLModelConformer mc = new UMLModelConformer(UMLModelConformer.OVERWRITE_MODE);
 		mc.conform(out_umlModelAbsFilePath);
@@ -237,6 +237,7 @@ public class UmlJmvaController {
 		String finalPath = "";
 		try {
 			finalPath = FileLocator.resolve(fileURL).getFile();
+			return java.nio.file.Paths.get(finalPath).normalize().toString();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -245,7 +246,30 @@ public class UmlJmvaController {
 	}
 
 	private Bundle getBundle() {
-		return Platform.getBundle("it.spe.disim.univaq.it.plugin.performanceanalysis");
+		return Platform.getBundle("it.univaq.disim.sealab.padre.performanceanalysis");
+		// return FrameworkUtil.getBundle(getClass());
 	}
 
+	private IProgressMonitor getMonitor() {
+		return null;
+	}
+
+	private void create(final IResource resource) throws CoreException {
+		if (resource == null || resource.exists())
+			return;
+		if (!resource.getParent().exists())
+			create(resource.getParent());
+		switch (resource.getType()) {
+		case IResource.FILE:
+			((IFile) resource).create(new ByteArrayInputStream(new byte[0]), true, getMonitor());
+			break;
+		case IResource.FOLDER:
+			((IFolder) resource).create(IResource.NONE, true, getMonitor());
+			break;
+		case IResource.PROJECT:
+			((IProject) resource).create(getMonitor());
+			((IProject) resource).open(getMonitor());
+			break;
+		}
+	}
 }
