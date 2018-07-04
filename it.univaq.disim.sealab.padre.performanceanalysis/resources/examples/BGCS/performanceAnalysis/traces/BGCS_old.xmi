@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<Trace:Trace xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Trace="Trace">
+  <links sourceName="UML-MARTE model" sourceType="Model" targetName="JMT model" targetType="ModelType" description="Transformed by Model2Model"/>
+  <links sourceName="Try" sourceType="UseCase" targetName="Try" targetType="ClosedclassType" description="Transformed by UseCase2ClosedClass"/>
+  <links sourceName="Camera" sourceType="Device" targetName="Camera" targetType="ListationType" description="Transformed by Device2Listation"/>
+  <links sourceName="Gate" sourceType="Device" targetName="Gate" targetType="ListationType" description="Transformed by Device2Listation"/>
+  <links sourceName="Server" sourceType="Device" targetName="Server" targetType="ListationType" description="Transformed by Device2Listation"/>
+  <links sourceName="HumiditySensor" sourceType="Device" targetName="HumiditySensor" targetType="ListationType" description="Transformed by Device2Listation"/>
+  <links sourceName="Database" sourceType="Device" targetName="Database" targetType="ListationType" description="Transformed by Device2Listation"/>
+  <links sourceName="Mobile" sourceType="Device" targetName="Mobile" targetType="ListationType" description="Transformed by Device2Listation"/>
+</Trace:Trace>

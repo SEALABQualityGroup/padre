@@ -1,0 +1,413 @@
+pre {
+	"Copying UML-MARTE model ".print();
+	var profiler : new Native('org.eclipse.epsilon.eol.tools.ProfilerTool');
+	profiler.start('BatchProgram');
+	   
+}
+
+post {
+	"\tModel post-processing...".println();
+    profiler.stop();
+    var m = UML!Model.all.first(); //source model
+    var mperf = UMLPerf!Model.all.first(); //target model
+    //var emfTool : new Native("org.eclipse.epsilon.emc.emf.tools.EmfTool"); //EmfTool for copying
+    var packagedEls = m.packagedElement.packagedElements; //system views
+	
+	for(el in packagedEls) {
+		var i = 0;
+		while(i < el.size()) {
+			var it = el.at(i); //source element
+			var mperfEl = mperf.packagedElement.packagedElements.select(e|not e.isTypeOf(UML!PackageImport) and not e.isTypeOf(UML!ProfileApplication) and e.name=el.name).first().select(e2|e2.name = it.name).first(); //target element
+			var stereotypes : Sequence(UML!Stereotype) = it.getAppliedStereotypes(); //source element stereotypes
+			if(stereotypes.isDefined()) //for each applied stereotype: applies it to the target element and sets tagged values
+				if(stereotypes.size() > 0) {
+					for(s : UML!Stereotype in stereotypes) {
+						mperfEl.applyStereotype(s);
+						var st : UMLPerf!Stereotype = mperfEl.getAppliedStereotypes().select(st|st.name = s.name).first();
+						var stAttrs = st.getAttributes();
+						for(attr in stAttrs) {
+							s.getAttributes().select(a|a.name=attr.name).first();
+							if(it.getValue(s, attr.name).isDefined()) {
+								mperfEl.setValue(st, st.getAttributes().select(a|a.name=attr.name).first().name, it.getValue(s, attr.name));									
+							}
+						}
+					}
+				}
+			i++;
+		}
+	}
+	
+	"---------------------------------------".println();/*
+	var targetEl = jmtmodel!ModelType.all;
+	for(t in targetEl) {
+		("\tTarget Element: " + t.description).println();
+	}
+	"TRACES:".println();
+	var traces = Trace!TraceLink.all;
+	for(t in traces) {
+		("\tTrace: " + t.sourceName + ":" + t.sourceType + "," + t.targetName + ":" + t.targetType).println();
+	}*/
+	
+	var targetEls = UMLPerf!Model.all.first().packagedElement.packagedElements.flatten();
+	//targetEls.println();
+	
+	//var devices : Collection = UML!Device.all;
+	var devices = targetEls.select(el|el.isTypeOf(UMLPerf!Device));
+	if(devices.size() > 0) {
+		for(d:Device in devices){
+			("\tDevice " + d.name + ":").println();
+			var stationResults : Sequence(jmtmodel!StationresultsType) = getStationResults(d.name);
+			var meanUtil = 0.0;
+			for(sr in stationResults) {
+				var st : UMLPerf!Stereotype = d.getAppliedStereotypes().select(st|st.name = 'GaExecHost').first();
+				var utils : Sequence() = getUtils(sr);
+				if(d.hasStereotype1("GaExecHost")) {
+					d.setValue(st, 'utilization', utils);	
+					var du = d.getValue(st,"utilization");
+					du.println("\t\tUtilizations: ");
+				}/*
+				var sum = 0;
+				//var n = utils.size();
+				for(u in utils.println()) {
+					sum += new Native("java.lang.Double")(u.toString());
+				}*/
+				meanUtil = getMeanValue(utils);//sum;///n;
+				//("\t\tTotal Mean Utilization: " + meanUtil.toString()).println();
+				
+				var throughs : Sequence() = getThroughputs(sr);
+				if(d.hasStereotype1("GaExecHost")) {
+					d.setValue(st, 'throughput', throughs);	
+					var dt = d.getValue(st,"throughput");
+					dt.println("\t\tThroughputs: ");
+				}/*
+				var sum = 0;
+				for(t in throughs) {
+					sum += new Native("java.lang.Double")(t.toString());
+				}*/
+				var meanThrough = getMeanValue(throughs);//sum;///n;
+				//("\t\tTotal Mean Throughput: " + meanThrough.toString()).println();
+			}
+		}
+	}
+	
+	var usecases = targetEls.select(el|el.isTypeOf(UMLPerf!UseCase));
+	//var usecases : Collection = UML!UseCase.all;
+	if(usecases.size() > 0) {
+		for(uc:UseCase in usecases){
+			var st : UMLPerf!Stereotype = uc.getAppliedStereotypes().select(st|st.name = 'GaScenario').first();
+			if(st.isDefined()) {
+				("\tUseCase " + uc.name + ":").println();
+				var classResults : Sequence(jmtmodel!ClassresultsType1) = getClassResults(uc);//jmtmodel!ClassresultsType1.all.select(r|r.customerclass=uc.name);
+				if(classResults.size() > 0) {
+					var throughs : Sequence() = getThroughs(classResults).flatten();
+					if(uc.hasStereotype1("GaScenario")) {
+						uc.setValue(st, 'throughput', throughs);	
+						var uct = uc.getValue(st,"throughput");
+						uct.println("\t\tThroughputs: ");
+					}				
+					var meanThrough = getMeanValue(throughs);
+					("\t\tMean Throughput: " + meanThrough.toString()).println();
+					
+					var resTimes : Sequence() = getResTimes(classResults).flatten();
+					if(uc.hasStereotype1("GaScenario")) {
+						uc.setValue(st, 'respT', resTimes);	
+						var ucrt = uc.getValue(st,"respT");
+						ucrt.println("\t\tRespT: ");
+					}
+					var meanResTime = getMeanValue(resTimes);
+					("\t\tMean Residence time: " + meanResTime.toString()).println();
+					
+					
+					/*
+					var refStationResTime = getRefStationResTime(uc.name);
+					("\t\tMean Reference Station Residence Time: " + refStationResTime.toString()).println();
+					var execTimes : Sequence(Real);
+					for(t in resTimes) {
+						//if(resTimes.indexOf(t).println() = getRefStationIndex(uc.name).println()) {
+							var rt : Real = t.asReal();
+							var et : Real = rt - refStationResTime.asReal();
+							execTimes.add(et);
+						//}
+					}
+					if(uc.hasStereotype1("GaScenario")) {
+						uc.setValue(st, 'execTime', execTimes.collect(e|e.toString()));	
+						var ucrt = uc.getValue(st,"execTime");
+						ucrt.println("\t\tExecTimes: ");
+					}*/
+				}
+			}
+		}
+	}
+	
+	
+	/*
+	"\t\tInvoking conformer...".println();
+	var umlModelConformer = new Native("model.util.UMLModelConformer");
+	//umlModelConformer.println("Model Conformer: ");
+	var fsTool = new Native("org.eclipse.epsilon.eol.tools.FileSystemTool");
+	if(fsTool.exists("/Users/davide/eclipse/eclipse-PADRE/local-workspace/it.spe.disim.univaq.it.plugin.UML-JMVA/examples/BGCS/BGCSPerf-Papyrus.uml")) {
+		var res = umlModelConformer.conform("/Users/davide/eclipse/eclipse-PADRE/local-workspace/it.spe.disim.univaq.it.plugin.UML-JMVA/examples/BGCS/", "BGCSPerf-Papyrus");//.println();
+		if(not res) {
+			"\t\tERROR: The model cannot be conformed.".println();
+			"\tModel conforming ABORTED.".println();
+		} else {
+			"\t\tConformance DONE.".println();
+			"\tModel conforming DONE.".println();
+		}
+	} else "\t\tERROR: The augmented model does not exist.".println();*/
+	
+}
+
+rule Model2Model
+	transform m : UML!Model
+	to mperf : UMLPerf!Model {
+		guard : m.getAppliedStereotypes().isEmpty()
+		"(Source UML-MARTE model: ".print() + m.name.print() + ")".println();
+		mperf.name = m.name;
+		"\tGenerating UML-MARTE model.".println();
+		var emfTool : new Native("org.eclipse.epsilon.emc.emf.tools.EmfTool");
+		var packageImports = m.packageImport;
+		for(imp in packageImports) {
+			mperf.packageImport.add(emfTool.getECoreUtil().copy(imp));
+		}
+		var profileApps = m.profileApplication;
+		for(pApp in profileApps) {
+			mperf.profileApplication.add(emfTool.getECoreUtil().copy(pApp));
+		}
+		var packagedEls : Set(UML!Package) = m.packagedElement;
+		for(el in packagedEls) {
+			//var pack = new UMLPerf!Package;
+			//pack.name = el.name;
+			//for(t in el.ownedType) {
+				//t.println("OWNED TYPE: ");
+				//var clone = emfTool.getECoreUtil().copy(t);
+				//pack.ownedType.add(clone);
+			//}
+			//mperf.packagedElements.add(pack);
+			var clone = emfTool.getECoreUtil().copy(el);
+			//for(t in clone.ownedElements) {}
+			mperf.packagedElement.add(clone);
+		}
+		"\tUML-MARTE model generated.".println();
+}
+
+
+
+operation getStationResults(name : String) : Sequence(jmtmodel!StationresultsType) {
+	var res : Sequence() = new Sequence();
+	//("\t\tDevice name: " + d.name).println();
+	var devtraces = Trace!TraceLink.all.select(t|t.sourceName = name);
+	for(t in devtraces) {
+		//("\t\tTrace: " + t.sourceName + ":" + t.sourceType + "," + t.targetName + ":" + t.targetType).println();
+		var sr = jmtmodel!StationresultsType.all.select(r|r.station=t.targetName);
+		//("\t\tStationresults names: " + sr.station).println();
+		res.add(sr);
+	}
+	return res;
+}
+
+operation getUtils(sr : Sequence(jmtmodel!StationresultsType)) : Sequence {
+	var res : Sequence() = new Sequence();
+	//("\t\tDevice name: " + d.name).println();
+	for(cr in sr.collect(c|c.classresults)) {
+		//var util = cr.measure.select(u|u.measureType='Utilization' and u.successful=true).first().meanValue.toString();
+		var util = cr.measure.flatten().select(u|u.measureType='Utilization' and u.successful=true).flatten().meanValue.toString();
+		res.add(util);
+	}
+	return res;
+}
+
+operation getThroughputs(sr : Sequence(jmtmodel!StationresultsType)) : Sequence {
+	var res : Sequence() = new Sequence();
+	//("\t\tDevice name: " + d.name).println();
+	for(cr in sr.collect(c|c.classresults)) {
+		//var through = cr.measure.select(u|u.measureType='Throughput' and u.successful=true).first().meanValue.toString();
+		var through = cr.measure.flatten().select(u|u.measureType='Throughput' and u.successful=true).flatten().meanValue.toString();
+		res.add(through);
+	}
+	return res;
+}
+
+
+
+operation getClassResults(uc : UML!UseCase) : Sequence(jmtmodel!ClassresultsType1) {
+	var res : Sequence() = new Sequence();
+	//var uctraces = Trace!TraceLink.all.select(t|t.sourceName = uc.name);
+	//for(t in uctraces) {
+		var cr = jmtmodel!ClassresultsType1.all.select(r|r.customerclass=uc.name);
+		res.add(cr);
+	//}
+	return res;
+}
+
+operation getThroughs(classResults : Sequence(jmtmodel!ClassresultsType1)) : Sequence {
+	var res : Sequence() = new Sequence();
+	for(cr in classResults) {
+		//var through = cr.measure.flatten().select(u|u.measureType='Throughput' and u.successful=true).collect(m|m.meanValue.toString()).println();
+		var through = cr.measure.flatten().select(u|u.measureType='Throughput' and u.successful=true).flatten().meanValue.toString();
+		res.add(through);
+	}
+	return res;
+}
+
+operation getResTimes(classResults : Sequence(jmtmodel!ClassresultsType1)) : Sequence {
+	var res : Sequence() = new Sequence();
+	for(cr in classResults) {
+		//var resTime = cr.measure.flatten().select(u|u.measureType='Residence time' and u.successful=true).collect(m|m.meanValue.toString()).println();
+		var resTime = cr.measure.flatten().select(u|u.measureType='Residence time' and u.successful=true).flatten().meanValue.toString();
+		res.add(resTime);
+	}
+	return res;
+}
+
+operation getMeanValue(values : Sequence) : Real {
+	var sum = 0;
+	var quantity = 0;
+	var meanValue = 0;
+	if(values.size() > 0) {
+		for(t in values.at(0)) {
+			var appStr2 : String = t.toString().substring(1);
+			var appStr : String = appStr2.substring(0, appStr2.indexOf(']'));
+			//appStr.println("APPSTR: ");
+			while(appStr.isDefined()) {
+				var app : String;
+				if(appStr.contains(','))
+					app = appStr.substring(0, appStr.toString().indexOf(','));//.println("APP: ");
+				else
+					app = appStr;//.println("APP: ");
+				
+				sum += new Native("java.lang.Double")(app);
+				quantity += 1;
+				if(appStr.contains(','))
+					appStr = appStr.substring(appStr.toString().indexOf(',') + 2);
+				else
+					appStr = null;
+				//appStr.println("NEW APPSTR: ");
+			}
+			//sum.println();
+		}
+		meanValue = sum/quantity;//throughs.size();
+	}
+	return meanValue;
+}
+/*
+operation getMeanThroughput(throughs : Sequence) : Real {
+	var sum = 0;
+	var quantity = 0;
+	var meanThrough = 0;
+	if(throughs.size() > 0) {
+		for(t in throughs.at(0)) {
+			var appStr2 : String = t.toString().substring(1);
+			var appStr : String = appStr2.substring(0, appStr2.indexOf(']'));
+			//appStr.println("APPSTR: ");
+			while(appStr.isDefined()) {
+				var app : String;
+				if(appStr.contains(','))
+					app = appStr.substring(0, appStr.toString().indexOf(','));//.println("APP: ");
+				else
+					app = appStr;//.println("APP: ");
+				
+				sum += new Native("java.lang.Double")(app);
+				quantity += 1;
+				if(appStr.contains(','))
+					appStr = appStr.substring(appStr.toString().indexOf(',') + 2);
+				else
+					appStr = null;
+				//appStr.println("NEW APPSTR: ");
+			}
+			//sum.println();
+		}
+		meanThrough = sum/quantity;//throughs.size();
+	}
+	return meanThrough;
+}
+
+operation getMeanResTime(resTimes : Sequence) : Real {
+	var sum = 0;
+	var quantity = 0;
+	var meanResTime = 0;
+	if(resTimes.size() > 0) {
+		for(t in resTimes.at(0)) {
+			var appStr2 : String = t.toString().substring(1);
+			var appStr : String = appStr2.substring(0, appStr2.indexOf(']'));
+			//appStr.println("APPSTR: ");
+			while(appStr.isDefined()) {
+				var app : String;
+				if(appStr.contains(','))
+					app = appStr.substring(0, appStr.toString().indexOf(','));//.println("APP: ");
+				else
+					app = appStr;//.println("APP: ");
+				
+				sum += new Native("java.lang.Double")(app);
+				quantity += 1;
+				if(appStr.contains(','))
+					appStr = appStr.substring(appStr.toString().indexOf(',') + 2);
+				else
+					appStr = null;
+				//appStr.println("NEW APPSTR: ");
+			}
+			//sum.println();
+		}
+		meanResTime = sum/quantity;
+	}
+	return meanResTime;
+	/*OLD
+	var sum = 0;
+	var meanResTime = 0;
+	if(resTimes.size() > 0) {
+	for(rt in resTimes) {
+		sum += new Native("java.lang.Double")(rt.toString());
+	}
+	meanResTime = sum/resTimes.size();
+	("\t\tMean Residence Time: " + meanResTime.toString()).println();
+	}				
+}*/
+
+/*
+operation getRefStationResTime(name : String) : String {
+	var res;
+	var class : jmtmodel!ClassType = jmtmodel!ClassType.all.select(c:jmtmodel!ClassType|c.name=name and c.refStation<>'Arrival process').first();
+	if(class.isDefined()) {
+		var stationResults : Sequence(jmtmodel!StationresultsType) = getStationResults(class.refStation);
+		var classResults : jmtmodel!ClassresultsType1 = stationResults.collect(sr|sr.classresults).flatten().select(cr|cr.customerclass=class.name).first();
+		res = classResults.measure.select(u|u.measureType='Residence time' and u.successful=true).first().meanValue.toString();
+	} else ("Error while getting reference station for class "+name).println();
+	return res;	
+}
+
+operation getRefStationIndex(name : String) : Real {
+	var res;
+	var class : jmtmodel!ClassType = jmtmodel!ClassType.all.select(c:jmtmodel!ClassType|c.name=name and c.refStation<>'Arrival Process').first();
+	if(class.isDefined()) {
+		var refStation = jmtmodel!StationsType.all.first().delaystation.asSequence().includingAll(
+									jmtmodel!StationsType.all.first().listation.asSequence()).includingAll(
+									jmtmodel!StationsType.all.first().ldstation.asSequence()).select(s|s.name=class.refStation).first().println();
+		if(refStation.isDefined()) {
+			res = jmtmodel!StationsType.all.indexOf(refStation).println();
+		}
+	} else res = 0.0;
+	return res;	
+}
+*/
+
+operation UML!Class hasStereotype1(name:String):Boolean {
+	var c: Sequence;
+	c=self.getAppliedStereotypes(); // Sequence of Stereotypes
+	for(s:Stereotype in c){
+		if(s.name=name){
+			return true;
+		}
+	}
+	return false;
+}
+
+operation UML!Element hasStereotype1(name:String):Boolean {
+	var c: Sequence;
+	c=self.getAppliedStereotypes(); // Sequence of Stereotypes
+	for(s:Stereotype in c){
+		if(s.name=name){
+			return true;
+		}
+	}
+	return false;
+}

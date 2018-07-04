@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ASCII"?>
+<jmtmodel:ModelType xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:jmtmodel="jmtmodel">
+  <parameters>
+    <classes number="1">
+      <closedclass name="Try" population="30.0"/>
+    </classes>
+    <stations number="6">
+      <listation name="Camera" servers="1">
+        <servicetimes>
+          <servicetime value="0.0" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="0.0" customerclass="Try"/>
+        </visits>
+      </listation>
+      <listation name="Gate" servers="1">
+        <servicetimes>
+          <servicetime value="0.0" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="0.0" customerclass="Try"/>
+        </visits>
+      </listation>
+      <listation name="Server" servers="1">
+        <servicetimes>
+          <servicetime value="0.75" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="1.0" customerclass="Try"/>
+        </visits>
+      </listation>
+      <listation name="HumiditySensor" servers="1">
+        <servicetimes>
+          <servicetime value="0.0" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="0.0" customerclass="Try"/>
+        </visits>
+      </listation>
+      <listation name="Database" servers="1">
+        <servicetimes>
+          <servicetime value="0.6000000238418579" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="1.0" customerclass="Try"/>
+        </visits>
+      </listation>
+      <listation name="Mobile" servers="1">
+        <servicetimes>
+          <servicetime value="0.0" customerclass="Try"/>
+        </servicetimes>
+        <visits>
+          <visit value="0.0" customerclass="Try"/>
+        </visits>
+      </listation>
+    </stations>
+    <referenceStation number="1">
+      <class name="Try" refStation="Server"/>
+    </referenceStation>
+  </parameters>
+</jmtmodel:ModelType>
