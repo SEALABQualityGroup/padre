@@ -1,8 +1,4 @@
-package it.spe.disim.univaq.porting;
-
-import it.spe.disim.univaq.porting.evl2exl.Evl2Epl;
-import it.spe.disim.univaq.porting.evl2exl.Evl2Ewl;
-import it.spe.disim.univaq.porting.util.PortingUtil;
+package it.univaq.disim.sealab.padre.epsilon_porting;
 
 import java.io.File;
 import java.net.URI;
@@ -10,6 +6,10 @@ import java.net.URISyntaxException;
 
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.evl.EvlModule;
+
+import it.univaq.disim.sealab.padre.epsilon_porting.evl2exl.Evl2Epl;
+import it.univaq.disim.sealab.padre.epsilon_porting.evl2exl.Evl2Ewl;
+import it.univaq.disim.sealab.padre.epsilon_porting.util.PortingUtil;
 
 public class MainTest {
 
