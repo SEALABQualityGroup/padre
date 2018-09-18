@@ -1,13 +1,13 @@
 pre {
 	"Copying UML-MARTE model ".print();
-	var profiler : new Native('org.eclipse.epsilon.eol.tools.ProfilerTool');
-	profiler.start('BatchProgram');
+	//var profiler : new Native('org.eclipse.epsilon.eol.tools.ProfilerTool');
+	//profiler.start('BatchProgram');
 	   
 }
 
 post {
 	"\tModel post-processing...".println();
-    profiler.stop();
+    //profiler.stop();
     var m = UML!Model.all.first(); //source model
     var mperf = UMLPerf!Model.all.first(); //target model
     //var emfTool : new Native("org.eclipse.epsilon.emc.emf.tools.EmfTool"); //EmfTool for copying
@@ -286,7 +286,7 @@ operation getMeanValue(values : Sequence) : Real {
 			}
 			//sum.println();
 		}
-		meanValue = sum/quantity;//throughs.size();
+		meanValue = sum/values.size();//throughs.size();
 	}
 	return meanValue;
 }

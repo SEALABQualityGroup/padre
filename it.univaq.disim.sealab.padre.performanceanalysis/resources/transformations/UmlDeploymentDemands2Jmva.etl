@@ -89,7 +89,7 @@ rule Model2Model
 			jmva.parameters.referenceStation.class.add(cl);
 			//cl.refStation.toString().println();
 		}
-		jmva.parameters.referenceStation.class.collect(c | c.refStation).println();
+		//jmva.parameters.referenceStation.class.collect(c | c.refStation).println();
 	}
 	"\tJMVA model generated.".println();
 }
@@ -107,7 +107,10 @@ rule UseCase2OpenClass
 	
 	var s : UML!Stereotype = getAppliedStereotype(uc, "GaWorkloadEvent");
 	var p : String = uc.getValue(s,"pattern");
-	oc.rate = extractNumericString(p).asReal();                                                                                                                                                   	
+	//if(extractNumericString(p).substring(extractNumericString(p).indexOf(".")).length() > 5)
+	//	oc.rate = extractNumericString(p).substring(0, extractNumericString(p).indexOf(".") + 5).println().asReal(); 
+	//else
+		oc.rate = extractNumericString(p).asReal();                                                                                                                                        	
 }
 
 rule UseCase2ClosedClass
@@ -123,7 +126,10 @@ rule UseCase2ClosedClass
 	
 	var s : UML!Stereotype = getAppliedStereotype(uc, "GaWorkloadEvent");
 	var p : String = uc.getValue(s,"pattern");
-	oc.population = extractNumericString(p).asReal();                                                                                                                                                   	
+	//if(extractNumericString(p).substring(extractNumericString(p).indexOf(".")).length() > 5)
+	//	oc.population = extractNumericString(p).substring(0, extractNumericString(p).indexOf(".") + 5).asReal(); 
+	//else
+		oc.population = extractNumericString(p).asReal().ceiling().asReal();                                                                                                                             	
 }
 
 rule Device2Ldstation
@@ -150,6 +156,8 @@ rule Device2Ldstation
 		for(uc:UseCase in usecases){
 			var v : jmtmodel!`VisitType` = new jmtmodel!`VisitType`;
 			v.customerclass = uc.name;
+			v.value = new Native("java.lang.Double")("1.0");
+			station.visits.visit.add(v);/*
 			v.value = countMsgsOnDevice(uc, d).asReal();
 			//("Msgs on Device " + d.name + " = " + v.value).println();
 			station.visits.visit.add(v);
@@ -158,7 +166,10 @@ rule Device2Ldstation
 			if(v.value = 0)
 				st.value = "0.0";
 			else
-				st.value = (getDemandOnDevice(uc, d) / v.value).toString();
+				st.value = (getDemandOnDevice(uc, d) / v.value).toString();*/
+			var st : jmtmodel!`ServicetimesType` = new jmtmodel!`ServicetimesType`;
+			st.customerclass = uc.name;
+			st.value = getDemandOnDevice(uc, d).asString();
 			//("Service time on Device " + d.name + " = " + st.value).println();
 			station.servicetimes.servicetimes.add(st);
 		}
@@ -195,16 +206,20 @@ rule Device2Delaystation
 		for(uc:UseCase in usecases){
 			var v : jmtmodel!`VisitType2` = new jmtmodel!`VisitType2`;
 			v.customerclass = uc.name;
+			v.value = new Native("java.lang.Double")("1.0");
+			station.visits.visit.add(v);/*
 			v.value = countMsgsOnDevice(uc, d).asReal();
 			//("Msgs on Device " + d.name + " = " + v.value).println();
 			station.visits.visit.add(v);
 			var st : jmtmodel!`ServicetimeType1` = new jmtmodel!`ServicetimeType1`;
-			st.customerclass = uc.name;
-			//st.value = getDemandOnDevice(uc, d).toString();
+			st.customerclass = uc.name;/*
 			if(v.value = 0)
 				st.value = new Native("java.lang.Double")("0.0");
 			else
-				st.value = (getDemandOnDevice(uc, d) / v.value);
+				st.value = (getDemandOnDevice(uc, d) / v.value);*/
+			var st : jmtmodel!`ServicetimeType1` = new jmtmodel!`ServicetimeType1`;
+			st.customerclass = uc.name;
+			st.value = new Native("java.lang.Double")(getDemandOnDevice(uc, d).asString());
 			//("Service time on Device " + d.name + " = " + st.value).println();
 			station.servicetimes.servicetime.add(st);
 		}
@@ -248,6 +263,8 @@ rule Device2Listation
 		for(uc:UseCase in usecases){
 			var v : jmtmodel!`VisitType1` = new jmtmodel!`VisitType1`;
 			v.customerclass = uc.name;
+			v.value = new Native("java.lang.Double")("1.0");
+			station.visits.visit.add(v);/*
 			v.value = countMsgsOnDevice(uc, d).asReal();
 			//("Msgs on Device " + d.name + " = " + v.value).println();
 			station.visits.visit.add(v);
@@ -257,7 +274,10 @@ rule Device2Listation
 			if(v.value = 0)
 				st.value = new Native("java.lang.Double")("0.0");
 			else
-				st.value = (getDemandOnDevice(uc, d) / v.value);
+				st.value = (getDemandOnDevice(uc, d) / v.value);*/
+			var st : jmtmodel!`ServicetimeType` = new jmtmodel!`ServicetimeType`;
+			st.customerclass = uc.name;
+			st.value = new Native("java.lang.Double")(getDemandOnDevice(uc, d).asString());
 			//("Service time on Device " + d.name + " = " + v.value).println();
 			station.servicetimes.servicetime.add(st);
 		}
@@ -348,16 +368,11 @@ operation isClosedclass(uc : UML!UseCase) : Boolean {
 
 operation getRefStation(uc : UML!UseCase) : String {
 	var interaction = uc.classifierBehavior;
-	interaction.toString().println();
 	if(interaction.isDefined()) {
 		var firstMsg = interaction.message.first();
-		firstMsg.toString().println();
 		var lifeline = getLifeline(interaction, firstMsg.receiveEvent);
-		lifeline.toString().println();
 		var artifact = getArtifactFromProperty(lifeline.represents);
-		artifact.toString().println();
-		var deplNode = getNodes(artifact).first;
-		deplNode.toString().println();
+		var deplNode = getNodes(artifact).first();
 		return deplNode.name;
 	}
 }
