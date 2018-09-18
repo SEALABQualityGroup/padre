@@ -80,12 +80,30 @@ operation Node cloneLink(listOfLinkedNode : List(Property), packageContainer : P
 	}
 }
 
+operation Model createNewNode() : Node{
+	var newNode : Node = new Node; //creo il nuovo nodo
+	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
+	packageContainer.addElement(newNode);
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(newNode);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(newNode);
+		self.packagedElement.add(package);
+	}
+	newNode.name = newNode.getRandomName();
+	newNode.setRandoms();
+	return newNode;
+}
+
 operation Node createNewNode() : Node{
 	var newNode : Node = new Node; //creo il nuovo nodo
 	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
-	newNode.name = self.getName()+" Splitted";
 	packageContainer.addElement(newNode);
-	
+	newNode.setRandoms();
+	newNode.name = self.getName()+" Splitted";
 	//var listOfLinkedNode = self.getDirectlyLinkedNode();
 	//listOfLinkedNode.add(self);
 	
@@ -96,6 +114,22 @@ operation Node createNewNode() : Node{
 	//newNode.resetUtilization();
 	
 	return newNode;
+}
+
+operation Node setRandoms() {
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var enum = getRandomSchedPolicy();
+	self.setValue(gaExecHost, "schedPolicy", enum);
+	var sf : Real = getRandomPositiveReal();
+	self.setValue(gaExecHost, "speedFactor", sf.toString());
+	var rm : Integer = getRandomPositiveInt();
+	self.setValue(gaExecHost, "resMult", rm.toString());
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
 }
 
 operation Node clone(component : Component) : Node{

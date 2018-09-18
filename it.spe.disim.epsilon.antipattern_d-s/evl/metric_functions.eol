@@ -492,9 +492,21 @@ operation Operation F_T() : Boolean{
 	return listOfUseCaseWithThroughputLessThanThreshold.isEmpty();
 }
 
+
+operation Message F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
+	if(self.resolveDevice().isDefined() and self.resolveDevice().hasStereotype("GaExecHost")) {
+		var values : Bag(Real) = self.resolveDevice().getValue(self.resolveDevice().getStereotype("GaExecHost"), "utilization").collect(u|u.asReal());
+		var max : Real = values.max();
+		return max >= th_maxHwUtil;
+	}
+	else
+		return false;
+}
+
+/*
 operation Message F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	return self.getSignature().F_maxHwUtil(th_maxHwUtil);
-}
+}*/
 
 operation Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	
@@ -510,7 +522,7 @@ operation Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	for(node in listOfProcessNode){
 		if(node.hasStereotype('GaExecHost') ){
 			var utilization = node.getValue(node.getStereotype('GaExecHost'), 'utilization')->first();
-	 		if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
+			if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
 				listOfProcessNodeWithUtilizationGreater.add(node);
 			}
 		}
@@ -529,7 +541,7 @@ operation Operation F_maxHwUtil() : Boolean{
 	for(node in listOfProcessNode){
 		if(node.hasStereotype('GaExecHost') ){
 			var utilization = node.getValue(node.getStereotype('GaExecHost'), 'utilization')->first();
-	 		if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
+			if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
 				listOfProcessNodeWithUtilizationGreater.add(node);
 			}
 		}
@@ -616,6 +628,13 @@ operation Node F_maxQL(th_maxQL : Real) : Boolean {
 	return false;
 }
 
+
+operation Message F_maxNetUtil(th_maxNetUtil : Real) : Boolean{
+	if(self.getNodesWithNetworkUsageGreaterThan(th_maxNetUtil).notEmpty())
+		return true;
+	return false;
+}
+
 operation Component F_maxNetUtil(th_maxNetUtil : Real) : Boolean{
 	if(self.getNodesWithNetworkUsageGreaterThan(th_maxNetUtil).notEmpty())
 		return true;
@@ -695,4 +714,31 @@ operation Component F_RT(th_SrtReq : Real) : Boolean {
 
 operation Operation F_RT(th_SrtReq : Real) : Boolean{
 	return self.getUseCases()->exists(iterator | iterator.hasStereotype("GaScenario") and iterator.getValue(iterator.getStereotype("GaScenario"), "respT")->first().asReal() > th_SrtReq );
+}
+
+operation Message F_RT(th_SrtReq : Real) : Boolean {
+	if(self.getOwner().getOwner().hasStereotype("GaScenario")) {
+		var values : Bag(Real) = self.getOwner().getOwner().getValue(self.getOwner().getOwner().getStereotype("GaScenario"), "respT").collect(rt|rt.asReal());
+		var mean : Real = getMeanValue(values);
+		return mean > th_SrtReq;
+	}
+	else
+		return false;
+}
+
+operation Message F_T(th_SthReq : Real) : Boolean {
+	if(self.getOwner().getOwner().hasStereotype("GaScenario")) {
+		var values : Bag(Real) = self.getOwner().getOwner().getValue(self.getOwner().getOwner().getStereotype("GaScenario"), "throughput").collect(t|t.asReal());
+		var mean : Real = getMeanValue(values);
+		return mean < th_SthReq;
+	}
+	else
+		return false;
+}
+
+operation getMeanValue(values : Bag(Real)) : Real {
+	var res : Real = new Native("java.lang.Double")("0.0");
+	if(values.size() > 0)
+		res = values.sum() / values.size();
+	return res;
 }

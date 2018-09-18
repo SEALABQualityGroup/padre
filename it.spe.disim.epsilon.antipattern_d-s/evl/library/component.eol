@@ -100,17 +100,21 @@ operation Component getUsageRelations() : List(Usage){
 	}
 	return returnValue;
 }
-
+/*
 //recupero la lista degli artifact che manifestano il componente
 operation Component getAllArtifacts() : Sequence(Artifact){
 	var returnValue : Sequence(Artifact) = new Sequence(Artifact);
 	for(manifestation in Manifestation.allInstances){
 		if(manifestation.hasUtilizedElement(self)){
-			returnValue.addAll(manifestation.client);
+			returnValue.addAll(manifestation.utilizedElement);
 		}
 	}
 	return returnValue;
 	
+}*/
+
+operation Component getAllArtifacts() : Sequence(Artifact){
+	return Artifact.allInstances().select(a|a.manifestation.utilizedElement=self);
 }
 
 //recupero tutte le properties relative al componente negli interaction
@@ -191,7 +195,11 @@ operation Component getOperations() : Sequence(Operation){
 operation Component deployOnNewNodes(component : Component) {
 	
 	var listOfNode : List(Node) = component.getNodes();
-	var newNode = listOfNode->first().createNewNode();
+	var newNode;
+	if(listOfNode.notEmpty())
+		newNode = listOfNode->first().createNewNode();
+	else
+		newNode = self.getModel().createNewNode();
 	
 	("new node --> "+newNode.getName());
 	
@@ -1018,7 +1026,7 @@ operation Component reduceNumberOfSupplierConnects(th_maxConnects : Real) : Bool
 		var usedInt = listOfInterfaces->at(i);
 		var value = usedInt.getUsedBy();
 		
-		value.println();
+		//value.println();
 		
 		if(value.notEmpty()){
 			value->first().createInterfaceRealization(usedInt.getName(), usedInt);

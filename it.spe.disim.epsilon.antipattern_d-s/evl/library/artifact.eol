@@ -32,3 +32,11 @@ operation Artifact getManifestedComponents() : Sequence(Component){
 operation Artifact getManifestedClassifier() : Sequence(Classifier){
 	return self.getManifestations()->select(man : Manifestation | man.getUtilizedElement().isTypeOf(Classifier) );
 }
+
+operation Artifact getDeploymentDevice() : Device {
+	return Device.allInstances->selectOne(dev : Device | 
+		dev.getDeployments()->exists(deploy : Deployment | 
+			deploy.getDeployedArtifacts()->contains(self)
+		)
+	);
+}

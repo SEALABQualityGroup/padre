@@ -20,6 +20,57 @@ operation getLessUsedComponent() : Component{
 	return lessUsedComp;
 }
 
+operation Element getRandomName() : String {
+	var elemType = "";
+	if(elemType.isDefined())
+		elemType = self.type.name;
+	var rand = new Native("java.util.Random");
+	var n = rand.nextInt();
+	while(n <= 0) {
+		n = rand.nextInt();
+	}
+	return elemType + n;
+}
+
+operation getRandomSchedPolicy() : EnumerationLiteral {
+	var enums = Enumeration.all.select(e|e.name = "SchedPolicyKind");
+	var randSp = new Native("java.util.Random");
+	var i = randSp.nextInt(enums.size());
+	while(i<0 or i>enums.size()) {
+		i = randSp.nextInt();
+	}
+	var literals = enums.at(i).getOwnedLiterals();
+	var randLit = new Native("java.util.Random");
+	var j = randLit.nextInt();
+	while(j<0 or j>literals.size()) {
+		j = randLit.nextInt(literals.size());
+	}
+	return enums.at(i).getOwnedLiterals().at(j);
+}
+
+operation getRandomPositiveReal() : Real {
+	var randReal = new Native("java.util.Random");
+	var real : Real = randReal.nextDouble();
+	real = 0.00001 + (10000 - 0.00001) * randReal.nextDouble();
+	//real = randReal.nextDouble();
+	while(real<=0) {
+		real = 0.00001 + (10000 - 0.00001) * randReal.nextDouble();
+		//real = randReal.nextDouble();
+	}
+	//real = real.asString().substring(0, real.asString().indexOf(".") + 5).asReal();
+	return real;
+}
+
+operation getRandomPositiveInt() : Integer {
+	var int : Integer = 1;
+	var randInt = new Native("java.util.Random");
+	int = randInt.nextInt();
+	while(int<=0) {
+		int = randInt.nextInt(10001);
+	}
+	return int;
+}
+
 operation showError(msg : String) {
 	if(debug())
 		("[[ "+ msg +" ]]").errln("There was an error!!! ");
