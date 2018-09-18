@@ -38,7 +38,7 @@
 	  		class="view.PadreEVLValidationView"
 	    	icon="icons/evl.gif"
 	    	id="view.PadreEVLValidationView"
-	    	name="Performance Antipattern Detection and Refactoring Session"/>
+	    	name="PADRE"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
