@@ -83,16 +83,19 @@ public class UmlJmvaController {
 		IFolder jmvaOutputFolder = perfAnalysisOutputFolder.getFolder("jmva");
 		IFolder tracesOutputFolder = perfAnalysisOutputFolder.getFolder("traces");
 		try {
-			jmvaOutputFolder.create(false, true, getMonitor());
-			tracesOutputFolder.create(false, true, getMonitor());
+			if(!jmvaOutputFolder.exists())
+				jmvaOutputFolder.create(true, true, getMonitor());
+			if(!tracesOutputFolder.exists())
+				tracesOutputFolder.create(true, true, getMonitor());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		String modelName = "BGCS.jmva";
+		String modelName = getModelName(modelURI) + ".jmva";
 		IFile jmvaFile = jmvaOutputFolder.getFile(modelName);
-		IFile jmtFile = jmvaOutputFolder.getFile("BGCS.xmi");
+		//IFile jmtFile = jmvaOutputFolder.getFile("BGCS.xmi");
+		IFile jmtFile = jmvaOutputFolder.getFile(getModelName(modelURI) + ".xmi");
 		IFile tracesFile = tracesOutputFolder.getFile("trace.xml");
 		IFile analysedModel = perfAnalysisOutputFolder.getFile("analysed."+modelFile.getFileExtension());
 		
@@ -272,4 +275,9 @@ public class UmlJmvaController {
 			break;
 		}
 	}
+	
+	private String getModelName(URI modelURI) {
+		return modelURI.toString().substring(modelURI.toString().lastIndexOf('/')+1,modelURI.toString().length()-4);
+	}
+	
 }
