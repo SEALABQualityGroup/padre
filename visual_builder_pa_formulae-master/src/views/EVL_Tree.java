@@ -152,7 +152,7 @@ public class EVL_Tree extends ViewPart {
 	 */
 	public void setContexts(List<EOL_Library_Context_Item> cts) {
 
-		Bundle bundle = Platform.getBundle("it.spe.disim.univaq.it.plugin");
+		Bundle bundle = Platform.getBundle("it.univaq.disim.sealab.padre");
 		URL fullPathString = bundle.getEntry("icons/context.gif");
 
 		IActionBars bars = getViewSite().getActionBars();
