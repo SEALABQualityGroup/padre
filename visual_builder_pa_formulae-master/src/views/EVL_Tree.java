@@ -204,7 +204,7 @@ public class EVL_Tree extends ViewPart {
 					IStructuredSelection selection = (IStructuredSelection) tree.getSelection();
 					Object s = selection.getFirstElement();
 
-					Bundle bundle = Platform.getBundle("it.spe.disim.univaq.it.plugin");
+					Bundle bundle = Platform.getBundle("it.univaq.disim.sealab.padre");
 
 					if (s instanceof EVL_Tree_Context_Item) {
 

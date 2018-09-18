@@ -1,4 +1,4 @@
-package it.spe.disim.univaq.porting.evl2exl;
+package it.univaq.disim.sealab.padre.epsilon_porting.evl2exl;
 
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
@@ -13,8 +13,8 @@ import org.eclipse.epsilon.evl.parse.EvlParser;
 import org.eclipse.epsilon.ewl.dom.Wizard;
 import org.eclipse.epsilon.ewl.parse.EwlParser;
 
-import it.spe.disim.univaq.porting.Exl2Eyl;
-import it.spe.disim.univaq.porting.util.PortingUtil;
+import it.univaq.disim.sealab.padre.epsilon_porting.Exl2Eyl;
+import it.univaq.disim.sealab.padre.epsilon_porting.util.PortingUtil;
 
 public class Evl2Ewl extends Exl2Eyl {
 
