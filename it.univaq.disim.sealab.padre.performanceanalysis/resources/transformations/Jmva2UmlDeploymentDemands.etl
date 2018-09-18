@@ -173,6 +173,7 @@ rule Model2Model
 		var profileApps = m.profileApplication;
 		for(pApp in profileApps) {
 			mperf.profileApplication.add(emfTool.getECoreUtil().copy(pApp));
+			pApp.appliedProfile.getName();
 		}
 		var packagedEls : Set(UML!Package) = m.packagedElement;
 		for(el in packagedEls) {

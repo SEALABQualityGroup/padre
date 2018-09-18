@@ -586,16 +586,31 @@ operation getMsgsWithDemand(i : Interaction) : Sequence(Message) {
 // TO TEST
 operation resolveDevice(msg : Message) : Device {
 	//msg.receiveEvent.covered.represents.first().type; // This is the artifact on the lifeline
-	return getDeploymentDevice(msg.receiveEvent.covered.represents.first().type);
+	if(msg.receiveEvent.covered.isDefined() and msg.receiveEvent.covered.represents.isDefined() and msg.receiveEvent.covered.represents.first().type.isDefined() and 
+	   (msg.receiveEvent.covered.represents.first().type.isTypeOf(Artifact).println("ARTIFACT COVERED: ") or msg.receiveEvent.covered.represents.first().type.isTypeOf(Component).println("COMPONENT COVERED: ")))
+		return getDeploymentDevice(msg.receiveEvent.covered.represents.first().type);
+	return null;
 }
 
 //TO TEST
-operation getDeploymentDevice(a : Artifact) : Device {
-	return Device.allInstances->selectOne(dev : Device | 
-		dev.getDeployments()->exists(deploy : Deployment | 
-			deploy.getDeployedArtifacts()->contains(a)
-		)
-	);
+operation getDeploymentDevice(el : Element) : Device {
+	if(el.isTypeOf(Artifact)) {
+		return Device.allInstances->selectOne(dev : Device | 
+			dev.getDeployments()->exists(deploy : Deployment | 
+				deploy.getDeployedArtifacts()->contains(a)
+			)
+		);
+	}
+	if(el.isTypeOf(Component)) {
+		return Device.allInstances->selectOne(dev : Device | 
+			dev.getDeployments()->exists(deploy : Deployment | 
+				deploy.getDeployedArtifacts()->collect(a|a.manifestation)->flatten()->select(m|m.utilizedElement.isDefined())->
+				collect(m|m.utilizedElement)->flatten()->contains(el)
+			)
+		);
+	}
+
+	
 }
 
 //TO TEST
@@ -756,7 +771,7 @@ operation Model getDevices():Collection{
 }
 
 operation Model getUseCases():Collection{
-	return UseCase.all.select(d|d.hasStereotype1("GaScenario"));	
+	return UseCase.all.select(d|d.hasStereotype1("GaScenario") and d.hasStereotype1("GaWorkloadEvent"));	
 }
 
 operation Device getArtifact():Collection  {
