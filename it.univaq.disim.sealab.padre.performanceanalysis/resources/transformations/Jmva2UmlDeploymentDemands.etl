@@ -52,40 +52,48 @@ post {
 	//targetEls.println();
 	
 	//var devices : Collection = UML!Device.all;
-	var devices = targetEls.select(el|el.isTypeOf(UMLPerf!Device));
+	var devices = targetEls.select(el|el.isTypeOf(UMLPerf!Device) and el.hasStereotype1("GaExecHost"));
 	if(devices.size() > 0) {
 		for(d:Device in devices){
 			("\tDevice " + d.name + ":").println();
 			var stationResults : Sequence(jmtmodel!StationresultsType) = getStationResults(d.name);
 			var meanUtil = 0.0;
+			var totUtil = 0.0;
+			var meanThrough = 0.0;
+			var totThrough = 0.0;
 			for(sr in stationResults) {
 				var st : UMLPerf!Stereotype = d.getAppliedStereotypes().select(st|st.name = 'GaExecHost').first();
 				var utils : Sequence() = getUtils(sr);
+				var du;
 				if(d.hasStereotype1("GaExecHost")) {
 					d.setValue(st, 'utilization', utils);	
-					var du = d.getValue(st,"utilization");
-					du.println("\t\tUtilizations: ");
+					du = d.getValue(st,"utilization");
+					du.print("\t\tUtilizations: ");
+					totUtil = getSum(du.asSequence());
+					("\t(Total: " + totUtil.toString() + ", ").print();
+					meanUtil = getMeanValue(du.asSequence());//sum;///n;
+					("Mean: " + meanUtil.toString() + ")").println();
 				}/*
 				var sum = 0;
 				//var n = utils.size();
 				for(u in utils.println()) {
 					sum += new Native("java.lang.Double")(u.toString());
 				}*/
-				meanUtil = getMeanValue(utils);//sum;///n;
-				//("\t\tTotal Mean Utilization: " + meanUtil.toString()).println();
-				
 				var throughs : Sequence() = getThroughputs(sr);
+				var dt;
 				if(d.hasStereotype1("GaExecHost")) {
 					d.setValue(st, 'throughput', throughs);	
-					var dt = d.getValue(st,"throughput");
-					dt.println("\t\tThroughputs: ");
+					dt = d.getValue(st,"throughput");
+					dt.print("\t\tThroughputs: ");
+					totThrough = getSum(dt.asSequence());
+					("\t(Total: " + totThrough.toString() + ", ").print();
+					meanThrough = getMeanValue(dt.asSequence());//sum;///n;
+					("Mean: " + meanThrough.toString() + ")").println();
 				}/*
 				var sum = 0;
 				for(t in throughs) {
 					sum += new Native("java.lang.Double")(t.toString());
 				}*/
-				var meanThrough = getMeanValue(throughs);//sum;///n;
-				//("\t\tTotal Mean Throughput: " + meanThrough.toString()).println();
 			}
 		}
 	}
@@ -100,22 +108,32 @@ post {
 				var classResults : Sequence(jmtmodel!ClassresultsType1) = getClassResults(uc);//jmtmodel!ClassresultsType1.all.select(r|r.customerclass=uc.name);
 				if(classResults.size() > 0) {
 					var throughs : Sequence() = getThroughs(classResults).flatten();
+					var uct;
 					if(uc.hasStereotype1("GaScenario")) {
 						uc.setValue(st, 'throughput', throughs);	
-						var uct = uc.getValue(st,"throughput");
-						uct.println("\t\tThroughputs: ");
-					}				
-					var meanThrough = getMeanValue(throughs);
-					("\t\tMean Throughput: " + meanThrough.toString()).println();
+						uct = uc.getValue(st,"throughput");
+						uct.print("\t\tThroughputs: ");
+						var totThrough = getSum(uct.asSequence());
+						("\t(Total: " + totThrough.toString() + ", ").print();
+						var meanThrough = getMeanValue(uct.asSequence());//sum;///n;
+						("Mean: " + meanThrough.toString() + ")").println();
+					}			
+					//var meanThrough = getMeanValue(throughs);
+					//("\t\tMean Throughput: " + meanThrough.toString()).println();
 					
 					var resTimes : Sequence() = getResTimes(classResults).flatten();
+					var ucrt;
 					if(uc.hasStereotype1("GaScenario")) {
 						uc.setValue(st, 'respT', resTimes);	
-						var ucrt = uc.getValue(st,"respT");
-						ucrt.println("\t\tRespT: ");
+						ucrt = uc.getValue(st,"respT");
+						ucrt.print("\t\tRespT: ");
+						var totResTime = getSum(ucrt.asSequence());
+						("\t(Total: " + totResTime.toString() + ", ").print();
+						var meanResTime = getMeanValue(ucrt.asSequence());//sum;///n;
+						("Mean: " + meanResTime.toString() + ")").println();
 					}
-					var meanResTime = getMeanValue(resTimes);
-					("\t\tMean Residence time: " + meanResTime.toString()).println();
+					//var meanResTime = getMeanValue(resTimes);
+					//("\t\tMean Residence time: " + meanResTime.toString()).println();
 					
 					
 					/*
@@ -287,7 +305,38 @@ operation getMeanValue(values : Sequence) : Real {
 			}
 			//sum.println();
 		}
-		meanValue = sum/values.size();//throughs.size();
+		meanValue = sum/quantity;//throughs.size();
+	}
+	return meanValue;
+}
+
+operation getSum(values : Sequence) : Real {
+	var sum = 0;
+	var quantity = 0;
+	var meanValue = 0;
+	if(values.size() > 0) {
+		for(t in values.at(0)) {
+			var appStr2 : String = t.toString().substring(1);
+			var appStr : String = appStr2.substring(0, appStr2.indexOf(']'));
+			//appStr.println("APPSTR: ");
+			while(appStr.isDefined()) {
+				var app : String;
+				if(appStr.contains(','))
+					app = appStr.substring(0, appStr.toString().indexOf(','));//.println("APP: ");
+				else
+					app = appStr;//.println("APP: ");
+				
+				sum += new Native("java.lang.Double")(app);
+				quantity += 1;
+				if(appStr.contains(','))
+					appStr = appStr.substring(appStr.toString().indexOf(',') + 2);
+				else
+					appStr = null;
+				//appStr.println("NEW APPSTR: ");
+			}
+			//sum.println();
+		}
+		meanValue = sum;//throughs.size();
 	}
 	return meanValue;
 }

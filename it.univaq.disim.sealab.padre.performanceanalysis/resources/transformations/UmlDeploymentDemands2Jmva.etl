@@ -587,7 +587,7 @@ operation getMsgsWithDemand(i : Interaction) : Sequence(Message) {
 operation resolveDevice(msg : Message) : Device {
 	//msg.receiveEvent.covered.represents.first().type; // This is the artifact on the lifeline
 	if(msg.receiveEvent.covered.isDefined() and msg.receiveEvent.covered.represents.isDefined() and msg.receiveEvent.covered.represents.first().type.isDefined() and 
-	   (msg.receiveEvent.covered.represents.first().type.isTypeOf(Artifact).println("ARTIFACT COVERED: ") or msg.receiveEvent.covered.represents.first().type.isTypeOf(Component).println("COMPONENT COVERED: ")))
+	   (msg.receiveEvent.covered.represents.first().type.isTypeOf(Artifact) or msg.receiveEvent.covered.represents.first().type.isTypeOf(Component)))
 		return getDeploymentDevice(msg.receiveEvent.covered.represents.first().type);
 	return null;
 }
