@@ -21,7 +21,7 @@ Official Github repository: https://github.com/SEALABQualityGroup/padre
     * UML integration
  3. Cloning PADRE from https://github.com/SEALABQualityGroup/padre.git
  4. Import in eclipse PADRE projects
- 5. Create a running configuration in:
+ 5. Create a running configuration for UML in:
    * EVL
      - Select an EVL file (e.g. padre/it.spe.disim.epsilon.antipattern_d-s/evl/AP-UML-MARTE.evl)
      - Give a name (e.g. BGCS)
