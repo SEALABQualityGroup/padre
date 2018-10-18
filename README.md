@@ -13,7 +13,7 @@ Official Github repository: https://github.com/SEALABQualityGroup/padre
  
 ### INSTALLATION
  1. Download Eclipse Modelling Tool: https://www.eclipse.org/downloads/eclipse-packages/
- 2. Installing from its Update Site (http://download.eclipse.org/epsilon/1.3/updates/) in Eclipse the following EPSILON plugins only:
+ 2. Installing the following EPSILON plugins from its Update Site (http://download.eclipse.org/epsilon/1.3/updates/):
     * core
     * development tools
     * EMF integration
@@ -46,10 +46,11 @@ Official Github repository: https://github.com/SEALABQualityGroup/padre
 
 ### SYSTEM REQUIREMENTS
  - MacOS Sierra (10.12.06);
- - Eclipse Oxygen Modelling Tools  with the following plugins in place: 
+ - Eclipse Oxygen Modelling Tools with the following plugins in place: 
    - Epsilon 1.3, 
-   - Papyrus
+   - Papyrus (any)
      - Papyrus MARTE profile (dowloaded from http://download.eclipse.org/modeling/mdt/papyrus/updates/releases/neon)
+
 ### RELEASE NOTES
 Latest Release: 1.0.0
 
