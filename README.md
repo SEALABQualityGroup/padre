@@ -3,7 +3,7 @@
 ## Installation instructions
 
 ### OVERVIEW
-Our framework deals with UML models made of the following diagrams: a Component Diagram that describes the software components and their Interfaces/Operations; a Deployment Diagram that describes the allocation of artifacts, corresponding to components, on platform nodes; an Use Case Diagram that describes the actors and the use cases that they can execute; a number of Sequence Diagrams, one for each use case, that describe the system behavior in terms of interactions among components.  
+Our framework deals with UML models made of the following diagrams: a Component Diagram that describes the software components and their Interfaces/Operations; a Deployment Diagram that describes the allocation of artifacts, corresponding to components, on platform nodes; a Use Case Diagram that describes the actors and the use cases that they can execute; a number of Sequence Diagrams, one for each use case, that describe the system behavior in terms of interactions among components.  
 
 ### WEBSITE
 TBD
