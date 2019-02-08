@@ -961,7 +961,8 @@ context UseCase {
 		guard: 
 			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep"))
 		check:
-			Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface)) and m.messageSort.asString() <> "reply").isEmpty() 
+			//Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface) or not m.signature.getOwner().isTypeOf(Component)) and m.messageSort.asString() <> "reply").isEmpty() 
+			Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and m.signature.isUndefined() and m.messageSort.asString() <> "reply").isEmpty() 		
 		message : "GaUseCase " + self.name + " contains unsigned Messages"
 		fix {
 			guard : 
@@ -1128,8 +1129,8 @@ context UseCase {
 			do {
 				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply");
 				for(m in msgs) {
-					var name = self.getRandomName();
-					self.name = name;
+					var name = m.getRandomName();
+					m.name = name;
 				}
 			}
 		}
@@ -1138,8 +1139,8 @@ context UseCase {
 			do {
 				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply");
 				for(m in msgs) {
-					var name = self.askForName();
-					self.name = name;
+					var name = m.askForName();
+					m.name = name;
 				}
 			}
 		}
@@ -1347,6 +1348,37 @@ context UseCase {
 			m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost"))).isEmpty()
 		message : "GaUseCase " + self.name + " contains GaAcqSteps without GaExecHost"
 		fix {
+			title : "Make GaExecHosts the Devices of GaAcqSteps and randomly choose among existing ones for undefined Devices"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+																			 m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost")));
+				for(m in msgs) {
+					if(m.resolveDevice().isDefined()) {
+						var d : Device = m.resolveDevice().select(d|d.name=m.resolveDevice().name).first();
+						d.setRandoms();
+						resetOutPerfValues();
+					}
+					if(m.resolveDevice().isUndefined()) {
+						var chosenGaExecHost = m.getModel().getRandomGaExecHost();
+						var artifact;
+						if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+						   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+							artifact = m.getModel().createArtifact();
+							var prop = new Property;
+							m.getOwner().ownedAttribute.add(prop);
+							prop.name = artifact.name + prop.getRandomName();
+							prop.type = artifact;
+							m.receiveEvent.covered.first().represents = prop;
+						} else {
+							artifact = m.receiveEvent.covered.represents.first().type;
+						}
+						chosenGaExecHost.deploy(artifact);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
 			title : "Make GaExecHosts the Devices of GaAcqSteps and randomly create new ones for undefined Devices"
 			do {
 				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
@@ -1454,14 +1486,14 @@ context UseCase {
 		guard: 
 			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep"))
 		check:
-			self.getLifelinesWithNoManifestedComponent().isUndefined() or self.getLifelinesWithNoManifestedComponent().isEmpty()
+			self.getLifelinesWithNoManifestedComponentExceptFirst().isUndefined() or self.getLifelinesWithNoManifestedComponentExceptFirst().isEmpty()
 		message : "The GaUseCase " + self.name + " involves Lifelines without a manifested Component"
 		fix {
 			guard :
 				Component.allInstances().notEmpty()
 			title : "Set random manifestations"
 			do {
-				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponent();
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponentExceptFirst();
 				for(ll : Lifeline in lifelines) {
 					var art = ll.getModel().createArtifact();
 					var man : Manifestation = new Manifestation;
@@ -1485,7 +1517,7 @@ context UseCase {
 				Component.allInstances().notEmpty()
 			title : "Select manifestations manually (opens dialogs)"
 			do {
-				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponent();
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponentExceptFirst();
 				for(ll : Lifeline in lifelines) {
 					var art = ll.getModel().createArtifact();
 					art.name = art.askForName();
@@ -2102,6 +2134,18 @@ operation UseCase getLifelinesWithNoManifestedComponent() : List(Lifeline) {
 	return res;
 }
 
+operation UseCase getLifelinesWithNoManifestedComponentExceptFirst() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().excluding(Lifeline.allInstances().first()).select(l|l.getOwner().getOwner()=self and 
+																(not l.represents.type.isTypeOf(Artifact) or (l.represents.type.isTypeOf(Artifact) and 
+																												(l.represents.type.getManifestedComponents().isUndefined() or 
+																												l.represents.type.getManifestedComponents().isEmpty())
+																											 )
+																)
+															  )
+														.asSequence();
+	return res;
+}
+
 
 operation Artifact getManifestedComponents() : Sequence(Component){
 	var manifestations = self.getManifestations();
@@ -2153,14 +2197,14 @@ operation Interaction getLifelinesWithArtifactsOnLifelines() : List(Lifeline) {
 }
 
 operation Message resolveDevice() : Device {
-	//self.receiveEvent.covered.represents.first().type; // This is the artifact on the lifeline
+	//self.receiveEvent.covered.represents.first().type; // This is the element on the lifeline
 	if(self.receiveEvent.isUndefined())
 		return null;
 	if(self.receiveEvent.covered.isUndefined())
 		return null;
 	if(self.receiveEvent.covered.represents.isUndefined())
 		return null;
-	if(not self.receiveEvent.covered.represents.first().type.isUndefined())
+	if(self.receiveEvent.covered.represents.first().type.isUndefined())
 		return null;
 	if(not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact))
 		return null;
@@ -3392,6 +3436,19 @@ operation getRandomGaUseCaseWithClosedPattern() : UseCase {
 		i = randUc.nextInt();
 	}
 	return ucs.at(i);
+}
+
+operation Model getRandomGaExecHost() : Device {
+	var devs = Device.allInstances().select(d|d.hasStereotype("GaExecHost"));
+	if(devs.size() > 0) {
+		var randDev = new Native("java.util.Random");
+		var i = randDev.nextInt(devs.size());
+		while(i<0 or i>devs.size()) {
+			i = randDev.nextInt();
+		}
+		return devs.at(i);
+	}
+	return null;
 }
 
 operation getRandomSchedPolicy() : EnumerationLiteral {

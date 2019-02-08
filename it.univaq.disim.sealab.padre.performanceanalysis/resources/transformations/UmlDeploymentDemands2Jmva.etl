@@ -597,7 +597,7 @@ operation getDeploymentDevice(el : Element) : Device {
 	if(el.isTypeOf(Artifact)) {
 		return Device.allInstances->selectOne(dev : Device | 
 			dev.getDeployments()->exists(deploy : Deployment | 
-				deploy.getDeployedArtifacts()->contains(a)
+				deploy.getDeployedArtifacts()->contains(el)
 			)
 		);
 	}

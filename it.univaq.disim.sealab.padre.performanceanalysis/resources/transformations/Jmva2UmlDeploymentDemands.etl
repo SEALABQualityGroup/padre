@@ -17,7 +17,7 @@ post {
 		var i = 0;
 		while(i < el.size()) {
 			var it = el.at(i); //source element
-			var mperfEl = mperf.packagedElement.packagedElements.select(e|not e.isTypeOf(UML!PackageImport) and not e.isTypeOf(UML!ProfileApplication) and e.name=el.name).first().select(e2|e2.name = it.name).first(); //target element
+			var mperfEl = mperf.packagedElement.packagedElements.select(e|not e.isTypeOf(UML!PackageImport) and not e.isTypeOf(UML!ProfileApplication) and e.name=el.name and e.type.name=el.type.name).first().select(e2|e2.name = it.name and e2.type.name=it.type.name).first(); //target element
 			var stereotypes : Sequence(UML!Stereotype) = it.getAppliedStereotypes(); //source element stereotypes
 			if(stereotypes.isDefined()) //for each applied stereotype: applies it to the target element and sets tagged values
 				if(stereotypes.size() > 0) {
