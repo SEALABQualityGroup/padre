@@ -32,10 +32,15 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.common.dt.util.ListContentProvider;
 import org.eclipse.epsilon.emc.emf.AbstractEmfModel;
+import org.eclipse.epsilon.emc.emf.EmfModel;
+import org.eclipse.epsilon.emc.emf.InMemoryEmfModel;
 import org.eclipse.epsilon.eol.IEolExecutableModule;
 import org.eclipse.epsilon.eol.dt.ExtensionPointToolNativeTypeDelegate;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
+import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.models.IModel;
+import org.eclipse.epsilon.eol.models.transactions.IModelTransactionSupport;
 import org.eclipse.epsilon.etl.EtlModule;
 import org.eclipse.epsilon.evl.IEvlModule;
 import org.eclipse.epsilon.evl.dom.Constraint;
@@ -76,6 +81,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.uml2.uml.editor.actions.CreateExtensionAction;
 import org.osgi.framework.Bundle;
 
 import analysis.performance.jmt.jmva.UmlJmvaController;
@@ -168,6 +174,7 @@ public class PadreEVLValidationView extends ValidationView {
 				AbstractEmfModel model = (AbstractEmfModel) module.getContext().getModelRepository().getModels().get(0);
 				String relative_path = "";
 				URI newURI = null;
+				//newURI = _store_current_model(model, StringEscapeUtils.escapeXml(relative_path.replace('<', ' ').replace('>', ' ')), true);
 				
 				if(module.getSourceUri().getPath().contains("checkModel") ||
 				   module.getSourceUri().getPath().contains("checkmodel")) {
@@ -186,7 +193,7 @@ public class PadreEVLValidationView extends ValidationView {
 //					relative_path = "Step_" + counter;// + "---" + unsatisfiedConstraint.getMessage().trim() + "---" + fixInstance.getTitle().trim();
 					// Save the one-fix model
 					model = (AbstractEmfModel) module.getContext().getModelRepository().getModels().get(0);
-					relative_path = "modelChecking";
+					//relative_path = "modelChecking";
 					newURI = _store_current_model(model, StringEscapeUtils.escapeXml(relative_path.replace('<', ' ').replace('>', ' ')), true);
 // END old code - working (annotated for possible rollbacks)
 					
@@ -211,8 +218,10 @@ public class PadreEVLValidationView extends ValidationView {
 //					});
 //				}
 				
-				
 				if(module.getContext().getUnsatisfiedConstraints().isEmpty()) {
+					
+					((EmfModel)model).dispose();
+					
 					System.out.println("READY TO BE ANALYSED");
 					// PERF AN CHECK
 					if (!isPerfAnOnDemand()) {
@@ -220,16 +229,17 @@ public class PadreEVLValidationView extends ValidationView {
 						UmlJmvaController controller = new UmlJmvaController();
 						controller.roundtripMVA(newURI);
 						System.out.println("Performance analysed!");
-						
 						try {
+							((EmfModel)model).setModelFileUri(newURI);
+							((EmfModel)model).loadModelFromUri();
+							
 							PadreEVLValidationView.getInstance().setPartName("PADRE - Performance Antipattern Detection and Refactoring");
 							EvlStandaloneExample evlEx = new EvlStandaloneExample();
 							module.setUnsatisfiedConstraintFixer(new PadreEVLValidationViewFixer());
 							IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(PadreLaunchConfigurationDelegate.getInstance().getApsEvlFilePath()));
 							String fileName = file.getRawLocation().toOSString();
 							Collection<UnsatisfiedConstraint> unsatisfieds = evlEx.execute(
-									fileName, 
-												module.getContext().getModelRepository().getModels());
+									fileName, module.getContext().getModelRepository().getModels());
 							module.getContext().getUnsatisfiedConstraints().clear();
 							module.getContext().getUnsatisfiedConstraints().addAll(unsatisfieds);
 							viewer.setInput(module.getContext().getUnsatisfiedConstraints());
@@ -395,8 +405,28 @@ public class PadreEVLValidationView extends ValidationView {
 
 		try {
 			// set new uri
+			//module.getContext().getModelRepository().getTransactionSupport().startTransaction();
+			//IModelTransactionSupport ts = model.getTransactionSupport();
+			//((EmfModel)model).setModelFileUri(newUri);
 			model.getResource().setURI(newUri);
 			model.getResource().save(null);
+			//model.getResource().unload();
+			//((EmfModel)model).dispose();
+			//((EmfModel)model).loadModelFromUri();
+			//model.clearCache();
+			//module.getContext().getModelRepository().getTransactionSupport().commitTransaction();
+			
+			//InMemoryEmfModel newModel = new InMemoryEmfModel(model.getResource());
+			//newModel.setName(model.getName());
+			//newModel.getResource().setURI(newUri);
+			//newModel.getResource().save(null);
+			//newModel.getResource().save(module.getContext().getOutputStream(), null);
+			
+			//module.getContext().getModelRepository().removeModel(model);
+			//module.getContext().getModelRepository().addModel(newModel);
+			//model.getResource().unload();
+			//model.getResource().load(null);
+			//model.getResource().load(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
