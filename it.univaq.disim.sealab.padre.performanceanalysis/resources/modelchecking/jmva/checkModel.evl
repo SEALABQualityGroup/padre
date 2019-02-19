@@ -11,6 +11,27 @@ context Model {
 
 	guard: 
 		self.name.isDefined() and not self.name.equals("") and (not self.name.contains("Type") or self.name.contains("type"))
+	
+		/*
+	constraint NonAnalyzedModel {
+		check:
+			(not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "throughput").isUndefined()) and
+			 not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "throughput").isEmpty())) and
+			(not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "respT").isUndefined()) and
+			 not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "respT").isEmpty())) and
+			(not self.getGaExecHosts().exists(d|d.getValue(d.getStereotype("GaExecHost"), "utilization").isUndefined()) and
+			 not self.getGaExecHosts().exists(d|d.getValue(d.getStereotype("GaExecHost"), "utilization").isEmpty()))
+		message : "Model performance have not been assessed"
+		fix {
+			title : "Analyze Performance with JMVA"
+			do {
+				var uri = self.getModel().eResource().uri.println("MODEL URI:");
+				var t = new Native("analysis.performance.jmt.jmva.UmlJmvaController");
+				t.roundtripMVA(uri);
+			}
+		}
+	}*/
+		
 		
 	// DONE
 	constraint UnnamedModel {
@@ -367,6 +388,17 @@ context Model {
 		fix {
 			guard :
 				Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all the Messages towards Artifacts and use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setRandoms();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
 			title : "Add GaAcqStep to all the Messages towards Artifacts and use default values"
 			do {
 				var msgs : Sequence(Message) = Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
@@ -395,7 +427,7 @@ context Model {
 	// TODO: refine check condition
 	constraint GaScenarioIffGaWorkloadEvent {
 		guard : 
-			self.satisfies("NoGaScenarios") or self.satisfies("NoWorkloadEvent")
+			self.satisfies("NoGaScenarios") or self.satisfies("NoGaWorkloadEvents")
 		check: 
 			self.getGaScenariosNotGaWorkloadEvents().isEmpty() and self.getGaWorkloadEventsNotGaScenarios().isEmpty()
 		message : "There are GaScenarios UseCases which are not GaWorkloadEvents and/or viceversa"
@@ -560,7 +592,7 @@ context Model {
 	// JMVA-specific
 	constraint LoadDependentDevicesButNotOneClosedClass {
 		guard : 
-			self.satisfies("NoGaExecHosts") and self.satisfies("NoGaScenarios") or self.satisfies("NoWorkloadEvent")
+			self.satisfies("NoGaExecHosts") and self.satisfies("NoGaScenarios") or self.satisfies("NoGaWorkloadEvents")
 		check: 
 			self.getGaExecHosts().exists(d|d.hasStereotype("GaExecHost") and d.getValue(d.getStereotype("GaExecHost"), "schedPolicy").getName().equals("Other")) implies 
 			//d.getValue(
@@ -1000,7 +1032,7 @@ context UseCase {
 			Message.allInstances().select(m|
 									m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and 
 									m.signature.isDefined() and m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
-									not m.getTargetComponents().println("Comps for Message " + m.getName() + ": ").exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
+									not m.getTargetComponents().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
 									//not Component.allInstances().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
 		message : "GaUseCase " + self.name + " contains signed Messages in non-realized Interface"
 		fix {
@@ -1363,6 +1395,8 @@ context UseCase {
 						var artifact;
 						if(m.receiveEvent.covered.represents.first().type.isUndefined() or
 						   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						//if(m.receiveEvent.covered.represents.type.isUndefined() or
+						//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
 							artifact = m.getModel().createArtifact();
 							var prop = new Property;
 							m.getOwner().ownedAttribute.add(prop);
@@ -1371,6 +1405,7 @@ context UseCase {
 							m.receiveEvent.covered.first().represents = prop;
 						} else {
 							artifact = m.receiveEvent.covered.represents.first().type;
+							//artifact = m.receiveEvent.covered.represents.type;
 						}
 						chosenGaExecHost.deploy(artifact);
 					}
@@ -1394,6 +1429,8 @@ context UseCase {
 						var artifact;
 						if(m.receiveEvent.covered.represents.first().type.isUndefined() or
 						   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						//if(m.receiveEvent.covered.represents.type.isUndefined() or
+						//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
 							artifact = m.getModel().createArtifact();
 							var prop = new Property;
 							m.getOwner().ownedAttribute.add(prop);
@@ -1402,6 +1439,7 @@ context UseCase {
 							m.receiveEvent.covered.first().represents = prop;
 						} else {
 							artifact = m.receiveEvent.covered.represents.first().type;
+							//artifact = m.receiveEvent.covered.represents.type;
 						}
 						chosenGaExecHost.deploy(artifact);
 					}
@@ -1422,6 +1460,8 @@ context UseCase {
 					var artifact;
 					if(m.receiveEvent.covered.represents.first().type.isUndefined() or
 					   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					//if(m.receiveEvent.covered.represents.type.isUndefined() or
+					//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
 						artifact = m.getModel().createArtifact();
 						var prop = new Property;
 						m.getOwner().ownedAttribute.add(prop);
@@ -1430,6 +1470,7 @@ context UseCase {
 						m.receiveEvent.covered.first().represents = prop;
 					} else {
 						artifact = m.receiveEvent.covered.represents.first().type;
+						//artifact = m.receiveEvent.covered.represents.type;
 					}
 					chosenGaExecHost.deploy(artifact);
 				}
@@ -2061,6 +2102,17 @@ context Device {
 		}
 	}
 	
+	/*
+	// TO REMOVE
+	critique GaExecHostWithNoUtil {
+		guard: 
+			self.hasStereotype("GaExecHost")
+		check:
+			self.getValue(self.getStereotype("GaExecHost"), "utilization").isDefined() and
+			self.getValue(self.getStereotype("GaExecHost"), "utilization").notEmpty()
+		message : "GaExecHost " + self.name + " without utilizations"
+	}*/
+	
 }
 
 
@@ -2222,6 +2274,33 @@ operation Message hasDeployedArtifact() : Boolean {
 	return false;
 }
 
+/*
+operation Message resolveDevice() : Device {
+	//self.receiveEvent.covered.represents.first().type; // This is the element on the lifeline
+	if(self.receiveEvent.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.type.isUndefined())
+		return null;
+	if(not self.receiveEvent.covered.represents.type.isTypeOf(Artifact))
+		return null;
+	return self.receiveEvent.covered.represents.type.getDeploymentDevice();
+}
+
+operation Message hasArtifact() : Boolean {
+	return self.receiveEvent.covered.represents.type.isTypeOf(Artifact);
+}
+
+operation Message hasDeployedArtifact() : Boolean {
+	if(self.hasArtifact)
+		return self.receiveEvent.covered.represents.type.getDeploymentDevice().isDefined() and
+			   self.receiveEvent.covered.represents.type.getDeploymentDevice().notEmpty();
+	return false;
+}
+*/
 operation Artifact getDeploymentDevice() : Device {
 	return Device.allInstances->selectOne(dev : Device | 
 		dev.getDeployments()->exists(deploy : Deployment | 
@@ -3307,6 +3386,7 @@ operation Artifact deployTo(d : Device) {
 		package.packagedElement.add(newDepl);
 		self.packagedElement.add(package);
 	}*/
+	newDepl.name = self.name;
 	d.deployments.add(newDepl);
 	newDepl.deployedArtifact.add(self);
 	newDepl.supplier.add(self);

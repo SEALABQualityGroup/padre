@@ -10,30 +10,44 @@ post {
     //profiler.stop();
     var m = UML!Model.all.first(); //source model
     var mperf = UMLPerf!Model.all.first(); //target model
-    //var emfTool : new Native("org.eclipse.epsilon.emc.emf.tools.EmfTool"); //EmfTool for copying
+	var emfTool : new Native("org.eclipse.epsilon.emc.emf.tools.EmfTool");
     var packagedEls = m.packagedElement.packagedElements; //system views
-	
-	for(el in packagedEls) {
-		var i = 0;
-		while(i < el.size()) {
-			var it = el.at(i); //source element
-			var mperfEl = mperf.packagedElement.packagedElements.select(e|not e.isTypeOf(UML!PackageImport) and not e.isTypeOf(UML!ProfileApplication) and e.name=el.name and e.type.name=el.type.name).first().select(e2|e2.name = it.name and e2.type.name=it.type.name).first(); //target element
-			var stereotypes : Sequence(UML!Stereotype) = it.getAppliedStereotypes(); //source element stereotypes
-			if(stereotypes.isDefined()) //for each applied stereotype: applies it to the target element and sets tagged values
-				if(stereotypes.size() > 0) {
-					for(s : UML!Stereotype in stereotypes) {
-						mperfEl.applyStereotype(s);
-						var st : UMLPerf!Stereotype = mperfEl.getAppliedStereotypes().select(st|st.name = s.name).first();
-						var stAttrs = st.getAttributes();
-						for(attr in stAttrs) {
-							s.getAttributes().select(a|a.name=attr.name).first();
-							if(it.getValue(s, attr.name).isDefined()) {
-								mperfEl.setValue(st, st.getAttributes().select(a|a.name=attr.name).first().name, it.getValue(s, attr.name));									
+    
+    var els = mperf.packagedElement.closure(x|x.eContents()).select(e|e.isTypeOf(UML!Device) or e.isTypeOf(UML!UseCase) or e.isTypeOf(UML!Message));
+    var eqClosure = m.packagedElement.closure(x|x.eContents()).select(e|e.isTypeOf(UML!Device) or e.isTypeOf(UML!UseCase) or e.isTypeOf(UML!Message));
+    for(el in els) {
+    	if(el.getName().isDefined()) {
+    		//el.getName().println("EL: ");
+		    var equivalent = eqClosure.selectOne(e|e.name=el.name and e.type.name=el.type.name);
+			var stereotypes : Sequence(UML!Stereotype) = null;
+			if(equivalent.isDefined()) {
+				stereotypes = equivalent.getAppliedStereotypes(); //source element stereotypes
+				if(stereotypes.isDefined()) //for each applied stereotype: applies it to the target element and sets tagged values
+					if(stereotypes.size() > 0) {
+						for(s : UML!Stereotype in stereotypes) {
+							el.applyStereotype(s);
+							var st : UMLPerf!Stereotype = el.getAppliedStereotypes().select(st|st.name = s.name).first();
+							
+							var stAttrs = st.getAllAttributes();
+							for(attr in stAttrs) {
+								//s.getAllAttributes().select(a|a.name=attr.name).first().println("TAG: ");
+								//equivalent.getValue(s, attr.name).println("TAG VALUE: ").isKindOf(Collection(Any)).println("IS TYPEOF COLLECTION? ");
+								if(equivalent.getValue(s, attr.name).isDefined()){
+									if((not equivalent.getValue(s, attr.name).isKindOf(Collection(Any)) and
+									    not equivalent.getValue(s, attr.name).isKindOf(UML!Element))
+										or
+									   (equivalent.getValue(s, attr.name).isKindOf(Collection(Any)) and 
+									    equivalent.getValue(s, attr.name).notEmpty())
+									  ) {
+										//equivalent.getValue(s, attr.name).println("EQUIVALENT'S VALUE: ");
+										el.setValue(st, st.getAllAttributes().select(a|a.name=attr.name).first().name, equivalent.getValue(s, attr.name));		
+										//el.getValue(st, attr.name).toString().println("EL'S VALUE: ");
+									}					
+								}
 							}
 						}
 					}
-				}
-			i++;
+			}
 		}
 	}
 	
@@ -145,8 +159,7 @@ post {
 						("Mean: " + meanResTime.toString() + ")").println();
 					}
 					//var meanResTime = getMeanValue(resTimes);
-					//("\t\tMean Residence time: " + meanResTime.toString()).println();
-					
+					//("\t\tMean Residence time: " + meanResTime.toString()).println();					
 					
 					/*
 					var refStationResTime = getRefStationResTime(uc.name);
@@ -203,20 +216,10 @@ rule Model2Model
 		var profileApps = m.profileApplication;
 		for(pApp in profileApps) {
 			mperf.profileApplication.add(emfTool.getECoreUtil().copy(pApp));
-			pApp.appliedProfile.getName();
 		}
 		var packagedEls : Set(UML!Package) = m.packagedElement;
 		for(el in packagedEls) {
-			//var pack = new UMLPerf!Package;
-			//pack.name = el.name;
-			//for(t in el.ownedType) {
-				//t.println("OWNED TYPE: ");
-				//var clone = emfTool.getECoreUtil().copy(t);
-				//pack.ownedType.add(clone);
-			//}
-			//mperf.packagedElements.add(pack);
 			var clone = emfTool.getECoreUtil().copy(el);
-			//for(t in clone.ownedElements) {}
 			mperf.packagedElement.add(clone);
 		}
 		"\tUML-MARTE model generated.".println();
