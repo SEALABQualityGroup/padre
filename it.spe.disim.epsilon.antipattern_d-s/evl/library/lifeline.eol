@@ -44,14 +44,11 @@ operation Lifeline removeMsg(msg : Message){
 	self.getCoveredBys().remove(eos);
 }
 
-
+// OK BUT CONSIDERS ALL MESSAGES (EVEN THE ONES WITHOUT GaAcqStep)
 operation Lifeline getIncomingMessages() : Map{
 	var messages : Sequence(Message) = new Sequence(Message); 
-	
 	var map : Map(Interaction, Sequence(Message));
-	
 	var interactions = self.getInteractions();
-	
 	if(interactions.notEmpty()){
 		for(int in interactions ){
 			messages.addAll(int.getMessages());
@@ -82,13 +79,12 @@ operation Lifeline getInteractions() : Sequence(Interaction){
 	return interactions;
 }
 
+
+// OK BUT CONSIDERS ALL MESSAGES (EVEN THE ONES WITHOUT GaAcqStep)
 operation Lifeline getOutgoingMessages() : Map{
 	var messages : Sequence(Message) = new Sequence(Message); 
-	
 	var map : Map(Interaction, Sequence(Message));
-	
 	var interactions = self.getInteractions();
-	
 	if(interactions.notEmpty()){
 		for(int in interactions ){
 			messages.addAll(int.getMessages());

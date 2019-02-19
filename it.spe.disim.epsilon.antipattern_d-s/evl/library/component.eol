@@ -29,15 +29,43 @@ operation Component cloneRequiredsFrom(component : Component ){
 	}
 }
 
+//OK
 operation Component getLifelines() : List(Lifeline){
 	var returnValue : List(Lifeline) = new List (Lifeline);
 	for(lifeline in Lifeline.allInstances){
-		if(lifeline.getInteraction().isDefined() and lifeline.getRepresents().getType() == self){
-			returnValue.add(lifeline);
+		if(lifeline.getInteraction().isDefined())
+			if(lifeline.getRepresents().isDefined()) 
+				if(lifeline.getRepresents().getType().isDefined())
+					if(lifeline.getRepresents().getType().isTypeOf(Artifact) and
+					   lifeline.getRepresents().getType().getManifestedComponents().contains(self)){
+							returnValue.add(lifeline);
 		}
 	}
+	//returnValue.collect(l|l.getRepresents().getType().getManifestedComponents().flatten().collect(c|c.getName())).flatten().println("LIFELINES FOR COMPONENT:" + self.getName() + " ----> ");
 	return returnValue;
 }
+
+/*
+operation Component getLifeline(interaction : Interaction) : Lifeline{
+	for(lf in Lifeline.allInstances){
+		if(lf.getOwner() == interaction){ 
+			if(lf.getRepresents().getType() == self){
+				return lf; //L1
+			}
+		}	
+	}
+	return null;
+}*/
+
+
+operation Component getLifeline(interaction : Interaction) : Lifeline{
+	return self.getLifelines().select(l|l.getOwner() == interaction).first();
+}
+
+operation Component getLifelines(interaction : Interaction) : Sequence(Lifeline) {
+	return self.getLifelines().select(l|l.getOwner() == interaction);
+}
+
 
 operation Component moveInterfaceRealizations(interfaceRealization : InterfaceRealization){
 	self.interfaceRealization.add(interfaceRealization);
@@ -132,17 +160,6 @@ operation Component getAllInteractionProperties() : List(Property){
 	return returnValue;
 }
 
-operation Component getLifeline(interaction : Interaction) : Lifeline{
-	for(lf in Lifeline.allInstances){
-		if(lf.getOwner() == interaction){ 
-			if(lf.getRepresents().getType() == self){
-				return lf; //L1
-			}
-		}	
-	}
-	return null;
-}
-
 operation Component getManifestations() : List(Manifestation){
 	var returnValue : List(Manifestation) = new List(Manifestation);
 	for(manifestation in Manifestation.allInstances){
@@ -153,14 +170,29 @@ operation Component getManifestations() : List(Manifestation){
 	return returnValue;
 }
 
+
+
 operation Component getNodes() : List(Node){
 	var returnValue : List(Node) = new List(Node);
 	for (artifact in self.getAllArtifacts()){
 		for(node in Node.allInstances){
-			if( node.hasDeployment(artifact) and node.notLegacy()){
+			if( node.hasDeployment(artifact)) { //and node.notLegacy()){
 				returnValue.add(node);
 			}
 		}
+	}
+	return returnValue;
+}
+
+operation Component getDevices() : List(Device){
+	var returnValue : List(Device) = new List(Device);
+	for (artifact in Artifact.allInstances.select(a|a.hasRepresentationOf(self))){
+		returnValue.addAll(artifact.getDeploymentDevices());
+		//for(node in Device.allInstances){
+		//	if( node.hasDeployment(artifact)) { //and node.notLegacy()){
+				//returnValue.add(node);
+		//	}
+		//}
 	}
 	return returnValue;
 }
@@ -387,25 +419,21 @@ operation Component getSendingMessages() : Integer{
 	}
 }
 
+// OK BUT TO REVISE
 operation Component getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : List(Real)) : Map{
 	var returnValue : Map(Interaction, Lifeline) = new Map();
-	var lifelines = self.getLifelines();
+	var lifelines = self.getLifelines(); //OK
 	
 	for(lf in lifelines){
-		//var incomingMsgs = lf.getIncomingMessages();
-		var mapOfInteracationAndIncomingMsgs = lf.getIncomingMessages(); //ritorna una mappa (interaction, seq of Mes)
-		var incomingMsgsProbability : Real = 0.0;
+		var mapOfInteracationAndIncomingMsgs = lf.getIncomingMessages(); //OK - returns a Map(interaction, seq of Mes)
+		var incomingMsgsProbability = 0.0;
 		if(debug()){
-			("number of incomingMsgs of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgs).println();
+			("number of incomingMsgs of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getIncomingMessages().size()).println();
 		}
 		
 		for(int in mapOfInteracationAndIncomingMsgs.keySet()){
 			for(mes in mapOfInteracationAndIncomingMsgs.get(int)){
-				if(debug()){
-					if(mes.getSignature().isDefined())
-						("mes ["+mes.getSignature().getName()+"] of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"]").println();
-				}
-				incomingMsgsProbability = incomingMsgsProbability + mes.getReceiveEvent().getProbabilityOf();
+				incomingMsgsProbability = incomingMsgsProbability.asReal() + mes.getMsgProb();//mes.getReceiveEvent().getProbabilityOf();
 			}
 			switch (int.getName()) {
 				case "Access greenhouse" : 
@@ -429,7 +457,7 @@ operation Component getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : Lis
 		}*/
 		
 		if(debug()){
-			("incomingMsgsProbability of ["+lf+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgsProbability).println();
+			("incomingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgsProbability).println();
 		}
 		
 		/*if(incomingMsgsProbability >= th_numReceivedMsgs)
@@ -439,25 +467,21 @@ operation Component getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : Lis
 	return returnValue;
 }
 
+// OK BUT TO REVISE
 operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(Real)) : Map{
 	var returnValue : Map(Interaction, Lifeline) = new Map();
-	var lifelines = self.getLifelines();
+	var lifelines = self.getLifelines(); //OK
 	
 	for(lf in lifelines){
-		//var incomingMsgs = lf.getIncomingMessages();
-		var mapOfInteracationAndOutgoingMsgs = lf.getOutgoingMessages(); //ritorna una mappa (interaction, seq of Mes)
-		var outgoingMsgsProbability : Real = 0.0;
+		var mapOfInteracationAndOutgoingMsgs = lf.getOutgoingMessages(); //OK - returns a Map(interaction, seq of Mes)
+		var outgoingMsgsProbability = 0.0;
 		if(debug()){
-			("number of outgoing messages of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgs).println();
+			("number of outgoing messages of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getOutgoingMessages().size()).println();
 		}
 		
 		for(int in mapOfInteracationAndOutgoingMsgs.keySet()){
 			for(mes in mapOfInteracationAndOutgoingMsgs.get(int)){
-				if(debug()){
-					if(mes.getSignature().isDefined())
-						("mes ["+mes.getSignature().getName()+"] of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"]").println();
-				}
-				outgoingMsgsProbability = outgoingMsgsProbability + mes.getReceiveEvent().getProbabilityOf();
+				outgoingMsgsProbability = outgoingMsgsProbability.asReal() + mes.getMsgProb();//mes.getReceiveEvent().getProbabilityOf();
 			}
 			switch (int.getName()) {
 				case "Access greenhouse" : 
@@ -472,19 +496,19 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 			//returnValue.put(int,lf);
 		}
 		
-		/*for(mes in incomingMsgs){
+		/*for(mes in outgoingMsgs){
 			if(debug()){
 				if(mes.getSignature().isDefined())
 					("mes ["+mes.getSignature().getName()+"] of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"]").println();
 			}
-			incomingMsgsProbability = incomingMsgsProbability + mes.getReceiveEvent().getProbabilityOf();
+			outgoingMsgsProbability = outgoingMsgsProbability + mes.getSendEvent().getProbabilityOf();
 		}*/
 		
 		if(debug()){
-			("incomingMsgsProbability of ["+lf+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgsProbability).println();
+			("outgoingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+outgoingMsgsProbability).println();
 		}
 		
-		/*if(incomingMsgsProbability >= th_numReceivedMsgs)
+		/*if(outgoingMsgsProbability >= th_numReceivedMsgs)
 			returnValue.add(lf);*/
 	}
 	
@@ -524,6 +548,10 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 
 operation Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node){
 	return self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil);
+}
+
+operation Component getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node){
+	return self.getDevices().println("DEVICES OF COMPONENT " + self.getName() + ": ")->select(n : Device | n.getMaxUtilization() >= th_maxHwUtil).println("DEVICES WITH HIGH UTIL: ");
 }
 
 operation Component getNodesWithNetworkUsageGreaterThan(th_maxNetUtil : Real) : Sequence(Node){
@@ -630,6 +658,7 @@ operation Component getOperationsWithResDemandLesserThan(th_minResDemand : List(
 	return returnValue;
 }
 
+
 operation Component getRequiredInterfaces() : Sequence(Interface){
 	return self.getRequireds().asSequence();
 }
@@ -696,12 +725,13 @@ operation Component getRemoteMesIntoInteractions() : Map{
 	
 	for(int in selfInteractions){
 		var seqOfMes = int.getOutcomingMessageOf(self);
-		
-		if(seqOfMes->first().isDefined()){
-			recipient = seqOfMes->first().getSignature().getClass_();
+		if(seqOfMes.isDefined()) {
+			if(seqOfMes->first().isDefined()){
+				recipient = seqOfMes->first().getSignature().getClass_();
+			}
 		}
 		for(mes in seqOfMes){
-			if(not mes.isReturn() and mes.hasStereotype("GaCommStep")){
+			if(not mes.isReturn()) { //and mes.hasStereotype("GaCommStep")){
 				var lf = mes.getReceiveLifeline(); //lifeline destinataria
 				var component = lf.getRepresents().getType(); //componente
 				
@@ -938,10 +968,13 @@ operation Component addInterfaceRealization(int : InterfaceRealization) : Boolea
 } 
 
 operation Component createNewComponent() : Component{
-	var selfPackage = self.getNearestPackage(); //recupero il package contenitore dell'operazione critica
 	var component : Component = new Component; //creo il componente splittato
-
-	selfPackage.addElement(component); //aggiungo il componente splittato al package del componente sorgente
+	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
+	packageContainer.addElement(component);
+	
+	component.name = self.getName() + " Splitted";
+	component.cloneAppliedStereotypesFrom(self);
+	
 	return component;
 }
 

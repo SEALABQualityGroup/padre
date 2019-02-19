@@ -10,7 +10,8 @@ operation Element cloneAppliedStereotypesFrom(element : Element) {
 		showError("Method: cloneAppliedStereotypesFrom() in element.eol");
 	}else{
 		for(stereotype in element.getAppliedStereotypes()){
-			self.applyStereotype(stereotype);
+			if(not self.hasStereotype(stereotype.getName()))
+				self.applyStereotype(stereotype);
 			if(stereotype.name <> "RtUnit" and stereotype.name <> "GaExecHost") 
 				self.setAttributeValueFrom(stereotype, element);
 		}

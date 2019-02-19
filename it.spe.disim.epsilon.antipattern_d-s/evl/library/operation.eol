@@ -111,7 +111,7 @@ operation Operation splitClass() : Class{
 operation Operation getAllOwnMessages() : List(Message){
 	var returnValue : List(Message) = new List(Message);
 	for(message in Message.allInstances){
-		if(message.getSignature() == self){
+		if(message.hasStereotype("GaAcqStep") and message.getSignature() == self){
 			returnValue.add(message);
 		}
 	}
@@ -235,6 +235,9 @@ operation Operation _redeployOnNearLessUsedNode() : Boolean{
 	//deploy il componente splittato sul primo nodo della lista dei vicini meno utilizzati
 	return true;
 }
+
+
+
 //TODO controllare con gli altri AP, modificato il comportamento del fixing
 
 /******************************************************
@@ -242,6 +245,60 @@ operation Operation _redeployOnNearLessUsedNode() : Boolean{
  *      		To be Checked auto-messages			  *
  *													  *	
  ******************************************************/
+ 
+ 
+ operation Operation dynamicFixing(artifact : Artifact) {
+ 
+ 	var gaAcqSteps = self.getAllOwnMessages(); //all msgs with self as signature
+ 	var receiveMoses = MessageOccurrenceSpecification.all.select(mos|gaAcqSteps.exists(m|m=mos.message and m.receiveEvent=mos)); //all (receive event) moses with message in msgs
+ 	var receivingLifelines = Lifeline.all.select(lf|lf.coveredBy.exists(el|receiveMoses.exists(mos|mos=el)));
+ 	//var beses = BehaviorExecutionSpecification.all.select(bes|gaAcqSteps.exists(m|bes.getStart().getMessage()=m));//receivingLifelines.exists(l|bes.covered.includes(l)));
+ 	//var eoses = beses.collect(b|b.getFinish());
+ 	//var lfReplyMsgs = self.getAllOwnMessages().select(m|m.isReturn() and eoses.exists(eos|eos.getIndexOf()=m.getIndexOf()-1)).println("REPLYS: ");
+ 	
+ 	for(lf in receivingLifelines) {
+ 		var interactions = lf.getInteractions();
+		for(interaction in interactions) {
+			var lifeline = interaction.createLifeline(artifact.getName());
+			var spProp = interaction.createOwnedAttribute(artifact.getName(), artifact);
+			lifeline.setRepresents(spProp);
+			lifeline.cloneAppliedStereotypesFrom(lf);
+			lifeline.setVisibility(lf.getVisibility());
+			
+			var combFrags = lf.coveredBy.select(f|f.isTypeOf(CombinedFragment));
+			for(f in combFrags) {
+				lifeline.coveredBy.add(f);
+			}
+			
+			var lfBeses = lf.coveredBy.select(bes|bes.isTypeOf(BehaviorExecutionSpecification));
+			for(lfBes in lfBeses) {
+				lifeline.coveredBy.add(lfBes);
+				lf.removeInteractionFragment(lfBes);
+			}
+			
+			//var lfReceiveMoses = lf.coveredBy.select(mos|mos.isTypeOf(MessageOccurrenceSpecification) and
+			//											 gaAcqSteps.exists(m|m=mos.message and m.receiveEvent=mos));
+			var lfReceiveMoses = lfBeses.collect(bes|bes.getStart()).flatten();
+			for(lfMos in lfReceiveMoses) {
+				lifeline.coveredBy.add(lfMos);
+				lf.removeInteractionFragment(lfMos);
+			}
+			
+			var lfEoses = lfBeses.collect(bes|bes.getFinish()).flatten();//lf.coveredBy.select(eos|eos.isTypeOf(ExecutionOccurrenceSpecification));
+			for(lfEos in lfEoses) {
+				lifeline.coveredBy.add(lfEos);
+				lf.removeInteractionFragment(lfEos);
+			}
+			var lfReplyMoses = MessageOccurrenceSpecification.all.select(mos|mos.getMessage().isDefined() and mos.getMessage().isReturn() and lfEoses.exists(eos|eos.getIndexOf()=mos.getIndexOf()-1));
+			for(lfReplyMos in lfReplyMoses) {
+				lifeline.coveredBy.add(lfReplyMos);
+				lf.removeInteractionFragment(lfReplyMos);
+			}
+		}
+ 	}
+}
+ 
+ 
 operation Operation dynamicFixing(component : Component) {
 	var interaction = self.getAllInteractions()->first(); //TODO controllare potrebbe lavorare su un interaction non corretto
 	var sourceLifeline = component.getLifeline(interaction);
@@ -467,6 +524,310 @@ operation Operation splittingComponent( numberOfSplitting : Integer, percentage 
  *	 									PAPER												 *
  *																							 *
  *********************************************************************************************/
+ 
+ 
+ 
+operation Operation moveToNewComponentDeployedToNewDevice() : Boolean{
+	//static
+	var criticalOp = self;
+	var sourceComponent : Component = criticalOp.getOwner();
+	var criticalOpPackage = criticalOp.getNearestPackage(); //recupero il package contenitore dell'operazione critica
+	
+	//var splittedComponent = sourceComponent.createNewComponent();
+	
+	var splittedComponent : Component = new Component(); //creo il componente splittato
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('static')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(splittedComponent);
+	} else {
+		package = new Package();
+		package.name = "staticView";
+		package.packagedElement.add(splittedComponent);
+		self.packagedElement.add(package);
+	}
+	//criticalOpPackage.packagedElement.add(splittedComponent); //aggiungo il componente splittato al package del componente sorgente
+
+	splittedComponent.name = sourceComponent.getName() + " Splitted";
+	splittedComponent.cloneAppliedStereotypesFrom(sourceComponent); //clono gli stessi stereotipi del componente sorgente
+	sourceComponent.ownedOperation.remove(criticalOp);
+	splittedComponent.ownedOperation.add(criticalOp);
+
+	var intReals : Sequence(InterfaceRealization) = sourceComponent.getInterfaceRealizations().
+							select(ir|ir.getContract().ownedOperation.exists(o|o.getName().equals(criticalOp.getName())));
+	for(ir in intReals) {
+		var newIR : InterfaceRealization = new InterfaceRealization;
+		newIR.contract = ir.contract;
+		newIR.supplier.addAll(ir.supplier);
+		newIR.client.add(splittedComponent);
+		splittedComponent.interfaceRealization.add(newIR);
+	}
+	
+	var mans = sourceComponent.getManifestations();
+	if(mans.isDefined() and mans.notEmpty()) {
+		var criticalArtifact = mans.first().client.first();
+		var newArtifact : Artifact;
+		
+		//deployment
+		var deplDevs = criticalArtifact.getDeploymentDevices();
+		for(d in deplDevs) {
+			if(d.hasDeployment(criticalArtifact)) {
+				var depl = d.deployment.select(dep|dep.deployedArtifact.includes(criticalArtifact));
+				if(depl.isDefined())
+					d.deployment.removeAll(depl);
+			}
+			var newDeplDev = d.createNewDevice();
+			newArtifact = new Artifact;
+			var newManifestation; 
+			var newDeployment; 
+			d.getNearestPackage().addElement(newArtifact); 
+			newArtifact.name = criticalArtifact.name + " Splitted"; 
+			newManifestation = newArtifact.createManifestation(splittedComponent.getName(), splittedComponent);
+			newManifestation.getClients().add(newArtifact); 
+			//newDeployment = newDeplDev.createDeployment(newArtifact.getName()); 
+			//newDeployment.getDeployedArtifacts().add(newArtifact);
+			newArtifact.deployTo(newDeplDev);
+		}
+		
+		//dynamic
+		if(newArtifact.isDefined())
+			criticalOp.dynamicFixing(newArtifact);
+	}
+}
+ 
+ 
+ 
+
+operation Operation moveToNewComponentDeployedToNearLessUsedDevice() : Boolean{
+	//static
+	var criticalOp = self;
+	var sourceComponent : Component = criticalOp.getOwner();
+	var criticalOpPackage = criticalOp.getNearestPackage(); //recupero il package contenitore dell'operazione critica
+	
+	//var splittedComponent = sourceComponent.createNewComponent();
+	
+	var splittedComponent : Component = new Component(); //creo il componente splittato
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('static')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(splittedComponent);
+	} else {
+		package = new Package();
+		package.name = "staticView";
+		package.packagedElement.add(splittedComponent);
+		self.packagedElement.add(package);
+	}
+	//criticalOpPackage.packagedElement.add(splittedComponent); //aggiungo il componente splittato al package del componente sorgente
+
+	splittedComponent.name = sourceComponent.getName() + " Splitted";
+	splittedComponent.cloneAppliedStereotypesFrom(sourceComponent); //clono gli stessi stereotipi del componente sorgente
+	sourceComponent.ownedOperation.remove(criticalOp);
+	splittedComponent.ownedOperation.add(criticalOp);
+
+	var intReals : Sequence(InterfaceRealization) = sourceComponent.getInterfaceRealizations().
+							select(ir|ir.getContract().ownedOperation.exists(o|o.getName().equals(criticalOp.getName())));
+	for(ir in intReals) {
+		var newIR : InterfaceRealization = new InterfaceRealization;
+		newIR.contract = ir.contract;
+		newIR.supplier.addAll(ir.supplier);
+		newIR.client.add(splittedComponent);
+		splittedComponent.interfaceRealization.add(newIR);
+	}
+	
+	
+	var mans = sourceComponent.getManifestations();
+	if(mans.isDefined() and mans.notEmpty()) {
+		var criticalArtifact = mans.first().client.first();
+		var newArtifact : Artifact;
+		
+		//deployment
+		var deplDevs = criticalArtifact.getDeploymentDevices();
+		for(d in deplDevs) {
+			if(d.hasDeployment(criticalArtifact)) {
+				var depl = d.deployment.select(dep|dep.deployedArtifact.includes(criticalArtifact));
+				if(depl.isDefined())
+					d.deployment.removeAll(depl);
+			}
+			
+			var listOfNeighbours = d.getDirectlyLinkedNode(); //lista dei nodi vicini
+			var neighs = listOfNeighbours->select(
+				node | node.hasStereotype("GaExecHost") and 
+					node.getTag("GaExecHost", "utilization").isDefined() and node.getTag("GaExecHost", "utilization").notEmpty()
+			);
+			
+			var lessDev;
+			var minMeanUtil : Real = 0.0;
+			if(neighs.isDefined() and neighs.notEmpty()) {
+				lessDev = neighs.first();
+				minMeanUtil = neighs.first().getMeanUtilization();
+			}
+			
+			for(neigh in neighs) {
+				var neighMeanUtil = neigh.getMeanUtilization();
+				if(neighMeanUtil.isDefined() and neighMeanUtil < minMeanUtil){
+					lessDev = neigh;	
+					minMeanUtil = neighMeanUtil;
+				}
+			}
+			//lessDev is the neighbour with lowest mean util
+			//lessDev.println("LESS USED DEV: " + lessDev.getName());
+			newArtifact = new Artifact;
+			var newManifestation; 
+			var newDeployment; 
+			d.getNearestPackage().addElement(newArtifact); 
+			newArtifact.name = criticalArtifact.name + " Splitted"; 
+			newManifestation = newArtifact.createManifestation(splittedComponent.getName(), splittedComponent);
+			newManifestation.getClients().add(newArtifact); 
+			if(lessDev.deployment.isDefined() and not lessDev.deployment.collect(depl|depl.deployedArtifact).flatten().includes(newArtifact)) {
+				//newDeployment = lessDev.createDeployment(newArtifact.getName()); 
+				//newDeployment.getDeployedArtifacts().add(newArtifact);
+				newArtifact.deployTo(lessDev);
+			}
+		}
+		
+		//dynamic
+		if(newArtifact.isDefined())
+			criticalOp.dynamicFixing(newArtifact);
+	}
+}
+
+
+
+
+operation Operation redeployToNearLessUsedDevice() : Boolean {
+	var criticalOp = self;
+	var sourceComponent : Component = criticalOp.getOwner();
+	var criticalArtifact;
+	var mans = sourceComponent.getManifestations();
+	if(mans.isDefined() and mans.notEmpty()) 
+		criticalArtifact = mans.first().client.first();
+		
+	//deployment
+	var deplDevs = criticalArtifact.getDeploymentDevices();
+	for(d in deplDevs) {
+		if(d.hasDeployment(criticalArtifact)) {
+			var depl = d.deployment.select(dep|dep.deployedArtifact.includes(criticalArtifact));
+			if(depl.isDefined())
+				d.deployment.removeAll(depl);
+		}
+		
+		var listOfNeighbours = d.getDirectlyLinkedNode(); //lista dei nodi vicini
+		var neighs = listOfNeighbours->select(
+			node | node.hasStereotype("GaExecHost") and 
+				node.getTag("GaExecHost", "utilization").isDefined() and node.getTag("GaExecHost", "utilization").notEmpty()
+		);
+		
+		var lessDev;
+		var minMeanUtil : Real = 0.0;
+		if(neighs.isDefined() and neighs.notEmpty()) {
+			lessDev = neighs.first();
+			minMeanUtil = neighs.first().getMeanUtilization();
+		}
+		
+		for(neigh in neighs) {
+			var neighMeanUtil = neigh.getMeanUtilization();
+			if(neighMeanUtil.isDefined() and neighMeanUtil < minMeanUtil){
+				lessDev = neigh;	
+				minMeanUtil = neighMeanUtil;
+			}
+		}
+		//lessDev is the neighbour with lowest mean util
+		//lessDev.println("LESS USED DEV: " + lessDev.getName());
+		var newDeployment; 
+		if(lessDev.deployment.isDefined() and not lessDev.deployment.collect(depl|depl.deployedArtifact).flatten().includes(criticalArtifact)) {
+			//newDeployment = lessDev.createDeployment(criticalArtifact.getName()); 
+			//newDeployment.getDeployedArtifacts().add(criticalArtifact);
+			criticalArtifact.deployTo(lessDev);
+		}
+		
+	}
+}
+
+
+ 
+ 
+ 
+ operation Operation moveToNearLessDemandingComponent() : Boolean{
+	//static
+	var criticalOp = self;
+	var sourceComponent : Component = criticalOp.getOwner();
+	var criticalArtifact;
+	var mans = sourceComponent.getManifestations();
+	if(mans.isDefined() and mans.notEmpty()) 
+		criticalArtifact = mans.first().client.first();
+
+	//individuare less demanding component (fra quelle deployate altrove) e spostarci criticalOp
+	var listOfNeighbours = criticalArtifact.getDeploymentDevices().first().getDirectlyLinkedNode(); //lista dei nodi vicini
+	var neighs = listOfNeighbours->select(node | node.hasStereotype("GaExecHost"));
+	if(neighs.isDefined() and neighs.notEmpty()) {
+		var otherArtifacts = neighs.collect(d|d.deployment.deployedArtifact).flatten()
+										.select(a|not a.getManifestedComponents().includes(sourceComponent));
+		var lessDemArt;
+		var minArtDem : Real = 0.0;
+		if(otherArtifacts.isDefined() and otherArtifacts.notEmpty()) {
+			lessDemArt = otherArtifacts.first();
+			minArtDem = otherArtifacts.first().getTotalDemand();
+		}
+		for(otherArt in otherArtifacts) {
+			var otherArtTotDem = otherArt.getTotalDemand();
+			if(otherArtTotDem.isDefined() and otherArtTotDem < minArtDem){
+				lessDemArt = otherArt;	
+				minArtDem = otherArtTotDem;
+			}
+		
+		}
+		var lessDemComp = lessDemArt.getManifestedComponents().first();
+		//sourceComponent.ownedOperation.println("OLD OPS SOURCE COMP: ");
+		sourceComponent.ownedOperation.remove(criticalOp);//.println("REMOVED FROM SOURCE COMP? ");
+		//sourceComponent.ownedOperation.println("NEW OPS SOURCE COMP: ");
+		//lessDemComp.ownedOperation.println("OLD OPS LESS DEM COMP: ");
+		lessDemComp.ownedOperation.add(criticalOp);//.println("ADDED TO LESS DEM COMP? ");
+		//lessDemComp.ownedOperation.println("NEW OPS LESS DEM COMP: ");
+		
+		var intReals : Sequence(InterfaceRealization) = sourceComponent.getInterfaceRealizations().
+								select(ir|ir.getContract().ownedOperation.exists(o|o.getName().equals(criticalOp.getName())));
+		for(ir in intReals) {
+			var newIR : InterfaceRealization = new InterfaceRealization;
+			newIR.contract = ir.contract;
+			newIR.supplier.addAll(ir.supplier);
+			newIR.client.add(lessDemComp);
+			lessDemComp.interfaceRealization.add(newIR);
+		}
+		
+		//dynamic
+		if(lessDemArt.isDefined())
+			criticalOp.dynamicFixing(lessDemArt);
+	}
+}
+ 
+ 
+ 
+ 
+ operation Operation redeployToNewDevice() {
+	var criticalOp = self;
+	var sourceComponent : Component = criticalOp.getOwner();
+	var criticalArtifact;
+	var mans = sourceComponent.getManifestations();
+	if(mans.isDefined() and mans.notEmpty()) {
+		criticalArtifact = mans.first().client.first();
+		//deployment
+		var deplDevs = criticalArtifact.getDeploymentDevices();
+		for(d in deplDevs) {
+			if(d.hasDeployment(criticalArtifact)) {
+				var depl = d.deployment.select(dep|dep.deployedArtifact.includes(criticalArtifact));
+				if(depl.isDefined())
+					d.deployment.removeAll(depl);
+				d.deployment;
+			}
+		}
+		var newDeplDev = deplDevs.first().createNewDevice();
+		criticalArtifact.deployTo(newDeplDev);
+	}
+}
+ 
+ 
+ 
+ 
+ 
+ 
 operation Operation moveToNewNode() : Boolean{
 	
 	if(self.getOwner().isLegacy()) 
@@ -482,7 +843,7 @@ operation Operation moveToNewNode() : Boolean{
 	return true;
 }
 
-operation Operation moveToNewComponentDeployedOnNewNode() : Boolean {	
+operation Operation moveToNewComponentDeployedToNewNode() : Boolean {	
 	
 	if(self.notLegacy()){
 		//static
@@ -940,9 +1301,11 @@ operation Operation retrieveOperation() : Operation{
 					){
 						//iterator.F_resDemandLesserThan(th_minOpResDemand())).notEmpty()){
 						//return listOfOpsWithGaStep->selectOne(iterator : Operation | iterator.F_resDemandLesserThan(th_minOpResDemand()));
-						"************** DEBUG ******************".println();
-						("listOfOpsWithGaStep->first() --> "+ listOfOpsWithGaStep->first()).println();
-						"************** DEBUG ******************".println();
+						if(debug()){
+							"************** DEBUG ******************".println();
+							("listOfOpsWithGaStep->first() --> "+ listOfOpsWithGaStep->first()).println();
+							"************** DEBUG ******************".println();
+						}
 						return listOfOpsWithGaStep->first();
 					}
 				}
@@ -991,15 +1354,15 @@ operation Operation getDiskDemand() : Real {
 		return self.getTag("GaStep", "servCount")->second().asReal();
 	return 0.0; 
 }
-operation Operation getMaxDemands() : Sequence(Real){
 
+
+
+operation Operation getMaxDemands() : Sequence(Real){
 	var maxDemands : Sequence(Real) = new Sequence(Real);
 	var operations = Operation.allInstances->select(iterator | iterator.hasStereotype("GaStep"));
-	
 	for(demand in operations->first().getTag("GaStep", "servCount")){
 		maxDemands.add(0.0);
 	}
-	
 	var i : Integer = 0;
 	for(op in operations){
 		if(op.getTag("GaStep", "servCount").isDefined()){
@@ -1016,3 +1379,15 @@ operation Operation getMaxDemands() : Sequence(Real){
 	}
 	return maxDemands;
 }
+
+
+
+operation Operation getMeanDemand() : Real {
+	var meanDem;
+	var opMsgs = self.getAllOwnMessages();
+	var opMsgsResDemands = opMsgs.select(m|m.getValue(m.getStereotype("GaAcqStep"),"servCount").isDefined() and m.getValue(m.getStereotype("GaAcqStep"),"servCount").notEmpty()).
+									collect(m|m.getValue(m.getStereotype("GaAcqStep"),"servCount").first().asReal()).flatten().asSequence();
+	meanDem = getMeanValue(opMsgsResDemands);
+	return meanDem;
+}
+

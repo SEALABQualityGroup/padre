@@ -89,63 +89,110 @@ operation Component F_probExec() : Boolean {
 	return false;
 }
 
-operation Component F_numClientConnects(th_numClientConnects : Real) : Boolean{
-	
-	if(debug()){
-		("number of Client Connects of ["+self.getName()+"] --> "+self.getRequireds().size()).println();
-	}
-	
-	if(not self.hasStereotype("PaRunTInstance")) 
-		return false;
 
-   	if(self.getRequireds().size().asReal() >= th_numClientConnects){
-		return true;
+
+//OK BUT
+operation Artifact F_numClientConnects(th_numClientConnects : Real) : Boolean{
+	if(debug()){
+		("number of Client Connects of Artifact ["+self.getName()+"] --> "+self.getManifestedComponents().first().getRequireds().size()).println();
+	}
+	if(self.getManifestedComponents().isDefined() and self.getManifestedComponents().notEmpty()){
+	   	if(self.getManifestedComponents().first().getRequireds().size().asReal() >= th_numClientConnects){//.println("th_numClientConnects: ")){
+			return true;
+		}
 	}
 	return false;
 }
 
-operation Component F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
-	
+//OK
+operation Artifact F_numSupplierConnects(th_numSupplierConnects : Real) : Boolean{
 	if(debug()){
-		"######### DEBUG ##########".println();
-		self.println();
-		("getCriticalLifeline4BlobContainerAP --> "+self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs)).println();
-		"######### DEBUG ##########".println();
+		("number of Supplier Connects of Artifact ["+self.getName()+"] --> "+self.getManifestedComponents().first().getProvideds().size()).println();
 	}
-	
+	if(self.getManifestedComponents().isDefined() and self.getManifestedComponents().notEmpty()){
+		if(self.getManifestedComponents().first().getProvideds().size().asReal() >= th_numSupplierConnects){//.println("th_numSupplierConnects: ")){
+			return true;
+		}
+	}
+	return false;
+}
+
+// OK BUT TO REVISE
+operation Artifact F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
+	if(debug()){
+		self.getName().println();
+		("getCriticalLifeline4BlobContainerAP --> "+self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs)).println();
+	}
 	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and not self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isEmpty())
 		return true;
 	return false;
 }
 
-operation Component F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
+// OK BUT TO REVISE
+operation Artifact F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
 	if(debug()){
-		"######### DEBUG ##########".println();
-		self.println();
-		("getCriticalLifeline4BlobControllerAP --> "+self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).size()).println();
-		"######### DEBUG ##########".println();
+		self.getName().println();
+		("getCriticalLifeline4BlobControllerAP --> "+self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs)).println();
 	}
-	
 	if(self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isDefined() and not self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isEmpty()){
 		return true;
 	}
 	return false;
 }
 
+
+
+
+
+//OK BUT
+operation Component F_numClientConnects(th_numClientConnects : Real) : Boolean{
+	if(debug()){
+		("number of Client Connects of ["+self.getName()+"] --> "+self.getRequireds().size()).println();
+	}
+	//if(not self.hasStereotype("PaRunTInstance")) 
+	//	return false;
+   	if(self.getRequireds().size().asReal() >= th_numClientConnects){//.println("th_numClientConnects: ")){
+		return true;
+	}
+	return false;
+}
+
+// OK BUT TO REVISE
+operation Component F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
+	if(debug()){
+		self.getName().println();
+		("getCriticalLifeline4BlobContainerAP --> "+self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs)).println();
+	}
+	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and not self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isEmpty())
+		return true;
+	return false;
+}
+
+
+// OK BUT TO REVISE
+operation Component F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
+	if(debug()){
+		self.getName().println();
+		("getCriticalLifeline4BlobControllerAP --> "+self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs)).println();
+	}
+	if(self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isDefined() and not self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isEmpty()){
+		return true;
+	}
+	return false;
+}
+
+
+//OK
 operation Component F_numSupplierConnects(th_numSupplierConnects : Real) : Boolean{
-	
 	if(debug()){
 		("number of Supplier Connects of ["+self.getName()+"] --> "+self.getProvideds().size()).println();
 	}
-	
-	if(not self.hasStereotype("PaRunTInstance")){
-		return false;
-	}
-		
-	if(self.getProvideds().size().asReal() >= th_numSupplierConnects){
+	//if(not self.hasStereotype("PaRunTInstance")){
+	//	return false;
+	//}
+	if(self.getProvideds().size().asReal() >= th_numSupplierConnects){//.println("th_numSupplierConnects: ")){
 		return true;
 	}
-		
 	return false;
 }
 
@@ -176,7 +223,8 @@ operation Classifier F_numRemInst(th_maxRemInst : Integer) : Boolean{
 }
 
 operation Component F_numExF(th_maxExF : Integer ) : Boolean{
-	if(self.hasStereotype("PaRunTInstance") and not self.getUsedFormat().isEmpty()){
+	if(//self.hasStereotype("PaRunTInstance") and 
+		not self.getUsedFormat().isEmpty()){
 		for(int in self.getUsedFormat().keySet()){
 			if(self.getUsedFormat().get(int).keySet().size() >= th_maxExF ){
 				return true;
@@ -414,9 +462,52 @@ operation Message F_resDemand(th_maxResDemand : Real) : Boolean{
 	return turnback;	
 }
 
+operation Message F_resDemand(th_maxResDemand : Real, operator : String) : Boolean{
+	if(self.hasStereotype('GaAcqStep') ){
+		var resDemand = self.getValue(self.getStereotype("GaAcqStep"), "servCount");
+		if( resDemand.isDefined()) {
+			for(demand in resDemand){
+				if(operator.equals("geq")) {
+					if(demand.asReal() >= th_maxResDemand )
+						return true;
+				} else if(operator.equals("leq")) {
+					if(demand.asReal() <= th_maxResDemand )
+						return true;
+				} else
+					return false;
+			}
+		} else
+			return false;
+	}
+	return false;
+}
+
+
+operation Message F_probExec(th_prob : Real, operator : String) : Boolean{
+	if(self.hasStereotype('GaAcqStep') ){
+		var prob = self.getValue(self.getStereotype("GaAcqStep"), "prob");
+		if( prob.isDefined()) {
+			if(operator.equals("eq")) {
+				if(prob.asReal() = th_prob )
+					return true;
+			} else if(operator.equals("geq")) {
+				if(prob.asReal() >= th_prob )
+					return true;
+			} else if(operator.equals("leq")) {
+				if(prob.asReal() <= th_prob )
+					return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
+	return false;
+}
+
+
 operation Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDemand : List( Real )) : Boolean{
-	if(not self.hasStereotype("PaRunTInstance") ) 
-		return false;
+	//if(not self.hasStereotype("PaRunTInstance") ) 
+	//	return false;
 				
 	var opGreater = self.getOperationsWithResDemandGreaterOrEqual(th_maxOpResDemand);
 	var opLesser = self.getOperationsWithResDemandLesserThan(th_minResDemand);
@@ -429,7 +520,7 @@ operation Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDeman
 
 operation Operation F_T(th_SthReq : Real) : Boolean{
 	
-	var listOfUseCases : List(UseCase) = self.getUseCases(); 
+	var listOfUseCases : List(UseCase) = self.getUseCases().println("USECASES WITH OPERATION " + self + ": "); 
 	var listOfUseCaseWithThroughputLessThanThreshold : List(UseCase) = new List(UseCase);
 	if(listOfUseCases.isEmpty()){
 		return false; 
@@ -437,7 +528,7 @@ operation Operation F_T(th_SthReq : Real) : Boolean{
 	for(useCase in listOfUseCases){
 		
 		if(useCase.hasStereotype('GaScenario')){
-			var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();
+			var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();//.println("THROUGHPUT OF USECASE "+useCase.getName()+": ");
 			if(throughput.isDefined() and throughput.asReal() < th_SthReq){
 				listOfUseCaseWithThroughputLessThanThreshold.add(useCase);
 			}
@@ -449,7 +540,7 @@ operation Operation F_T(th_SthReq : Real) : Boolean{
 
 operation Message F_T() : Boolean{
 	var th_SthReq = 0.9; //throughput
-	var useCase : UseCase = self.getUseCase(); 
+	var useCase : UseCase = self.getUseCase();
 	
 	if(useCase.hasStereotype('GaScenario')){
 		var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();
@@ -463,7 +554,7 @@ operation Message F_T() : Boolean{
 
 operation Message F_T() : Real{
 	var th_SthReq = 0.9; //throughput
-	var useCase : UseCase = self.getUseCase(); 
+	var useCase : UseCase = self.getUseCase();
 	
 	if(useCase.hasStereotype('GaScenario')){
 		var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();
@@ -492,22 +583,59 @@ operation Operation F_T() : Boolean{
 	return listOfUseCaseWithThroughputLessThanThreshold.isEmpty();
 }
 
-
+/*
 operation Message F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	if(self.resolveDevice().isDefined() and self.resolveDevice().hasStereotype("GaExecHost")) {
+	var node = self.resolveDevice();
+	if(node.isDefined() and node.hasStereotype("GaExecHost")) {
 		var values : Bag(Real) = self.resolveDevice().getValue(self.resolveDevice().getStereotype("GaExecHost"), "utilization").collect(u|u.asReal());
 		var max : Real = values.max();
 		return max >= th_maxHwUtil;
 	}
 	else
 		return false;
+}*/
+
+
+operation Message F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean{
+	var lf = self.getReceiveLifeline();
+	if(lf.isDefined()) {
+		if(lf.getRepresents().isDefined()) 
+			if(lf.getRepresents().getType().isDefined())
+				//if(lf.getRepresents().getType().println("TYPE: ").isTypeOf(Artifact))
+				if(lf.getRepresents().getType().isTypeOf(Artifact))
+					return lf.getRepresents().getType().F_maxHwUtil(th_maxHwUtil, operator);
+	} return false;
+}
+
+operation Operation F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean{
+	
+	var listOfProcessNode : List(Node) = new List(Node);
+	
+	listOfProcessNode = self.getProcessNodes();
+	
+	if(listOfProcessNode.isEmpty()){
+		return false; //non ci sono nodi con lo stereotipo giusto o la classe non è deployata
+	}	
+	var listOfProcessNodeWithUtilizationOvercoming : List(Node) = new List(Node);
+	
+	for(node in listOfProcessNode){
+		if(node.hasStereotype('GaExecHost') ){
+			var utilization = node.getMaxUtilization();//node.getValue(node.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+node.getName()+": ");
+			if( utilization.isDefined()) {
+				if(operator.equals("geq")) {
+					if(utilization.asReal() >= th_maxHwUtil )
+						listOfProcessNodeWithUtilizationOvercoming.add(node);
+				} else if(operator.equals("leq")) {
+					if(utilization.asReal() <= th_maxHwUtil )
+						listOfProcessNodeWithUtilizationOvercoming.add(node);
+				}
+			}
+		}
+	}
+	return listOfProcessNodeWithUtilizationOvercoming.notEmpty();
 }
 
 /*
-operation Message F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	return self.getSignature().F_maxHwUtil(th_maxHwUtil);
-}*/
-
 operation Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	
 	var listOfProcessNode : List(Node) = new List(Node);
@@ -521,15 +649,16 @@ operation Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	
 	for(node in listOfProcessNode){
 		if(node.hasStereotype('GaExecHost') ){
-			var utilization = node.getValue(node.getStereotype('GaExecHost'), 'utilization')->first();
+			var utilization = node.getMaxUtilization();//node.getValue(node.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+node.getName()+": ");
 			if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
 				listOfProcessNodeWithUtilizationGreater.add(node);
 			}
 		}
 	}
 	return listOfProcessNodeWithUtilizationGreater.notEmpty();
-}
+}*/
 
+/*
 operation Operation F_maxHwUtil() : Boolean{
 	var th_maxHwUtil : Real = 0.85;
 	var listOfProcessNode : List(Node) = new List(Node);
@@ -547,10 +676,50 @@ operation Operation F_maxHwUtil() : Boolean{
 		}
 	}
 	return listOfProcessNodeWithUtilizationGreater.isEmpty();
+}*/
+
+
+
+operation Artifact F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean {
+	var criticalDev = self.getCriticalDeploymentDevice();//.println("\tCRITICAL DEV: ");
+	if(criticalDev.isDefined()) {
+		//criticalDev.getName().println("CRITICAL DEV FOR Artifact " + self.getName() + ": ");
+		var utilization = criticalDev.getMaxUtilization();
+		if( utilization.isDefined()) {
+			if(operator.equals("geq")) {
+				if(utilization.asReal() >= th_maxHwUtil )
+					return true;
+			} else if(operator.equals("leq")) {
+				if(utilization.asReal() <= th_maxHwUtil )
+					return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
+	return false;
 }
 
-operation Node F_maxHwUtil(th_maxHwUtil : Real) : Boolean {
-	
+
+
+operation Device F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean {
+	if(self.hasStereotype("GaExecHost") ){
+		var utilization = self.getMaxUtilization();//self.getValue(self.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+self.getName()+": ");
+		if( utilization.isDefined()) {
+			utilization.asReal();
+			if(operator.equals("geq")) {
+				if(utilization.asReal() >= th_maxHwUtil )
+					return true;
+			} else if(operator.equals("leq")) {
+				if(utilization.asReal() <= th_maxHwUtil )
+					return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
+	return false;
+	/*
 	var utilization = self.getUtilization();
 	if(utilization.isUndefined()){
 		return false;
@@ -562,7 +731,7 @@ operation Node F_maxHwUtil(th_maxHwUtil : Real) : Boolean {
 			return true;
 		}
 	}
-	return false;
+	return false;*/
 }
 
 operation Node F_maxCpuUtil(th_maxCpuUtil : Real) : Boolean {
@@ -603,11 +772,12 @@ operation Node F_maxDiskUtil(th_maxDiskUtil : Real) : Boolean {
 }
 
 operation Component F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	if(debug()){
-		("getNodesWithUtilizationGreaterThan(th_maxHwUtil) ["+self.getName()+"] --> "+self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).size()).println();
-	}
+	//if(debug()){
+		("getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil) ["+self.getName()+"] --> "+self.getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil).size()).println();
+	//}
 	
-	if(self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).notEmpty()){
+	//if(self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).notEmpty()){
+	if(self.getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil).notEmpty()){
 		return true;
 	}
 	return false;	
@@ -726,10 +896,53 @@ operation Message F_RT(th_SrtReq : Real) : Boolean {
 		return false;
 }
 
+
+operation UseCase F_RT(th_rt : Real, operator : String) : Boolean {
+	if(self.hasStereotype("GaScenario") ){
+		var meanRT = self.getMeanRT();
+		if( meanRT.isDefined()) {
+			meanRT.asReal();
+			if(operator.equals("geq")) {
+				if(meanRT.asReal() >= th_rt )
+					return true;
+			} else if(operator.equals("leq")) {
+				if(meanRT.asReal() <= th_rt )
+					return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
+	return false;
+}
+
+
+operation UseCase F_T(th_through : Real, operator : String) : Boolean {
+	if(self.hasStereotype("GaScenario") ){
+		var meanThrough = self.getMeanThroughput();
+		if( meanThrough.isDefined()) {
+			meanThrough.asReal();
+			if(operator.equals("geq")) {
+				if(meanThrough.asReal() >= th_through )
+					return true;
+			} else if(operator.equals("leq")) {
+				if(meanThrough.asReal() <= th_through )
+					return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
+	return false;
+}
+
+
+
 operation Message F_T(th_SthReq : Real) : Boolean {
 	if(self.getOwner().getOwner().hasStereotype("GaScenario")) {
-		var values : Bag(Real) = self.getOwner().getOwner().getValue(self.getOwner().getOwner().getStereotype("GaScenario"), "throughput").collect(t|t.asReal());
-		var mean : Real = getMeanValue(values);
+		var values : Bag(Real) = self.getOwner().getOwner().getValue(self.getOwner().getOwner().getStereotype("GaScenario"), "throughput").collect(t|t.asReal())
+																						.println("THROUGHPUT OF USECASE "+self.getOwner().getOwner().getName()+": ");
+		var mean : Real = getMeanValue(values);//.println("MEAN THROUGHPUT OF USECASE "+self.getOwner().getOwner().getName()+": ");
 		return mean < th_SthReq;
 	}
 	else
