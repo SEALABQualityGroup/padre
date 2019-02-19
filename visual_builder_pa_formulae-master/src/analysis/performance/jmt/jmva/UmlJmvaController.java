@@ -98,8 +98,9 @@ public class UmlJmvaController {
 		//IFile jmtFile = jmvaOutputFolder.getFile("BGCS.xmi");
 		IFile jmtFile = jmvaOutputFolder.getFile(getModelName(modelURI) + ".xmi");
 		IFile tracesFile = tracesOutputFolder.getFile("trace.xml");
-		IFile analysedModel = containerFolder.getFile(getModelName(modelURI)+"."+modelFile.getFileExtension());//"analysed."+modelFile.getFileExtension());
+		//IFile analysedModel = containerFolder.getFile(getModelName(modelURI)+"."+modelFile.getFileExtension());//"analysed."+modelFile.getFileExtension());
 		//IFile analysedModel = perfAnalysisOutputFolder.getFile("analysed."+modelFile.getFileExtension());
+		IFile analysedModel = perfAnalysisOutputFolder.getFile(getModelName(modelURI)+"."+modelFile.getFileExtension());
 		uml2jmt(modelURI, tracesFile, jmtFile);
 		
 		jmvaGenerator(jmvaFile.getLocation(), jmtFile.getLocation());

@@ -172,7 +172,7 @@ public class PadreEVLValidationView extends ValidationView {
 		public void run() {
 			try {
 				AbstractEmfModel model = (AbstractEmfModel) module.getContext().getModelRepository().getModels().get(0);
-				String relative_path = "";
+				String relative_path = "modelChecking";
 				URI newURI = null;
 				//newURI = _store_current_model(model, StringEscapeUtils.escapeXml(relative_path.replace('<', ' ').replace('>', ' ')), true);
 				
@@ -230,6 +230,15 @@ public class PadreEVLValidationView extends ValidationView {
 						controller.roundtripMVA(newURI);
 						System.out.println("Performance analysed!");
 						try {
+							
+							String file_extension = newURI.fileExtension();
+							newURI = newURI.trimFileExtension();
+							String filename = newURI.segment(newURI.segmentCount() - 1);
+							newURI = newURI.trimSegments(1);
+							newURI = newURI.appendSegment("performanceAnalysis");
+							newURI = newURI.appendSegment(filename);
+							newURI = newURI.appendFileExtension(file_extension);
+							
 							((EmfModel)model).setModelFileUri(newURI);
 							((EmfModel)model).loadModelFromUri();
 							
