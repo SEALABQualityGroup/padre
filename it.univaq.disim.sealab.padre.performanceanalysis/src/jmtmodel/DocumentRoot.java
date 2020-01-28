@@ -47,8 +47,8 @@ public interface DocumentRoot extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>XMLNS Prefix Map</b></em>' map.
-	 * The key is of type {@link java.lang.String},
-	 * and the value is of type {@link java.lang.String},
+	 * The key is of type 
+	 * and the value is of type
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>XMLNS Prefix Map</em>' map isn't clear,
@@ -65,8 +65,8 @@ public interface DocumentRoot extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>XSI Schema Location</b></em>' map.
-	 * The key is of type {@link java.lang.String},
-	 * and the value is of type {@link java.lang.String},
+	 * The key is of type 
+	 * and the value is of type 
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>XSI Schema Location</em>' map isn't clear,

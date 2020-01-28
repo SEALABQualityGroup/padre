@@ -5,10 +5,10 @@ Bundle-SymbolicName: org.eclipse.epsilon.evl.dt;singleton:=true
 Bundle-Version: 1.3.0.qualifier
 Bundle-Activator: org.eclipse.epsilon.evl.dt.EvlPlugin
 Bundle-Vendor: Eclipse Modeling Project
-Require-Bundle: org.eclipse.epsilon.eol.dt,
- org.eclipse.epsilon.evl.engine,
- org.eclipse.jface.text,
- org.eclipse.epsilon.common.dt,
+Require-Bundle: org.eclipse.epsilon.eol.dt;bundle-version="1.3.0",
+ org.eclipse.epsilon.evl.engine;bundle-version="1.3.0",
+ org.eclipse.jface.text;bundle-version="3.14.0",
+ org.eclipse.epsilon.common.dt;bundle-version="1.3.0",
  org.apache.commons.lang3;bundle-version="3.1.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.epsilon.evl.dt,

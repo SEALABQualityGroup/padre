@@ -1,8 +1,8 @@
 package it.univaq.disim.sealab.padre.performance.analysis.launching;
 
 import java.io.File;
-import org.w3c.dom.Element;
 import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,9 +12,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.epsilon.eol.tools.ProfilerTool;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -22,8 +22,7 @@ import org.xml.sax.SAXException;
 
 public class JmtModelGenerator {
 
-	public JmtModelGenerator() {
-	}
+	public JmtModelGenerator() {}
 
 	// public static void main(String argv[]) {
 	// JmtModelGenerator g = new JmtModelGenerator();

@@ -746,7 +746,7 @@ operation Node F_maxCpuUtil(th_maxCpuUtil : Real) : Boolean {
 				("self.getNeighboursWithLowCpuUtilization --> " + self.getNeighboursWithLowCpuUtilization(th_maxHwUtil()->third()) ).println();
 			}
 			
-			if ( self.getNeighboursWithLowCpuUtilization(th_maxHwUtil()->third()).isUndefined() and self.getNeighboursWithLowCpuUtilization(th_maxHwUtil()->third()).isEmpty() ){
+			if ( self.getNeighboursWithLowCpuUtilization(th_maxHwUtil()->first()).isUndefined() and self.getNeighboursWithLowCpuUtilization(th_maxHwUtil()->first()).isEmpty() ){
 				return false;			
 			}
 			return true;

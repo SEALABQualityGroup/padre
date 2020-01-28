@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Jdbc
+Bundle-Name: MySQL Jdbc connector
 Bundle-SymbolicName: com.mysql.jdbc
 Bundle-Version: 5.1.21
 Bundle-ClassPath: mysql-connector-java-5.1.21.jar
