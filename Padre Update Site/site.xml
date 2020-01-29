@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/Padre_2.1.0.jar" id="Padre" version="2.1">
-      <category name="Epsilon_tools"/>
+   <feature url="features/it.univaq.disim.sealab.padre_1.0.1.jar" id="it.univaq.disim.sealab.padre" version="1.0.1">
+      <category name="it.univaq.disim.sealab.padre.site"/>
    </feature>
-   <category-def name="Epsilon_tools" label="Epsilon tools"/>
+   <category-def name="it.univaq.disim.sealab.padre.site" label="PADRE - Performance-driven softwAre moDel Refactoring framEwork">
+      <description>
+         PADRE deals with UML models made of the following diagrams: a Component Diagram that describes the software components and their Interfaces/Operations; a Deployment Diagram that describes the allocation of artifacts, corresponding to components, on platform nodes; a Use Case Diagram that describes the actors and the use cases that they can execute; a number of Sequence Diagrams, one for each use case, that describe the system behavior in terms of interactions among components.
+      </description>
+   </category-def>
 </site>

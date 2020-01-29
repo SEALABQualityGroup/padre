@@ -40,8 +40,10 @@ context Operation {
 		check: 
 			not (self.F_probExec() and 
 				self.F_resDemand(th_maxResDemand()) and
-					//(not self.F_T(th_SthReq()) or not self.F_maxHwUtil(th_maxHwUtil()->first()) ))	
-					(self.F_T(th_SthReq()) or self.F_maxHwUtil(th_maxHwUtil()->first()) ))	
+				(Message.all.select(m|m.hasStereotype("GaAcqStep") and m.signature = self).exists(msg|msg.F_T(th_SthReq())) or
+				 self.F_maxHwUtil(th_maxHwUtil()->first()))
+					//(self.F_T(th_SthReq()) or self.F_maxHwUtil(th_maxHwUtil()->first()))
+			)	
 		message : "PaF <Operation> " + self.name
 		fix {
 			title : "Move it to a New Component deployed to a New Node"
@@ -303,7 +305,11 @@ context Component {
 context Operation {
  	critique ExtensiveProcessingAP{
  		check:
- 			not ( self.F_resDemand(th_maxOpResDemand()) and self.F_probExec4EP() and ( self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_RT(th_SrtReq() ) ) ) 
+ 			not ( self.F_resDemand(th_maxOpResDemand()) and self.F_probExec4EP() and 
+ 			(Message.all.select(m|m.hasStereotype("GaAcqStep") and m.signature = self).exists(msg|msg.F_RT(th_SrtReq())) or
+ 			 self.F_maxHwUtil(th_maxHwUtil()->first()))
+ 			) 
+ 			//( self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_RT(th_SrtReq() ) ) ) 
  		message : "EP <Operation> " + self.getName()
  		fix {
 			title : "Move it to a new Component deployed to a new Node"

@@ -12,7 +12,7 @@ operation th_maxMsgs() : Real{
 operation th_numReceivedMsgs() : List(Real){
 	var th_maxReceivedMsgs : List(Real);
 	th_maxReceivedMsgs.add(1.21); // access greenhouse interaction
-	th_maxReceivedMsgs.add(2.64); //change settings 
+	th_maxReceivedMsgs.add(1.64);//2.64); //change settings 
 	return th_maxReceivedMsgs;
 }
 
@@ -24,7 +24,7 @@ operation th_numReceivedMsgs() : List(Real){
 operation th_numSentMsgs() : List(Real){
 	var th_numSentMsgs : List(Real);
 	th_numSentMsgs.add(1.58); // access greenhouse interaction
-	th_numSentMsgs.add(3.53); //change settings 
+	th_numSentMsgs.add(2.53);//3.53); //change settings 
 	return th_numSentMsgs;
 }
 
@@ -57,6 +57,8 @@ operation th_maxExF() : Real{
 
 operation th_maxResDemand() : List(Real){
 	var th_maxResDemand : List( Real ) = new List( Real );
+	th_maxResDemand.add(0.5);
+	th_maxResDemand.add(0.25);
 	th_maxResDemand.add(2557.50); // CPU
 	th_maxResDemand.add(922.50); // I/O
 	return th_maxResDemand;
@@ -92,12 +94,15 @@ operation th_minOpResDemand() : List(Real){
 operation th_maxHwUtil() : Sequence(Real){
 	//Hw Utilization
 	var th_maxHwUtil : Sequence(Real);
-	
+	th_maxHwUtil.add(0.6445); //max
+	th_maxHwUtil.add(0.1548); //min
+	/*
 	th_maxHwUtil.add(0.4619); //all
 	th_maxHwUtil.add(0.2753); //maxCPU
 	th_maxHwUtil.add(0.2052); //minCPU
 	th_maxHwUtil.add(0.6445); //maxDISK
 	th_maxHwUtil.add(0.1548); //minDISK
+*/
 	
 	return th_maxHwUtil;
 }
@@ -114,7 +119,7 @@ operation th_minNetUtil() : Real{
 }
 
 operation th_SrtReq() : Real{	
-	var th_SrtReq : Real = 40.1410; //response time
+	var th_SrtReq : Real = 10.1410; //40.1410; //response time
 	return th_SrtReq;
 }
 
@@ -126,4 +131,9 @@ operation th_SthReq() : Real{
 operation th_maxQL() : Real {
 	var th_maxQL : Real = 1.24; //queue lenght
 	return th_maxQL;
+}
+
+operation th_probExecEp() : Real {
+	var th_probExecEp : Real = 1;
+	return th_probExecEp;
 }
