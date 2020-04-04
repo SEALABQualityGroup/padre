@@ -29,19 +29,32 @@ operation Component cloneRequiredsFrom(component : Component ){
 	}
 }
 
-//OK
+/*
+ * Retrieve component lifelines 	
+ */
+operation UML!Component getLifelines() : List(Lifeline){
+	info("UML!Component getLifelines() : List(Lifeline)");
+	var returnValue : List(Lifeline) = new List (Lifeline);
+	for(lifeline in Lifeline.allInstances){
+		if(lifeline.getInteraction().isDefined() and lifeline.getRepresents().getType() == self){
+			returnValue.add(lifeline);
+		}
+	}
+	log("Lifeline of [" + self.name + "] -> " + returnValue.size());
+	return returnValue;
+}
+
+
+
+
+//recupero le lifeline del component
 operation Component getLifelines() : List(Lifeline){
 	var returnValue : List(Lifeline) = new List (Lifeline);
 	for(lifeline in Lifeline.allInstances){
-		if(lifeline.getInteraction().isDefined())
-			if(lifeline.getRepresents().isDefined()) 
-				if(lifeline.getRepresents().getType().isDefined())
-					if(lifeline.getRepresents().getType().isTypeOf(Artifact) and
-					   lifeline.getRepresents().getType().getManifestedComponents().contains(self)){
-							returnValue.add(lifeline);
+		if(lifeline.getInteraction().isDefined() and lifeline.getRepresents().getType() == self){
+			returnValue.add(lifeline);
 		}
 	}
-	//returnValue.collect(l|l.getRepresents().getType().getManifestedComponents().flatten().collect(c|c.getName())).flatten().println("LIFELINES FOR COMPONENT:" + self.getName() + " ----> ");
 	return returnValue;
 }
 
@@ -128,21 +141,15 @@ operation Component getUsageRelations() : List(Usage){
 	}
 	return returnValue;
 }
-/*
-//recupero la lista degli artifact che manifestano il componente
-operation Component getAllArtifacts() : Sequence(Artifact){
-	var returnValue : Sequence(Artifact) = new Sequence(Artifact);
-	for(manifestation in Manifestation.allInstances){
-		if(manifestation.hasUtilizedElement(self)){
-			returnValue.addAll(manifestation.utilizedElement);
-		}
-	}
-	return returnValue;
-	
-}*/
 
+/*
+ * Retrive artifacts that manifests the self component
+ */
 operation Component getAllArtifacts() : Sequence(Artifact){
-	return Artifact.allInstances().select(a|a.manifestation.utilizedElement=self);
+	info("Component getAllArtifacts() : Sequence(Artifact)");
+	log("Number of Artifacts of [" + self.name + "] --> [" + Artifact.allInstances().select(a|a.manifestation.utilizedElement.contains(self)).size() +"]");
+
+	return Artifact.allInstances().select(a|a.manifestation.utilizedElement.contains(self));
 }
 
 //recupero tutte le properties relative al componente negli interaction
@@ -173,10 +180,11 @@ operation Component getManifestations() : List(Manifestation){
 
 
 operation Component getNodes() : List(Node){
+	info("Component getNodes() : List(Node)");
 	var returnValue : List(Node) = new List(Node);
 	for (artifact in self.getAllArtifacts()){
 		for(node in Node.allInstances){
-			if( node.hasDeployment(artifact)) { //and node.notLegacy()){
+			if( node.hasDeployment(artifact)) {
 				returnValue.add(node);
 			}
 		}
@@ -419,51 +427,20 @@ operation Component getSendingMessages() : Integer{
 	}
 }
 
-// OK BUT TO REVISE
-operation Component getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : List(Real)) : Map{
-	var returnValue : Map(Interaction, Lifeline) = new Map();
-	var lifelines = self.getLifelines(); //OK
+/*
+	If a component receives a lot of calls, it might be a Blob Container AP 
+*/
+operation UML!Component getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : List(Real)) : Sequence(Lifeline){
+	info("UML!Component getCriticalLifeline4BlobContainerAP");
+	var returnValue : Sequence(Lifeline) = new Sequence(Lifeline);
+	var lifelines = self.getLifelines();
 	
 	for(lf in lifelines){
-		var mapOfInteracationAndIncomingMsgs = lf.getIncomingMessages(); //OK - returns a Map(interaction, seq of Mes)
-		var incomingMsgsProbability = 0.0;
-		if(debug()){
-			("number of incomingMsgs of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getIncomingMessages().size()).println();
+		var beses = lf.getBESes();
+		if(beses.size() >= th_numReceivedMsgs->first()){
+			returnValue.add(lf);
 		}
-		
-		for(int in mapOfInteracationAndIncomingMsgs.keySet()){
-			for(mes in mapOfInteracationAndIncomingMsgs.get(int)){
-				incomingMsgsProbability = incomingMsgsProbability.asReal() + mes.getMsgProb();//mes.getReceiveEvent().getProbabilityOf();
-			}
-			switch (int.getName()) {
-				case "Access greenhouse" : 
-					if(incomingMsgsProbability >= th_numReceivedMsgs->first())
-						returnValue.put(int,lf);
-				case "Change settings sequence" : 
-					if(incomingMsgsProbability >= th_numReceivedMsgs->second())
-						returnValue.put(int,lf);
-				default : showError("Method: getCriticalLifeline4BlobContainerAP in component.eol"); 
-			}
-			//if(incomingMsgsProbability >= th_numReceivedMsgs)
-			//returnValue.put(int,lf);
-		}
-		
-		/*for(mes in incomingMsgs){
-			if(debug()){
-				if(mes.getSignature().isDefined())
-					("mes ["+mes.getSignature().getName()+"] of ["+lf.getName()+"] in ["+lf.getInteraction().getName()+"]").println();
-			}
-			incomingMsgsProbability = incomingMsgsProbability + mes.getReceiveEvent().getProbabilityOf();
-		}*/
-		
-		if(debug()){
-			("incomingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+incomingMsgsProbability).println();
-		}
-		
-		/*if(incomingMsgsProbability >= th_numReceivedMsgs)
-			returnValue.add(lf);*/
 	}
-	
 	return returnValue;
 }
 
@@ -546,7 +523,9 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 	return returnValue;
 }*/
 
-operation Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node){
+operation UML!Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node){
+	info("UML!Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node)");
+	log("Number of nodes of [" + self.name + "] with utilization >= " + th_maxHwUtil + " --> [" + self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil).size +"]");
 	return self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil);
 }
 
@@ -602,14 +581,7 @@ operation Component getOperationsWithCpuResDemandGreaterOrEqual(th_maxResDemand 
 	var returnValue : List(Operation) = new List(Operation);
 	for(op in listOfOperations){
 		if(op.hasStereotype("GaStep")){
-			if(debug()){
-				("operation ["+op.getName()+"] with GaStep").println();
-			}
 			if( op.F_resDemandCpuGreaterOrEqualThan(th_maxResDemand->first()) ){
-				if(debug()){
-					("adding operation in returnValue").println();
-					("operation of ["+self.getName()+"] --> "+op).println();
-				}	
 				returnValue.add(op);
 			}
 		}
@@ -1046,7 +1018,7 @@ operation Map getMostUsed() : Map {
 
 operation Component reduceNumberOfSupplierConnects(th_maxConnects : Real) : Boolean{
 	
-	("reduce number of Supplier connects of --> "+self.getName()).println();
+	log("reduce number of Supplier connects of --> "+self.getName());
 	
 	var listOfOperations = self.getOperations();
 	

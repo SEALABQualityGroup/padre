@@ -111,7 +111,7 @@ operation Operation splitClass() : Class{
 operation Operation getAllOwnMessages() : List(Message){
 	var returnValue : List(Message) = new List(Message);
 	for(message in Message.allInstances){
-		if(message.hasStereotype("GaAcqStep") and message.getSignature() == self){
+		if(message.hasStereotype("GaStep") and message.getSignature() == self){
 			returnValue.add(message);
 		}
 	}
@@ -1277,6 +1277,7 @@ operation getOperationWithResDemanLesser(th_minResDemand : List(Real)) : List(Op
 }
 
 operation Operation retrieveOperation() : Operation{
+	info("Operation retrieveOperation() : Operation");
 	var listOfIntOperands = self.getOwnerInteractionOperands();
 	if(listOfIntOperands.isEmpty())
 		return null; 
@@ -1301,11 +1302,6 @@ operation Operation retrieveOperation() : Operation{
 					){
 						//iterator.F_resDemandLesserThan(th_minOpResDemand())).notEmpty()){
 						//return listOfOpsWithGaStep->selectOne(iterator : Operation | iterator.F_resDemandLesserThan(th_minOpResDemand()));
-						if(debug()){
-							"************** DEBUG ******************".println();
-							("listOfOpsWithGaStep->first() --> "+ listOfOpsWithGaStep->first()).println();
-							"************** DEBUG ******************".println();
-						}
 						return listOfOpsWithGaStep->first();
 					}
 				}
@@ -1320,7 +1316,7 @@ operation Operation getAverageDemand() : Real {
 	var servCount = self.getTag("GaStep", "servCount");
 	var maxDemands = self.getMaxDemands();
 	if(servCount.isUndefined() or servCount.isEmpty() ){
-		("the operation "+ self.getName() +" hasn't got any service demand").println();
+		showError("the operation "+ self.getName() +" hasn't got any service demand");
 		showError("Method: getAverageDemand() in operation.eol");
 		return 0.0;
 	}

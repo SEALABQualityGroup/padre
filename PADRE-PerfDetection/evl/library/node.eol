@@ -245,17 +245,18 @@ operation Node getArtifactOf(component : Component) : Artifact{
 /*****************************************************************
  *							WARNING								 *
  *****************************************************************/
-operation Node getUtilization() : Real{
+operation UML!Node getUtilization() : Real{
+	info("UML!Node getUtilization() : Real");
 	var utilization : Real;
 	if(self.hasStereotype("GaExecHost")){
 		var selfUtilization = self.getTag("GaExecHost", "utilization");
+		log("Utilzation of [" + self.name + "] --> [" + selfUtilization.asString() + "]");
 		if(selfUtilization.isDefined() and not selfUtilization.isEmpty()){
 			return selfUtilization->first().asReal();
 		}else{
 			var artifacts = self.getArtifact();
 			if(artifacts.isEmpty()){
-				("the node ["+ self.getName() + "] does not manifest any artifact").println();
-				showError("Method: getUtilization() in node.eol");
+				showError("the node ["+ self.getName() + "] does not manifest any artifact");
 				return null;
 			}else{
 				for(art in artifacts){

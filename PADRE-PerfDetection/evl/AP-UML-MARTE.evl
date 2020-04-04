@@ -1,8 +1,5 @@
 import "metric_functions.eol";
-import "thresholds_BGCS.eol";
-//import "thresholds_BGCS_1.eol";
-//import "thresholds_BGCS_2.eol";
-//import "thresholds_FTA.eol";
+import "thresholds_Trainticket.eol";
 
 //libraries
 import "library/artifact.eol";
@@ -35,15 +32,11 @@ import "library/HELPER.eol";
  *										reviewed											 *
  *********************************************************************************************/
 
-context Operation {
+context UML!Operation {
 	critique PaF {
 		check: 
-			not (self.F_probExec() and 
-				self.F_resDemand(th_maxResDemand()) and
-				(Message.all.select(m|m.hasStereotype("GaAcqStep") and m.signature = self).exists(msg|msg.F_T(th_SthReq())) or
-				 self.F_maxHwUtil(th_maxHwUtil()->first()))
-					//(self.F_T(th_SthReq()) or self.F_maxHwUtil(th_maxHwUtil()->first()))
-			)	
+			not (self.F_probExec() and 	self.F_resDemand(th_maxResDemand()) and
+					(not self.F_T(th_SthReq()) or not self.F_maxHwUtil(th_maxHwUtil()) )) 
 		message : "PaF <Operation> " + self.name
 		fix {
 			title : "Move it to a New Component deployed to a New Node"
@@ -149,7 +142,7 @@ context Node {
 		}
 	}
 }*/
-
+/*
 context Node {
 	critique CPS {
 		check: 
@@ -219,6 +212,7 @@ context Node {
 		}
 	}
 }
+*/
 /*
 context Node {
 	critique CPS_DISK {
@@ -266,7 +260,6 @@ context Node {
  *										reviewed											 *
  *********************************************************************************************/
 
-/*
 context Component {
  	critique ExtensiveProcessingAP{
  		check:
@@ -300,49 +293,6 @@ context Component {
 			}
 		}
  	}
-}*/
-
-context Operation {
- 	critique ExtensiveProcessingAP{
- 		check:
- 			not ( self.F_resDemand(th_maxOpResDemand()) and self.F_probExec4EP() and 
- 			(Message.all.select(m|m.hasStereotype("GaAcqStep") and m.signature = self).exists(msg|msg.F_RT(th_SrtReq())) or
- 			 self.F_maxHwUtil(th_maxHwUtil()->first()))
- 			) 
- 			//( self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_RT(th_SrtReq() ) ) ) 
- 		message : "EP <Operation> " + self.getName()
- 		fix {
-			title : "Move it to a new Component deployed to a new Node"
-			
-			do {
-				self.moveToNewComponentDeployedOnNewNode(); 
-			}
-		}
-		fix{
-			title : "Move it to a new Component deployed to the less used neighbour Node"
-			do{
-				self.moveToNewComponentDeployedOnNearLessUsedNode();
-			}
-		}
-		fix{
-			title : "Redeploy its owning Component "+self.name+" to the less used neighbour Node"
-			do{
-				self.redeployOnNearLessUsedNode();
-			}
-		}
-		fix{
-			title : "Change its owning Component from "+self.name+" to the one with the lowest demand"
-			do{
-				self.moveToLessCriticalComponent();
-			}
-		}
-		fix{
-			title : "Deploy its owning Component to new Node"
-			do{
-				self.moveToNewNode();
-			}
-		}
- 	}
 }
 
 /*********************************************************************************************
@@ -351,17 +301,13 @@ context Operation {
  *							Antipattern Detection and Validation							 *
  *										reviewed 											 *
  *********************************************************************************************/
-
-
-context Component {
-	critique Blob{
+context UML!Component {
+	critique Blob_DataContainer{
 		check:
-			not(( self.F_numClientConnects(th_maxClientConnects()) and self.F_numMsgsOut(th_numSentMsgs()) and 
-				(self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_maxNetUtil(th_maxNetUtil())) ) or
-				( self.F_numSupplierConnects(th_maxSupplierConnects()) and self.F_numMsgsIn(th_numReceivedMsgs()) and 
+			not((self.F_numSupplierConnects(th_maxSupplierConnects()) and self.F_numMsgsIn(th_numReceivedMsgs()) and 
 				(self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_maxNetUtil(th_maxNetUtil())) )
 			)
-		message : "Blob " + self.getName()
+		message : "Blob Container <" + self.type.name + "> " + self.getName()
 		fix {
 			title : "Move its critical operation to a New Component deployed to a New Node"
 			
@@ -406,27 +352,37 @@ context Component {
 			}
 		}
 		fix {
-			title: "Reduce its Client Connects"
-			do {log("--------------");
+			title: "Reduce Supplier Connects of "+ self.getName()
+			do{
+				log("--------------");
 				log("pattern Blob");
 				log("reduceUsaged on");
 				log("self --> "+self.getName());
-				self.reduceNumberOfClientConnects(th_maxClientConnects());
+				self.reduceNumberOfSupplierConnects(th_maxSupplierConnects());
+			}
+		}
+		
+		fix {
+			title: "Reduce its Supplier Connects"
+			do {
+				log("--------------");
+				log("pattern Blob");
+				log("reduceProvided on");
+				log("self --> "+self.getName());
+				self.reduceNumberOfSupplierConnects(th_maxSupplierConnects());
 				log("--------------");
 				log("");
 			}
 		}
 	}
 }
+
 /*
 context Component {
-	critique Blob_dataContainer {
+	critique Blob_DataController {
 		check {
-			if( self.F_numSupplierConnects(th_maxSupplierConnects()) and self.F_numMsgsIn(th_numReceivedMsgs()) and 
-				( self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_maxNetUtil(th_maxNetUtil()) )
-			)
-				return false;
-			return true;
+			not( self.F_numClientConnects(th_maxClientConnects()) and self.F_numMsgsOut(th_numSentMsgs()) and 
+				(self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_maxNetUtil(th_maxNetUtil())) )
 		}
 		message : "Blob Container <" + self.type.name + "> " + self.getName()
 		fix {
@@ -461,9 +417,9 @@ context Component {
 			}
 		}
 		fix {
-			title: "Reduce Supplier Connects of "+ self.getName()
+			title: "Reduce Client Connects of "+ self.getName()
 			do{
-				self.reduceNumberOfSupplierConnects(th_maxSupplierConnects());
+				self.reduceNumberOfClientConnects(th_maxClientConnects());
 			}
 		}
 	}
@@ -477,7 +433,7 @@ context Component {
  *										reviewed											 *
  *********************************************************************************************/
  
- 
+/* 
 context Component {
  	critique EmptySemiTruck{
  		check{
@@ -495,7 +451,7 @@ context Component {
 		}
  	}
 }
-
+*/
 
 /*********************************************************************************************
  *																							 *

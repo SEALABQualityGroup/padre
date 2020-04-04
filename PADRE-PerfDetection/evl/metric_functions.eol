@@ -10,20 +10,19 @@ operation Message F_probExec() : Boolean{
 		
 		if(not self.hasStereotype("GaStep") and not self.hasStereotype("GaAcqStep"))
 			return false;
-		if(intOperand.isUndefined() or (intOperand.isDefined() and not intOperand.isTypeOf(InteractionOperand))){
+		if(intOperand.isUndefined() or (intOperand.isDefined() and not intOperand.isTypeOf(InteractionOperand)))
 			return true; //probalita' uguale ad 1
-		}else{
-			if(intOperand.hasStereotype("GaStep")){
-				if(intOperand.getValue(intOperand.getStereotype("GaStep"), "prob").isDefined() and intOperand.getValue().asReal == 1.0){
-					return true; //probabilita' uguale a 1
-				}
+		if(intOperand.hasStereotype("GaStep")){
+			if(intOperand.getValue(intOperand.getStereotype("GaStep"), "prob").isDefined() and intOperand.getValue().asReal == 1.0){
+				return true; //probabilita' uguale a 1
 			}
 		}
 	}
 	return false;
 }
 
-operation Operation F_probExec() : Boolean{
+operation UML!Operation F_probExec() : Boolean{
+	
 	var listOfMes = self.getAllOwnMessages();
 	var listOfIntOperands = self.getOwnerInteractionOperands();
 	
@@ -44,10 +43,11 @@ operation Operation F_probExec() : Boolean{
 	return false;
 }
 
-operation Operation F_probExec4EP() : Boolean{
+operation UML!Operation F_probExec4EP() : Boolean{
+	info("UML!Operation F_probExec4EP() : Boolean");
+	
 	if(not self.hasStereotype("GaStep"))
 		return false;
-	
 	
 	var listOfMes = self.getAllOwnMessages();
 
@@ -55,6 +55,7 @@ operation Operation F_probExec4EP() : Boolean{
 		return false;
 		
 	if(self.retrieveOperation().isDefined()){
+		log("Number of messages of [" + self.owner.name + "] --> [" + self.retrieveOperation().size()+"]");
 		return true;
 	}
 	else{
@@ -89,108 +90,43 @@ operation Component F_probExec() : Boolean {
 	return false;
 }
 
-
-
-//OK BUT
-operation Artifact F_numClientConnects(th_numClientConnects : Real) : Boolean{
-	if(debug()){
-		("number of Client Connects of Artifact ["+self.getName()+"] --> "+self.getManifestedComponents().first().getRequireds().size()).println();
-	}
-	if(self.getManifestedComponents().isDefined() and self.getManifestedComponents().notEmpty()){
-	   	if(self.getManifestedComponents().first().getRequireds().size().asReal() >= th_numClientConnects){//.println("th_numClientConnects: ")){
-			return true;
-		}
-	}
-	return false;
-}
-
-//OK
-operation Artifact F_numSupplierConnects(th_numSupplierConnects : Real) : Boolean{
-	if(debug()){
-		("number of Supplier Connects of Artifact ["+self.getName()+"] --> "+self.getManifestedComponents().first().getProvideds().size()).println();
-	}
-	if(self.getManifestedComponents().isDefined() and self.getManifestedComponents().notEmpty()){
-		if(self.getManifestedComponents().first().getProvideds().size().asReal() >= th_numSupplierConnects){//.println("th_numSupplierConnects: ")){
-			return true;
-		}
-	}
-	return false;
-}
-
-// OK BUT TO REVISE
-operation Artifact F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
-	if(debug()){
-		self.getName().println();
-		("getCriticalLifeline4BlobContainerAP --> "+self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs)).println();
-	}
-	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and not self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isEmpty())
-		return true;
-	return false;
-}
-
-// OK BUT TO REVISE
-operation Artifact F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
-	if(debug()){
-		self.getName().println();
-		("getCriticalLifeline4BlobControllerAP --> "+self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs)).println();
-	}
-	if(self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isDefined() and not self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isEmpty()){
-		return true;
-	}
-	return false;
-}
-
-
-
-
-
-//OK BUT
-operation Component F_numClientConnects(th_numClientConnects : Real) : Boolean{
-	if(debug()){
-		("number of Client Connects of ["+self.getName()+"] --> "+self.getRequireds().size()).println();
-	}
+operation UML!Component F_numClientConnects(th_numClientConnects : Real) : Boolean{
+	("F_numClientConnects of [" + self.name + "] --> " + self.getRequireds().size()).println();
+	
 	//if(not self.hasStereotype("PaRunTInstance")) 
 	//	return false;
-   	if(self.getRequireds().size().asReal() >= th_numClientConnects){//.println("th_numClientConnects: ")){
+   	
+   	if(self.getRequireds().size().asReal() >= th_numClientConnects){
 		return true;
 	}
+	
 	return false;
 }
 
-// OK BUT TO REVISE
-operation Component F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
-	if(debug()){
-		self.getName().println();
-		("getCriticalLifeline4BlobContainerAP --> "+self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs)).println();
-	}
+operation UML!Component F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
+	log("F_numMsgsIn of [" + self.name + "]--> " + self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).size());
+
 	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and not self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isEmpty())
 		return true;
 	return false;
 }
 
-
-// OK BUT TO REVISE
-operation Component F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
-	if(debug()){
-		self.getName().println();
-		("getCriticalLifeline4BlobControllerAP --> "+self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs)).println();
-	}
-	if(self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isDefined() and not self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isEmpty()){
+operation UML!Component F_numMsgsOut(th_numSentMsgs : List(Real)) : Boolean{
+	log("F_numMsgsOut of [" + self.name + "]--> " + self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs));
+	
+	if(self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isDefined() and not self.getCriticalLifeline4BlobControllerAP(th_numSentMsgs).isEmpty())
 		return true;
-	}
 	return false;
 }
 
-
-//OK
-operation Component F_numSupplierConnects(th_numSupplierConnects : Real) : Boolean{
-	if(debug()){
-		("number of Supplier Connects of ["+self.getName()+"] --> "+self.getProvideds().size()).println();
-	}
+operation UML!Component F_numSupplierConnects(th_numSupplierConnects : Real) : Boolean{
+	log("F_numSupplierConnects of [" + self.name + "] --> " + self.getProvideds().size());
+	
 	//if(not self.hasStereotype("PaRunTInstance")){
 	//	return false;
 	//}
-	if(self.getProvideds().size().asReal() >= th_numSupplierConnects){//.println("th_numSupplierConnects: ")){
+	
+	if(self.getProvideds().size().asReal() >= th_numSupplierConnects){
 		return true;
 	}
 	return false;
@@ -419,7 +355,8 @@ operation Operation F_resDemandLesserThan( th_minResDemand : List(Real) ) : Bool
 	return turnback;	
 }
 
-operation Operation F_resDemand(th_maxResDemand : List(Real)) : Boolean{
+operation UML!Operation F_resDemand(th_maxResDemand : List(Real)) : Boolean{
+	info("UML!Operation F_resDemand(th_maxResDemand : List(Real)) : Boolean");
 	var turnback : Boolean = false;
 	
 	if(not self.hasStereotype("GaStep"))
@@ -432,7 +369,6 @@ operation Operation F_resDemand(th_maxResDemand : List(Real)) : Boolean{
 		turnback = false;
 	}else{
 		for(demand in servCount){
-			
 			if(demand.asReal() >= th_maxResDemand.at(i) ){ //al primo demand non > della soglia relativa ritorna true
 				turnback = true;
 				break;
@@ -462,9 +398,27 @@ operation Message F_resDemand(th_maxResDemand : Real) : Boolean{
 	return turnback;	
 }
 
-operation Message F_resDemand(th_maxResDemand : Real, operator : String) : Boolean{
-	if(self.hasStereotype('GaAcqStep') ){
-		var resDemand = self.getValue(self.getStereotype("GaAcqStep"), "servCount");
+operation UML!Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDemand : List( Real )) : Boolean{
+	info("UML!Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDemand : List( Real )) : Boolean");
+	/*if(not self.hasStereotype("PaRunTInstance") ) 
+		return false;*/
+		
+	var opHeavy = self.getOperationsWithResDemandGreaterOrEqual(th_maxOpResDemand);
+	var opLightweight = self.getOperationsWithResDemandLesserThan(th_minResDemand);
+	
+	log("F_resDemand of [" + self.name + "]-> opHeavy: [" + opHeavy.size() + "]  and opLightweight [" + opLightweight.size() + "]");
+	
+	//ho almeno un'operazione con un utilizzazione maggiore ed una con un'utilizzazione minore
+	//delle threshold
+	if(not opHeavy.isEmpty() and not opLightweight.isEmpty()){
+		return true;
+	}
+	return false;
+}
+
+operation UML!Message F_resDemand(th_maxResDemand : Real, operator : String) : Boolean{
+	if(self.hasStereotype('GaStep') ){
+		var resDemand = self.getValue(self.getStereotype("GaStep"), "servCount");
 		if( resDemand.isDefined()) {
 			for(demand in resDemand){
 				if(operator.equals("geq")) {
@@ -519,25 +473,26 @@ operation Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDeman
 }
 
 operation Operation F_T(th_SthReq : Real) : Boolean{
-	
-	var listOfUseCases : List(UseCase) = self.getUseCases().println("USECASES WITH OPERATION " + self + ": "); 
-	var listOfUseCaseWithThroughputLessThanThreshold : List(UseCase) = new List(UseCase);
+	info("Operation F_T(th_SthReq : Real) : Boolean");
+	var listOfUseCases : List(UseCase) = self.getUseCases(); 
 	if(listOfUseCases.isEmpty()){
 		return false; 
 	}
+	var listOfUseCaseWithThroughputLessThanThreshold : List(UseCase) = new List(UseCase);
 	for(useCase in listOfUseCases){
 		
 		if(useCase.hasStereotype('GaScenario')){
-			var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();//.println("THROUGHPUT OF USECASE "+useCase.getName()+": ");
+			var throughput = useCase.getValue(useCase.getStereotype('GaScenario'), "throughput")->first();
 			if(throughput.isDefined() and throughput.asReal() < th_SthReq){
 				listOfUseCaseWithThroughputLessThanThreshold.add(useCase);
 			}
 		}
 	}
-	
+	log("F_T of [" + self.name + "] with throughput less than [" + th_SthReq +"] --> [" + listOfUseCaseWithThroughputLessThanThreshold.size() + "]");
 	return listOfUseCaseWithThroughputLessThanThreshold.notEmpty();
 }
 
+/*
 operation Message F_T() : Boolean{
 	var th_SthReq = 0.9; //throughput
 	var useCase : UseCase = self.getUseCase();
@@ -581,7 +536,7 @@ operation Operation F_T() : Boolean{
 		}
 	}
 	return listOfUseCaseWithThroughputLessThanThreshold.isEmpty();
-}
+}*/
 
 /*
 operation Message F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
@@ -607,99 +562,31 @@ operation Message F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean{
 	} return false;
 }
 
-operation Operation F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean{
+operation UML!Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	
 	var listOfProcessNode : List(Node) = new List(Node);
-	
-	listOfProcessNode = self.getProcessNodes();
-	
+		
 	if(listOfProcessNode.isEmpty()){
 		return false; //non ci sono nodi con lo stereotipo giusto o la classe non è deployata
 	}	
-	var listOfProcessNodeWithUtilizationOvercoming : List(Node) = new List(Node);
-	
-	for(node in listOfProcessNode){
-		if(node.hasStereotype('GaExecHost') ){
-			var utilization = node.getMaxUtilization();//node.getValue(node.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+node.getName()+": ");
-			if( utilization.isDefined()) {
-				if(operator.equals("geq")) {
-					if(utilization.asReal() >= th_maxHwUtil )
-						listOfProcessNodeWithUtilizationOvercoming.add(node);
-				} else if(operator.equals("leq")) {
-					if(utilization.asReal() <= th_maxHwUtil )
-						listOfProcessNodeWithUtilizationOvercoming.add(node);
-				}
-			}
-		}
-	}
-	return listOfProcessNodeWithUtilizationOvercoming.notEmpty();
-}
-
-/*
-operation Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	
-	var listOfProcessNode : List(Node) = new List(Node);
-	
-	listOfProcessNode = self.getProcessNodes();
-	
-	if(listOfProcessNode.isEmpty()){
-		return false; //non ci sono nodi con lo stereotipo giusto o la classe non è deployata
-	}	
-	var listOfProcessNodeWithUtilizationGreater : List(Node) = new List(Node);
-	
-	for(node in listOfProcessNode){
-		if(node.hasStereotype('GaExecHost') ){
-			var utilization = node.getMaxUtilization();//node.getValue(node.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+node.getName()+": ");
-			if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
-				listOfProcessNodeWithUtilizationGreater.add(node);
-			}
-		}
-	}
-	return listOfProcessNodeWithUtilizationGreater.notEmpty();
-}*/
-
-/*
-operation Operation F_maxHwUtil() : Boolean{
-	var th_maxHwUtil : Real = 0.85;
-	var listOfProcessNode : List(Node) = new List(Node);
-	
-	listOfProcessNode = self.getProcessNodes();
-	
 	var listOfProcessNodeWithUtilizationGreater : List(Node) = new List(Node);
 	
 	for(node in listOfProcessNode){
 		if(node.hasStereotype('GaExecHost') ){
 			var utilization = node.getValue(node.getStereotype('GaExecHost'), 'utilization')->first();
-			if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
+	 		if( utilization.isDefined() and utilization.asReal() >= th_maxHwUtil ){
 				listOfProcessNodeWithUtilizationGreater.add(node);
 			}
 		}
 	}
-	return listOfProcessNodeWithUtilizationGreater.isEmpty();
-}*/
-
-
-
-operation Artifact F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean {
-	var criticalDev = self.getCriticalDeploymentDevice();//.println("\tCRITICAL DEV: ");
-	if(criticalDev.isDefined()) {
-		//criticalDev.getName().println("CRITICAL DEV FOR Artifact " + self.getName() + ": ");
-		var utilization = criticalDev.getMaxUtilization();
-		if( utilization.isDefined()) {
-			if(operator.equals("geq")) {
-				if(utilization.asReal() >= th_maxHwUtil )
-					return true;
-			} else if(operator.equals("leq")) {
-				if(utilization.asReal() <= th_maxHwUtil )
-					return true;
-			} else
-				return false;
-		} else
-			return false;
-	}
-	return false;
+	return not listOfProcessNodeWithUtilizationGreater.isEmpty().println();
 }
 
+operation UML!Component F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
+	if(not self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).isEmpty())
+		return true;
+	return false;	
+}
 
 
 operation Device F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean {

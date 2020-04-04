@@ -91,9 +91,7 @@ operation Artifact getLifelines() : List(Lifeline){
 	return returnValue;
 }
 
-
-
-// OK BUT TO REVISE
+/*
 operation Artifact getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : List(Real)) : Map{
 	var returnValue : Map(Interaction, Lifeline) = new Map();
 	var lifelines = self.getLifelines();//.println("LIFELINES: "); //OK
@@ -125,7 +123,7 @@ operation Artifact getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs : List
 	}
 	
 	return returnValue;
-}
+}*/
 
 // OK BUT TO REVISE
 operation Artifact getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(Real)) : Map{

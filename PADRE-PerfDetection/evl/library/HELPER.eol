@@ -160,6 +160,10 @@ operation debug() : Boolean{
 	return false;
 }
 
+operation info(message : String){
+	if(debug())
+		message.println();
+} 
 
 operation log(string : String){
 	string.println();
