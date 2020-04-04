@@ -16,3 +16,5 @@ github:
 
 plugins:
   - jekyll-relative-links
+  
+markdown: kramdown
