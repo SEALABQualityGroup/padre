@@ -1,0 +1,3641 @@
+/*
+post end {
+	for (t in constraintTrace.iterator()) {
+		if(not t.isResult()) 
+			("Constraint " + t.getConstraint() + " on Object " + t.getInstance().getName() + " of type " + t.getInstance().type.getName() + ": " + t.isResult()).println();
+    }
+}
+*/
+
+context Model {
+
+	guard: 
+		self.name.isDefined() and not self.name.equals("") and (not self.name.contains("Type") or self.name.contains("type"))
+	
+		/*
+	constraint NonAnalyzedModel {
+		check:
+			(not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "throughput").isUndefined()) and
+			 not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "throughput").isEmpty())) and
+			(not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "respT").isUndefined()) and
+			 not self.getGaScenarios().exists(uc|uc.getValue(uc.getStereotype("GaScenario"), "respT").isEmpty())) and
+			(not self.getGaExecHosts().exists(d|d.getValue(d.getStereotype("GaExecHost"), "utilization").isUndefined()) and
+			 not self.getGaExecHosts().exists(d|d.getValue(d.getStereotype("GaExecHost"), "utilization").isEmpty()))
+		message : "Model performance have not been assessed"
+		fix {
+			title : "Analyze Performance with JMVA"
+			do {
+				var uri = self.getModel().eResource().uri.println("MODEL URI:");
+				var t = new Native("analysis.performance.jmt.jmva.UmlJmvaController");
+				t.roundtripMVA(uri);
+			}
+		}
+	}*/
+		
+		
+	// DONE
+	constraint UnnamedModel {
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed Model"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name manually (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+	
+	// DONE
+	constraint NoDevices {
+		check: 
+			Device.allInstances().notEmpty()	
+		message : "No Devices have been specified"
+		fix {
+			title : "Randomly create new GaExecHosts"
+			do {
+				var n : Integer = getRandomPositiveLimitedInt(10);
+				self.createRandomGaExecHosts(n);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Create new GaExecHosts with default values (opens a dialog)"
+			do {/*
+				var howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+				while(not howMany.isInteger()) {
+					while(howMany.asInteger()<=0) {
+						howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+					}
+				}
+				self.createDefaultGaExecHosts(howMany.asInteger());*/
+				var howMany : Integer = askForPositiveInt("Specify the number of GaExecHosts to create");
+				self.createDefaultGaExecHosts(howMany);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Create new GaExecHosts manually (opens dialogs)"
+			do {/*
+				var howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+				while(not howMany.isInteger()) {
+					while(howMany.asInteger()<=0) {
+						howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+					}
+				}
+				self.createGaExecHostsManually(howMany.asInteger());*/
+				var howMany : Integer = askForPositiveInt("Specify the number of GaExecHosts to create");
+				self.createGaExecHostsManually(howMany);
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE (we might add semi-automated and manual actions for GaAcqSteps creation, but it could be tedious)
+	constraint NoUseCases {
+		check: 
+			UseCase.allInstances().notEmpty()
+		message : "No UseCases have been specified"
+		fix {
+			guard : 
+				self.satisfies("NoDevices")
+			title : "Randomly create new GaUseCases"
+			do {
+				var n : Integer = getRandomPositiveLimitedInt(10);
+				self.createRandomGaUseCases(n);
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE (we might add semi-automated and manual actions for GaAcqSteps creation, but it could be tedious)
+	constraint NoMessages {
+		check: 
+			Message.allInstances().notEmpty()	
+		message : "No Messages have been specified"
+		fix {
+			guard : 
+				self.satisfies("NoDevices") and self.satisfies("NoUseCases")
+			title : "Randomly create new GaAcqSteps within existing GaUseCases"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances();
+				for(uc : UseCase in useCases) {
+					var numMsgs : Integer = getRandomPositiveLimitedInt(30);
+					uc.createRandomGaAcqSteps(numMsgs);
+					resetOutPerfValues();
+				}
+			}
+		}
+	}
+	
+	
+	// DONE
+	constraint NoGaExecHosts {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaExecHosts().notEmpty()	
+		message : "No GaExecHosts Devices have been specified"
+		fix {
+			guard: 
+				Device.allInstances().notEmpty()
+			title : "Add GaExecHost with random values to all Devices"
+			do {
+				var devices : Sequence(Device) = Device.allInstances();
+				for(d : Device in devices) {
+					d.setRandoms();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				Device.allInstances().notEmpty()
+			title : "Add GaExecHost with default values to all Devices"
+			do {
+				var devices : Sequence(Device) = Device.allInstances();
+				for(d : Device in devices) {
+					d.setDefaults();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Randomly create new GaExecHosts"
+			do {
+				var n : Integer = getRandomPositiveLimitedInt(10);
+				self.createRandomGaExecHosts(n);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Create new GaExecHosts with default values (opens a dialog)"
+			do {/*
+				var howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+				while(not howMany.isInteger()) {
+					while(howMany.asInteger()<=0) {
+						howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+					}
+				}
+				self.createDefaultGaExecHosts(howMany.asInteger());*/
+				var howMany = askForPositiveInt("Specify the number of GaExecHosts to create");
+				self.createDefaultGaExecHosts(howMany);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				Device.allInstances().select(d|d.name.isDefined() and not d.hasStereotype('GaExecHost')).notEmpty()
+			title : "Select GaExecHosts manually (opens dialogs)"
+			do {
+				var devices : Sequence(Device) = Device.allInstances().select(d|d.name.isDefined() and not d.hasStereotype('GaExecHost'));
+				var devicesNames : Sequence(String) = devices.collect(d|d.name);
+				var choices : Sequence = UserInput.chooseMany("Select GaExecHosts", devicesNames);
+				for(dName : String in choices) {
+					var d : Device = devices.select(u|u.name=dName).first();
+					d.setGaExecHostManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Create new GaExecHosts manually (opens dialogs)"
+			do {/*
+				var howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+				while(not howMany.isInteger()) {
+					while(howMany.asInteger()<=0) {
+						howMany = UserInput.prompt("Specify the number of GaExecHosts to create", "1");
+					}
+				}
+				self.createGaExecHostsManually(howMany.asInteger());*/
+				var howMany = askForPositiveInt("Specify the number of GaExecHosts to create");
+				self.createGaExecHostsManually(howMany);
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	constraint NoGaScenarios {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaScenarios().notEmpty()	
+		message : "No GaScenarios UseCases have been specified"
+		fix {
+			title : "Randomly create new GaUseCases"
+			do {
+				var n : Integer = getRandomPositiveLimitedInt(10);
+				self.createRandomGaUseCases(n);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard :
+				UseCase.allInstances().notEmpty()
+			title : "Add GaScenario and GaWorkloadEvent to all UseCases and use default values"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances();
+				for(uc : UseCase in useCases) {
+					uc.setDefaults();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard :
+				UseCase.allInstances().select(u|u.hasStereotype('GaWorkloadEvent')).notEmpty()
+			title : "Add GaScenario to all GaWorkloadEvents"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(u|u.hasStereotype('GaWorkloadEvent'));
+				for(uc : UseCase in useCases) {
+					uc.setDefaultGaScenario();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().select(uc|uc.name.isDefined()).notEmpty()
+			title : "Select GaScenarios/GaWorkloadEvents manually (opens a dialog)"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(uc|uc.name.isDefined());
+				var useCasesNames : Sequence(String) = useCases.collect(uc|uc.name);
+				var choices : Sequence = UserInput.chooseMany("Select GaWorkloadEvents", useCasesNames);
+				for(ucName : String in choices) {
+					var uc : UseCase = useCases.select(u|u.name=ucName).first();
+					uc.setGaUseCaseManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	constraint NoGaWorkloadEvents {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaWorkloadEvents().notEmpty()
+		message : "No GaWorkloadEvents UseCases have been specified"
+		fix {
+			title : "Randomly create new GaUseCases"
+			do {
+				var n : Integer = getRandomPositiveLimitedInt(10);
+				self.createRandomGaUseCases(n);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().notEmpty()
+			title : "Add GaWorkloadEvent with random values to all UseCases"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances();
+				for(uc : UseCase in useCases) {
+					uc.setRandomGaWorkloadEvent();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().notEmpty()
+			title : "Add GaWorkloadEvent with default values to all UseCases"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances();
+				for(uc : UseCase in useCases) {
+					uc.setDefaultGaWorkloadEvent();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().select(u|u.hasStereotype('GaScenario')).notEmpty()
+			title : "Add GaWorkloadEvent with random values to all GaScenarios"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(u|u.hasStereotype('GaScenario'));
+				for(uc : UseCase in useCases) {
+					uc.setRandomGaWorkloadEvent();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().select(u|u.hasStereotype('GaScenario')).notEmpty()
+			title : "Add GaWorkloadEvent with default values to all GaScenarios"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(u|u.hasStereotype('GaScenario'));
+				for(uc : UseCase in useCases) {
+					uc.setDefaultGaWorkloadEvent();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard : 
+				UseCase.allInstances().select(uc|uc.name.isDefined()).notEmpty()
+			title : "Select GaScenarios/GaWorkloadEvents manually (opens a dialog)"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(uc|uc.name.isDefined());
+				var useCasesNames : Sequence(String) = useCases.collect(uc|uc.name);
+				var choices : Sequence = UserInput.chooseMany("Select GaWorkloadEvents", useCasesNames);
+				for(ucName : String in choices) {
+					var uc : UseCase = useCases.select(u|u.name=ucName).first();
+					uc.setGaUseCaseManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	constraint NoGaAcqSteps {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaAcqSteps().notEmpty()	
+		message : "No GaAcqSteps Messages have been specified"
+		fix {
+			guard : 
+				self.satisfies("NoGaWorkloadEvents") and
+				self.satisfies("NoGaScenarios") and
+				self.satisfies("GaScenarioIffGaWorkloadEvent") and
+				self.satisfies("NoGaExecHosts")
+			title : "Randomly create new GaAcqSteps within existing GaUseCases"
+			do {
+				var useCases : Sequence(UseCase) = UseCase.allInstances().select(u|u.hasStereotype('GaWorkloadEvent') and u.hasStereotype('GaScenario'));
+				for(uc : UseCase in useCases) {
+					var numMsgs : Integer = getRandomPositiveLimitedInt(30);
+					uc.createRandomGaAcqSteps(numMsgs);
+					resetOutPerfValues();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all the Messages towards Artifacts and use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setRandoms();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all the Messages towards Artifacts and use default values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setDefaults();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|m.name.isDefined() and not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Select GaAcqSteps manually (opens a dialog)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.name.isDefined() and not m.getOwner().getOwner().getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				var msgsNames : Sequence(String) = msgs.collect(m|m.name);
+				var choices : Sequence = UserInput.chooseMany("Select GaAcqSteps", msgsNames);
+				for(mName : String in choices) {
+					var msg : Message = msgs.select(m|m.name=mName).first();
+					msg.setGaAcqStepManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// TODO: refine check condition
+	constraint GaScenarioIffGaWorkloadEvent {
+		guard : 
+			self.satisfies("NoGaScenarios") or self.satisfies("NoGaWorkloadEvents")
+		check: 
+			self.getGaScenariosNotGaWorkloadEvents().isEmpty() and self.getGaWorkloadEventsNotGaScenarios().isEmpty()
+		message : "There are GaScenarios UseCases which are not GaWorkloadEvents and/or viceversa"
+		fix {
+			title : "Add missing stereotypes and use random values"
+			do {
+				if(self.getGaScenariosNotGaWorkloadEvents().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaScenariosNotGaWorkloadEvents();
+					for(uc : UseCase in useCases) {
+						uc.setRandomGaWorkloadEvent();
+					}
+				}
+				if(self.getGaWorkloadEventsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaWorkloadEventsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						uc.setDefaultGaScenario();
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing stereotypes and use default values"
+			do {
+				if(self.getGaScenariosNotGaWorkloadEvents().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaScenariosNotGaWorkloadEvents();
+					for(uc : UseCase in useCases) {
+						uc.setDefaultGaWorkloadEvent();
+					}
+				}
+				if(self.getGaWorkloadEventsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaWorkloadEventsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						uc.setDefaultGaScenario();
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing stereotypes and set values manually (might open a dialog)"
+			do {
+				if(self.getGaScenariosNotGaWorkloadEvents().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaScenariosNotGaWorkloadEvents();
+					for(uc : UseCase in useCases) {
+						uc.setGaUseCaseManually();
+					}
+				}
+				if(self.getGaWorkloadEventsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaWorkloadEventsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						uc.setGaUseCaseManually();
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Remove additional stereotypes automatically"
+			do {
+				if(self.getGaScenariosNotGaWorkloadEvents().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaScenariosNotGaWorkloadEvents();
+					for(uc : UseCase in useCases) {
+						if(uc.hasStereotype("GaScenario")) {
+							var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+							uc.unapplyStereotype(gaScenario);
+						}
+					}
+				}
+				if(self.getGaWorkloadEventsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaWorkloadEventsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						if(uc.hasStereotype("GaWorkloadEvent")) {
+							var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+							uc.unapplyStereotype(gaWorkloadEvent);
+						}
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE
+	critique GaStepsNotGaScenarios {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaStepsNotGaScenarios().isEmpty()
+		message : "There are GaSteps UseCases which are not GaScenarios"
+		fix {
+			title : "Add missing GaScenario stereotypes automatically"
+			do {
+				if(self.getGaStepsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaStepsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						uc.setDefaultGaScenario();
+					}
+					resetOutPerfValues();
+				}
+			}
+		}
+		fix {
+			title : "Remove additional GaStep stereotypes automatically"
+			do {
+				if(self.getGaStepsNotGaScenarios().notEmpty()) {
+					var useCases : Sequence(UseCase) = self.getGaStepsNotGaScenarios();
+					for(uc : UseCase in useCases) {
+						if(uc.hasStereotype("GaStep")) {
+							var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+							uc.unapplyStereotype(gaStep);
+						}
+					}
+					resetOutPerfValues();
+				}
+			}
+		}
+	}
+	
+	// DONE
+	critique GaStepsNotGaWorkloadEvents {
+		guard : 
+			self.satisfies("NoDevices") and self.satisfies("NoUseCases") and self.satisfies("NoMessages")
+		check: 
+			self.getGaStepsNotGaWorkloadEvents().isEmpty()
+		message : "There are GaSteps UseCases which are not GaWorkloadEvents"
+		fix {
+			title : "Add missing GaWorkloadEvent stereotypes automatically"
+			do {
+				var useCases : Sequence(UseCase) = self.getGaStepsNotGaWorkloadEvents();
+				for(uc : UseCase in useCases) {
+					uc.setDefaultGaWorkloadEvent();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing GaWorkloadEvent stereotypes manually (opens dialogs)"
+			do {
+				var useCases : Sequence(UseCase) = self.getGaStepsNotGaWorkloadEvents();
+				for(uc : UseCase in useCases) {
+					uc.setGaWorkloadEventManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Remove additional GaStep stereotypes automatically"
+			do {
+				var useCases : Sequence(UseCase) = self.getGaStepsNotGaWorkloadEvents();
+				for(uc : UseCase in useCases) {
+					if(uc.hasStereotype("GaStep")) {
+						var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+						uc.unapplyStereotype(gaStep);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+	}	
+	
+	// JMVA-specific
+	constraint LoadDependentDevicesButNotOneClosedClass {
+		guard : 
+			self.satisfies("NoGaExecHosts") and self.satisfies("NoGaScenarios") or self.satisfies("NoGaWorkloadEvents")
+		check: 
+			self.getGaExecHosts().exists(d|d.hasStereotype("GaExecHost") and d.getValue(d.getStereotype("GaExecHost"), "schedPolicy").getName().equals("Other")) implies 
+			//d.getValue(
+			//			d.getStereotype("GaExecHost"), Enumeration.all.selectOne(e|e.name = "SchedPolicyKind").getOwnedLiterals().selectOne(l|l.name="Other"))) implies
+			(self.getGaUseCases().size() = 1 and isClosedclass(self.getGaUseCases().first()))
+		message : "The existence of a GaExecHost with schedPolicy = Other must imply only one GaWorkloadEvent with closed pattern (JMVA limitation)"
+		fix {
+			title : "Change schedPolicies to FIFO (Load-independent service centers)"
+			do {
+				var loadDepGaExecHosts = self.getGaExecHosts().select(d|d.hasStereotype("GaExecHost") and d.getValue(d.getStereotype("GaExecHost"), "schedPolicy").getName().equals("Other"));
+				for(d : Device in loadDepGaExecHosts) {
+					var enum = Enumeration.all.selectOne(e|e.name = "SchedPolicyKind");
+					d.setValue(d.getStereotype("GaExecHost"), "schedPolicy", enum.getOwnedLiterals().selectOne(l|l.name="FIFO"));
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Change schedPolicies to Undef (Delay service centers)"
+			do {
+				var loadDepGaExecHosts = self.getGaExecHosts().select(d|d.hasStereotype("GaExecHost") and d.getValue(d.getStereotype("GaExecHost"), "schedPolicy").getName().equals("Other"));
+				for(d : Device in loadDepGaExecHosts) {
+					var enum = Enumeration.all.selectOne(e|e.name = "SchedPolicyKind");
+					d.setValue(d.getStereotype("GaExecHost"), "schedPolicy", enum.getOwnedLiterals().selectOne(l|l.name="Undef"));
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Randomly choose a GaWorkloadEvent with closed pattern and unapply GaStereotypes from the others"
+			do {
+				var randUc = getRandomGaUseCaseWithClosedPattern();
+				var gaUseCases = getGaUseCases().excluding(uc);
+				for(uc : UseCase in gaUseCases) {
+					if(uc.hasStereotype("GaScenario")) {
+						var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+						uc.unapplyStereotype(gaScenario);
+					}
+					if(uc.hasStereotype("GaWorkloadEvent")) {
+						var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+						uc.unapplyStereotype(gaWorkloadEvent);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Manually choose a GaWorkloadEvent with closed pattern and unapply GaStereotypes from the others"
+			do {
+				var gaUseCases = getGaUseCases().select(u|isClosedclass(u));
+				var gaUseCasesNames = gaUseCases.select(i|i.name);
+				var choice = UserInput.choose("Select the (closed) GaUseCase", gaUseCasesNames);
+				var chosenUc = gaUseCases.select(u|u.name=choice);
+				for(uc : UseCase in gaUseCases.excluding(chosenUc)) {
+					if(uc.hasStereotype("GaScenario")) {
+						var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+						uc.unapplyStereotype(gaScenario);
+					}
+					if(uc.hasStereotype("GaWorkloadEvent")) {
+						var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+						uc.unapplyStereotype(gaWorkloadEvent);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+}
+
+
+context UseCase {
+
+/*
+	// DONE
+	constraint UnnamedUseCase {
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed UseCase"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+*/
+
+	// DONE
+	constraint UnnamedGaUseCase {
+		guard: 
+			self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed Ga*UseCase"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+	
+	// AGGIUNGERE "Randomly create a classifierBehavior"?
+	constraint GaUseCaseWithNoClassifierBehavior {
+		guard: 
+			self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")
+		check:
+			self.classifierBehavior.isDefined() and 
+			self.ownedBehavior.contains(self.classifierBehavior)
+		message : "GaUseCase " + self.name + " without classifierBehavior Interaction"
+		fix {
+			guard :
+				self.ownedBehavior.notEmpty()
+			title : "Set the first Interaction (" + self.ownedBehavior.first().name + ") as classifierBehavior"
+			do {
+				self.classifierBehavior = self.ownedBehavior.first();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard :
+				self.getGaScenariosOrWorkloadEventWithNoClassiferBehavior().notEmpty() and self.ownedBehavior.select(b|b.name.isDefined() and b.isTypeOf('Interaction')).notEmpty()
+			title : "Select classifierBehavior manually (might open a dialog)"
+			do {
+				var useCases : Sequence(UseCase) = self.getGaScenariosOrWorkloadEventWithNoClassiferBehavior();
+				for(uc : UseCase in useCases) {	
+					var interactions = self.ownedBehavior.select(b|b.name.isDefined() and b.isTypeOf('Interaction'));
+					var interactionNames = interactions.select(i|i.name);
+					var choice = UserInput.choose("Select the GaScenario", interactionNames);
+					uc.classifierBehavior = interactions.selectOne(i|i.name=choice);
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE
+	critique GaUseCaseWithNoGaAcqStepsInClassifierBehavior {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and 
+			self.satisfies("GaUseCaseWithNoClassifierBehavior")
+		check:
+			self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).notEmpty() 
+		message : "The classifierBehavior of GaScenario " + self.name + " does not have GaAcqSteps"
+		fix {
+			guard: 
+				self.getLifelinesWithArtifactsOnLifelines().notEmpty() and 
+				Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all the Messages towards Artifacts and use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setRandoms();
+				}
+			}
+		}
+		fix {
+			guard: 
+				self.getLifelinesWithArtifactsOnLifelines().notEmpty() and 
+				Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all the Messages towards Artifacts and use default values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setDefaults();
+				}
+			}
+		}
+		fix {
+			guard: 
+				self.getLifelinesWithArtifactsOnLifelines().notEmpty() and
+				Message.allInstances().select(m|m.name.isDefined() and m.getOwner().getOwner()=self and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Select GaAcqSteps manually (opens dialogs)"
+			do {
+				var steps : Sequence(Message) = Message.allInstances().select(m|m.name.isDefined() and m.getOwner().getOwner()=self and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				var stepsNames : Sequence(String) = steps.collect(s|s.name);
+				var choices : Sequence = UserInput.chooseMany("Select GaAcqSteps (classifierBehavior " + self.classifierBehavior.name + ", GaScenario " + self.name + ")" , stepsNames);
+				for(stepName : String in choices) {
+					var step : Message = steps.select(u|u.name=stepName).first();
+					step.setGaAcqStepManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	critique GaUseCaseWithWrongRefStationServCount {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and 
+			self.satisfies("GaUseCaseWithNoClassifierBehavior") and self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getValue(
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getStereotype("GaAcqStep"), "servCount").isDefined() and
+			self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getValue(
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getStereotype("GaAcqStep"), "servCount").notEmpty() and
+			not self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getValue(
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().getStereotype("GaAcqStep"), "servCount").collect(sc|sc.asReal()).contains(0.0)
+		message : "The servCount of the first GaAcqStep in classifierBehavior of GaScenario " + self.name + " contains zero(s)"
+		fix {
+			title : "Use random value"
+			do {
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().setRandomServCount();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().setDefaultServCount();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.classifierBehavior.messages.select(m | m.hasStereotype("GaAcqStep")).first().setGaAcqStepServCountManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	
+	// DONE
+	critique GaStepWithNoProb {
+		guard: 
+			self.hasStereotype("GaStep")
+		check:
+			self.getValue(self.getStereotype("GaStep"), "prob").isDefined()
+		message : "GaStep " + self.name + " without prob"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomProb();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultProb();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaStepProbManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE
+	critique GaStepWithNoRep {
+		guard: 
+			self.hasStereotype("GaStep")
+		check:
+			self.getValue(self.getStereotype("GaStep"), "rep").isDefined() 
+		message : "GaStep " + self.name + " without rep"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomRep();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultRep();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaStepRepManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE
+	constraint GaWorkloadEventWithNoPattern {
+		guard: 
+			self.hasStereotype("GaWorkloadEvent")
+		check:
+			self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern").isDefined() and 
+			(self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern").contains("open") or
+			 self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern").contains("closed")) and
+			 extractNumericString(self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern")).isReal()
+		message : "Undefined or wrong pattern for GaWorkloadEvent " + self.name
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default value (closed(1.0)"
+			do {
+				self.setDefaultGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add pattern manually (opens a dialog)"
+			do {
+				self.setGaWorkloadEventManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	// DONE
+	constraint OpenGaWorkloadEventWithZeroInterarrivalTime {
+		guard: 
+			self.satisfies("GaWorkloadEventWithNoPattern") and self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern").contains("open")
+		check:
+			 not extractNumericString(self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern")).equals("0.0")
+		message : "Zero-pattern for Open GaWorkloadEvent " + self.name
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomOpenGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultOpenGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add pattern manually (opens a dialog)"
+			do {
+				self.setGaWorkloadEventManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	constraint ClosedGaWorkloadEventWithZeroPopulation {
+		guard: 
+			self.satisfies("GaWorkloadEventWithNoPattern") and self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern").contains("closed")
+		check:
+			 not extractNumericString(self.getValue(self.getStereotype("GaWorkloadEvent"), "pattern")).equals("0.0")
+		message : "Zero-pattern for Closed GaWorkloadEvent " + self.name
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomClosedGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultClosedGaWorkloadEvent();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add pattern manually (opens a dialog)"
+			do {
+				self.setGaWorkloadEventManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+
+	
+	// Rules for GaAcqSteps and Interactions at GaUseCase level (alternative to the ones with Message and Interaction contexts)
+	
+	// DONE (model consistency rule)
+	critique GaUseCaseWithUnsignedMessages {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep"))
+		check:
+			//Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface) or not m.signature.getOwner().isTypeOf(Component)) and m.messageSort.asString() <> "reply").isEmpty() 
+			Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and m.signature.isUndefined() and m.messageSort.asString() <> "reply").isEmpty() 		
+		message : "GaUseCase " + self.name + " contains unsigned Messages"
+		fix {
+			guard : 
+				Operation.allInstances().isDefined() and Operation.allInstances().notEmpty() and Operation.allInstances().select(o|o.getOwner().isTypeOf(Interface)).notEmpty()
+			title : "Set random signatures"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface)) and m.messageSort.asString() <> "reply");
+				for(m in msgs) {
+					m.signature = self.getModel().getRandomOperation();
+				}
+			}
+		}
+		fix {
+			guard : 
+				Operation.allInstances().isDefined() and Operation.allInstances().notEmpty() and Operation.allInstances().select(o|o.getOwner().isTypeOf(Interface)).notEmpty()
+			title : "Set signatures manually (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface)) and m.messageSort.asString() <> "reply");
+				for(m in msgs) {
+					var ops : Sequence(Operation) = Operation.allInstances().select(o|o.name.isDefined());
+					var opsNames : Sequence(String) = ops.collect(o|o.name);
+					var choice = UserInput.choose("Select signature for Message " + m.getName(), opsNames);
+					var op : Operation = Operation.allInstances().selectOne(o|o.name=choice);
+					m.signature = op;
+				}
+			}
+		}
+	}
+	
+	// DONE (model consistency rule)
+	critique GaUseCaseWithSignedMessagesInNonRealizedInterface {
+		guard :
+			self.satisfies("GaUseCaseWithUnsignedMessages") and self.satisfies("GaUseCaseWithNoGaExecHostGaAcqSteps")
+		check :
+			Message.allInstances().select(m|
+									m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and 
+									m.signature.isDefined() and m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
+									not m.getTargetComponents().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
+									//not Component.allInstances().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
+		message : "GaUseCase " + self.name + " contains signed Messages in non-realized Interface"
+		fix {
+			guard :
+				Component.allInstances().isDefined() and Component.allInstances().notEmpty()
+			title : "Set realizing Components randomly"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|
+									m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and 
+									m.signature.isDefined() and m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
+									not m.getTargetComponents().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner())));
+									//not Component.allInstances().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner())));
+				for(m in msgs) {
+					var mTgtComps : Sequence(Components) = m.getTargetComponents();
+					for(tgtComp : Component in mTgtComps) {
+						var interface : Interface = m.signature.getOwner();
+						var intReal : InterfaceRealization = new InterfaceRealization;
+						intReal.name = interface.getName() + "_IR";
+						intReal.contract = interface;
+						intReal.supplier.add(interface);
+						intReal.client.add(tgtComp);
+						tgtComp.interfaceRealization.add(intReal);
+						var mSrcComps : Sequence(Components) = m.getSourceComponents();
+						for(srcComp : Component in mSrcComps) {
+							var usage : Usage = new Usage;
+							usage.name = interface.getName() + "_U";
+							usage.supplier.add(interface);
+							usage.client.add(srcComp);
+							srcComp.packagedElement.add(usage);
+						}
+					}
+					
+				}
+			}
+		}
+		fix {
+			guard :
+				Component.allInstances().isDefined() and Component.allInstances().notEmpty()
+			title : "Set realizing Components manually (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|
+									m.name.isDefined() and not m.name.equals("") and m.getOwner().getOwner()=self and 
+									m.signature.isDefined() and m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
+									not m.getTargetComponents().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner())));
+									//not Component.allInstances().exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner())));
+				for(m in msgs) {
+					var mTgtComps : Sequence(Components) = m.getTargetComponents();
+					var compsNames : Sequence(String) = mTgtComps.collect(c|c.name);
+					var choice = UserInput.choose("Select realizing Component for the Interface " + m.signature.getOwner().getName() + 
+												  " (from Operation " + m.signature.getName() + " called by Message " + m.getName() + ")", compsNames);
+					var tgtComp : Component = Component.allInstances().selectOne(c|c.name=choice);
+					var interface : Interface = m.signature.getOwner();
+					var intReal : InterfaceRealization = new InterfaceRealization;
+					intReal.name = interface.getName() + "_IR";
+					intReal.contract = interface;
+					intReal.supplier.add(interface);
+					intReal.client.add(tgtComp);
+					tgtComp.interfaceRealization.add(intReal);
+					var mSrcComps : Sequence(Components) = m.getSourceComponents();
+					for(srcComp : Component in mSrcComps) {
+						var usage : Usage = new Usage;
+						usage.name = interface.getName() + "_U";
+						usage.supplier.add(interface);
+						usage.client.add(srcComp);
+						srcComp.packagedElement.add(usage);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	// DONE
+	critique GaUseCaseWithUnnamedMessages {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep"))
+		check:
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply").isEmpty() 
+		message : "GaUseCase " + self.name + " contains unnamed Messages"
+		fix {
+			guard :
+				Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all randomly named Messages towards Artifacts and use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setRandoms();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Add GaAcqStep to all randomly named Messages towards Artifacts and use default values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setDefaults();
+				}
+			}
+		}
+		fix {
+			guard :
+				Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply").notEmpty()
+			title : "Set GaAcqSteps manually among the Messages towards Artifacts"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner()=self.classifierBehavior and not self.getLifelinesWithNoArtifactsOnLifelines().contains(m.receiveEvent.covered) and m.messageSort.asString() <> "reply");
+				for(msg : Message in msgs) {
+					msg.setGaAcqStepManually();
+				}
+			}
+		}
+	}
+	
+	// DONE
+	critique GaUseCaseWithUnnamedGaAcqSteps {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply").isEmpty() 
+		message : "GaUseCase " + self.name + " contains unnamed GaAcqSteps"
+		fix {
+			title : "Set random names"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply");
+				for(m in msgs) {
+					var name = m.getRandomName();
+					m.name = name;
+				}
+			}
+		}
+		fix {
+			title : "Set names (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and (m.name.isUndefined() or m.name.equals('')) and m.messageSort.asString() <> "reply");
+				for(m in msgs) {
+					var name = m.askForName();
+					m.name = name;
+				}
+			}
+		}
+	}
+	
+	// DONE
+	critique GaUseCaseWithNoServCountGaAcqSteps {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			(m.getValue(m.getStereotype("GaAcqStep"), "servCount").isUndefined() or 
+			 m.getValue(m.getStereotype("GaAcqStep"), "servCount").size() = 0)).isEmpty()
+		message : "GaUseCase " + self.name + " contains GaAcqSteps with undefined or empty servCount"
+		fix {
+			title : "Use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "servCount").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "servCount").size() = 0));
+				for(m in msgs) {
+					m.setRandomServCount();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default values (0.0)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "servCount").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "servCount").size() = 0));
+				for(m in msgs) {
+					m.setDefaultServCount();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "servCount").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "servCount").size() = 0));
+				for(m in msgs) {
+					m.setGaAcqStepServCountManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	critique GaUseCaseWithNoMsgSizeGaAcqSteps {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			(m.getValue(m.getStereotype("GaAcqStep"), "msgSize").isUndefined() or 
+			 m.getValue(m.getStereotype("GaAcqStep"), "msgSize").size() = 0)).isEmpty()
+		message : "GaUseCase " + self.name + " contains GaAcqSteps with undefined or empty msgSize"
+		fix {
+			title : "Use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "msgSize").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "msgSize").size() = 0));
+				for(m in msgs) {
+					m.setRandomMsgSize();
+				}
+			}
+		}
+		fix {
+			title : "Use default values (0.0)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "msgSize").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "msgSize").size() = 0));
+				for(m in msgs) {
+					m.setDefaultMsgSize();
+				}
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and 
+												 m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												(m.getValue(m.getStereotype("GaAcqStep"), "msgSize").isUndefined() or 
+												 m.getValue(m.getStereotype("GaAcqStep"), "msgSize").size() = 0));
+				for(m in msgs) {
+					m.setGaAcqStepMsgSizeManually();
+				}
+			}
+		}
+	}
+	
+	
+	// DONE
+	critique GaUseCaseWithNoProbGaAcqSteps {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			m.getValue(m.getStereotype("GaAcqStep"), "prob").isUndefined()).isEmpty()
+		message : "GaUseCase " + self.name + " contains GaAcqSteps with undefined or empty prob"
+		fix {
+			title : "Use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "prob").isUndefined());
+				for(m in msgs) {
+					m.setRandomProb();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default values (1.0)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "prob").isUndefined());
+				for(m in msgs) {
+					m.setDefaultProb();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "prob").isUndefined());
+				for(m in msgs) {
+					m.setGaAcqStepProbManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	critique GaUseCaseWithNoRepGaAcqSteps {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			m.getValue(m.getStereotype("GaAcqStep"), "rep").isUndefined()).isEmpty()
+		message : "GaUseCase " + self.name + " contains GaAcqSteps with undefined or empty rep"
+		fix {
+			title : "Use random values"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "rep").isUndefined());
+				for(m in msgs) {
+					m.setRandomRep();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Use default values (1.0)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "rep").isUndefined());
+				for(m in msgs) {
+					m.setDefaultRep();
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+												m.getValue(m.getStereotype("GaAcqStep"), "rep").isUndefined());
+				for(m in msgs) {
+					m.setGaAcqStepRepManually();
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	
+	// DONE
+	critique GaUseCaseWithNoGaExecHostGaAcqSteps {
+		guard: 
+			self.getModel().satisfies("NoGaExecHosts") and
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoGaAcqStepsInClassifierBehavior")
+		check:
+			Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost"))).isEmpty()
+		message : "GaUseCase " + self.name + " contains GaAcqSteps without GaExecHost"
+		fix {
+			title : "Make GaExecHosts the Devices of GaAcqSteps and randomly choose among existing ones for undefined Devices"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+																			 m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost")));
+				for(m in msgs) {
+					if(m.resolveDevice().isDefined()) {
+						var d : Device = m.resolveDevice().select(d|d.name=m.resolveDevice().name).first();
+						d.setRandoms();
+						resetOutPerfValues();
+					}
+					if(m.resolveDevice().isUndefined()) {
+						var chosenGaExecHost = m.getModel().getRandomGaExecHost();
+						var artifact;
+						if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+						   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						//if(m.receiveEvent.covered.represents.type.isUndefined() or
+						//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
+							artifact = m.getModel().createArtifact();
+							var prop = new Property;
+							m.getOwner().ownedAttribute.add(prop);
+							prop.name = artifact.name + prop.getRandomName();
+							prop.type = artifact;
+							m.receiveEvent.covered.first().represents = prop;
+						} else {
+							artifact = m.receiveEvent.covered.represents.first().type;
+							//artifact = m.receiveEvent.covered.represents.type;
+						}
+						chosenGaExecHost.deploy(artifact);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Make GaExecHosts the Devices of GaAcqSteps and randomly create new ones for undefined Devices"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+																			 m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost")));
+				for(m in msgs) {
+					if(m.resolveDevice().isDefined()) {
+						var d : Device = m.resolveDevice().select(d|d.name=m.resolveDevice().name).first();
+						d.setRandoms();
+						resetOutPerfValues();
+					}
+					if(m.resolveDevice().isUndefined()) {
+						var chosenGaExecHost = m.getModel().createRandomGaExecHosts(1).first();
+						var artifact;
+						if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+						   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						//if(m.receiveEvent.covered.represents.type.isUndefined() or
+						//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
+							artifact = m.getModel().createArtifact();
+							var prop = new Property;
+							m.getOwner().ownedAttribute.add(prop);
+							prop.name = artifact.name + prop.getRandomName();
+							prop.type = artifact;
+							m.receiveEvent.covered.first().represents = prop;
+						} else {
+							artifact = m.receiveEvent.covered.represents.first().type;
+							//artifact = m.receiveEvent.covered.represents.type;
+						}
+						chosenGaExecHost.deploy(artifact);
+					}
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title: "Manually select GaExecHosts for GaAcqSteps (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+																			 m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost")));
+				for(m in msgs) {
+					var execHosts : Sequence(Device) = Device.allInstances().select(d|d.name.isDefined() and d.hasStereotype("GaExecHost"));
+					var execHostsNames = execHosts.collect(i|i.name);
+					var choice = UserInput.choose("Select the GaExecHost for the GaAcqStep " + m.name, execHostsNames);
+					var chosenGaExecHost = execHosts.select(d|d.name=choice).first();
+					var artifact;
+					if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+					   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					//if(m.receiveEvent.covered.represents.type.isUndefined() or
+					//   not m.receiveEvent.covered.represents.type.isTypeOf(Artifact)) {
+						artifact = m.getModel().createArtifact();
+						var prop = new Property;
+						m.getOwner().ownedAttribute.add(prop);
+						prop.name = artifact.name + prop.getRandomName();
+						prop.type = artifact;
+						m.receiveEvent.covered.first().represents = prop;
+					} else {
+						artifact = m.receiveEvent.covered.represents.first().type;
+						//artifact = m.receiveEvent.covered.represents.type;
+					}
+					chosenGaExecHost.deploy(artifact);
+				}
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			title : "Remove GaAcqStep from each Message"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.hasStereotype("GaAcqStep") and m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+																			 m.resolveDevice().isUndefined() or (m.resolveDevice().isDefined() and not m.resolveDevice().hasStereotype("GaExecHost")));
+				for(m in msgs) {
+					var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+					m.unapplyStereotype(gaAcqStep);
+				}
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	//DONE
+	critique GaUseCaseWithUnnamedInteractions {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep")) and
+			self.satisfies("GaUseCaseWithNoClassifierBehavior")
+		check:
+			Interaction.allInstances().select(i|i.name.isUndefined() or i.name.equals("")).isEmpty()
+		message : "Unnamed Interactions for GaUseCase " + self.name
+		fix {
+			title : "Set random names"
+			do {
+				var ints : Sequence(Interaction) = Interaction.allInstances().select(i|i.name.isUndefined() or i.name.equals(""));
+				for(i in ints) {
+					var name = i.getRandomName();
+					i.name = name;
+				}
+			}
+		}
+		fix {
+			title : "Set names (opens dialogs)"
+			do {
+				var ints : Sequence(Interaction) = Interaction.allInstances().select(i|i.name.isUndefined() or i.name.equals(""));
+				for(i in ints) {
+					var name = i.askForName();
+					i.name = name;
+				}
+			}
+		}
+	}
+	
+	
+	//DONE
+	critique GaUseCaseWithUnmanifestingArtifacts {
+		guard: 
+			(self.hasStereotype("GaScenario") or self.hasStereotype("GaWorkloadEvent") or self.hasStereotype("GaStep"))
+		check:
+			self.getLifelinesWithNoManifestedComponentExceptFirst().isUndefined() or self.getLifelinesWithNoManifestedComponentExceptFirst().isEmpty()
+		message : "The GaUseCase " + self.name + " involves Lifelines without a manifested Component"
+		fix {
+			guard :
+				Component.allInstances().notEmpty()
+			title : "Set random manifestations"
+			do {
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponentExceptFirst();
+				for(ll : Lifeline in lifelines) {
+					var art = ll.getModel().createArtifact();
+					var man : Manifestation = new Manifestation;
+					man.client.add(art);
+					var comp = self.getModel().getRandomComponent();
+					man.supplier.add(comp);
+					man.utilizedElement = comp;
+					if(art.manifestation.isDefined())
+						art.manifestation.clear();
+					art.manifestation.add(man);
+					var prop = new Property;
+					ll.getOwner().ownedAttribute.add(prop);
+					prop.name = art.name + prop.getRandomName();
+					prop.type = art;
+					ll.represents = prop;
+				}
+			}
+		}
+		fix {
+			guard :
+				Component.allInstances().notEmpty()
+			title : "Select manifestations manually (opens dialogs)"
+			do {
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoManifestedComponentExceptFirst();
+				for(ll : Lifeline in lifelines) {
+					var art = ll.getModel().createArtifact();
+					art.name = art.askForName();
+					var man : Manifestation = new Manifestation;
+					man.client.add(art);
+					var comps : Sequence(Component) = Component.allInstances().select(c|c.name.isDefined());
+					var compsNames : Sequence(String) = comps.collect(c|c.name);
+					var choice = UserInput.choose("Select Manifested Component for Artifact " + art.getName(), compsNames);
+					var comp : Component = Component.allInstances().selectOne(c|c.name=choice);
+					man.supplier.add(comp);
+					man.utilizedElement = comp;
+					if(art.manifestation.isDefined())
+						art.manifestation.clear();
+					art.manifestation.add(man);
+					var prop = new Property;
+					ll.getOwner().ownedAttribute.add(prop);
+					prop.name = art.name + prop.getRandomName();
+					prop.type = art;
+					ll.represents = prop;
+				}
+			}
+		}
+	}
+	
+	
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+}
+
+
+
+/*
+context Message {
+		
+/*
+	// DONE
+	critique UnnamedMessage {
+		guard:
+			self.messageSort.asString() <> "reply"
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Message does not have a name (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+*/
+		/*
+	// DONE
+	critique UnnamedGaAcqStep {
+		guard:
+			self.getOwner().getOwner().satisfies("GaUseCaseWithUnnamedMessages") and
+			self.hasStereotype("GaAcqStep") and self.messageSort.asString() <> "reply"
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed GaAcqStep (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}*/
+	
+	/*
+	// DONE
+	critique GaAcqStepWithNoServCount {
+		guard: 
+			self.hasStereotype("GaAcqStep") and self.getModel().satisfies("NoGaWorkloadEvents") //and self.satisfies("GaAcqStepWithNoGaExecHost")
+		check:
+			self.getValue(self.getStereotype("GaAcqStep"), "servCount").isDefined() and 
+			self.getValue(self.getStereotype("GaAcqStep"), "servCount").size() > 0
+		message : "Undefined or empty servCount for GaAcqStep " + self.name + " (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			title : "Use random values"
+			do {
+				self.setRandomServCount();
+			}
+		}
+		fix {
+			title : "Use default value (0.0)"
+			do {
+				self.setDefaultServCount();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaAcqStepServCountManually();
+				resetOutPerfValues();
+			}
+		}
+	}*/
+	
+	/*
+	// DONE
+	critique GaAcqStepWithNoMsgSize {
+		guard: 
+			self.hasStereotype("GaAcqStep")
+		check:
+			self.getValue(self.getStereotype("GaAcqStep"), "msgSize").isDefined() and 
+			self.getValue(self.getStereotype("GaAcqStep"), "msgSize").size() > 0
+		message : "Undefined or empty msgSize for GaAcqStep " + self.name + " (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			title : "Use random values"
+			do {
+				self.setRandomMsgSize();
+			}
+		}
+		fix {
+			title : "Use default value (0.0)"
+			do {
+				self.setDefaultMsgSize();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaAcqStepMsgSizeManually();
+			}
+		}
+	}*/
+	
+	/*
+	// DONE
+	constraint GaAcqStepWithNoGaExecHost {
+		guard: 
+			self.getModel().satisfies("NoGaExecHosts") and
+			self.hasStereotype("GaAcqStep") //and self.resolveDevice().isDefined() //and self.satisfies("GaAcqStepWithNoServCount")
+		check:
+			self.resolveDevice().isDefined() and self.resolveDevice().hasStereotype("GaExecHost")
+		message : "No GaExecHost for GaAcqStep " + self.name + " (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			guard:
+				self.resolveDevice().isDefined()
+			title : "Make " + self.resolveDevice().name + " a GaExecHost and use random values"
+			do {
+				var d : Device = self.resolveDevice().select(d|d.name=self.resolveDevice().name).first();
+				d.setRandoms();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard:
+				self.resolveDevice().isDefined()
+			title : "Make " + self.resolveDevice().name + " a GaExecHost and use default values"
+			do {
+				var d : Device = self.resolveDevice().select(d|d.name=self.resolveDevice().name).first();
+				d.setDefaults();
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				self.resolveDevice().isUndefined()
+			title: "Select GaExecHost for GaAcqStep " + self.name + " (opens a dialog)"
+			do {
+				var execHosts : Sequence(Device) = Device.allInstances().select(d|d.name.isDefined() and d.hasStereotype("GaExecHost"));
+				var execHostsNames = execHosts.collect(i|i.name);
+				var choice = UserInput.choose("Select the GaExecHost for the GaAcqStep " + self.name, execHostsNames);
+				var chosenGaExecHost = execHosts.select(d|d.name=choice).first();
+				var artifact;
+				if(self.receiveEvent.covered.represents.first().type.isUndefined() or
+				   not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					artifact = self.getModel().createArtifact();
+					var prop = new Property;
+					self.getOwner().ownedAttribute.add(prop);
+					prop.name = artifact.name + prop.getRandomName();
+					prop.type = artifact;
+					self.receiveEvent.covered.first().represents = prop;
+				} else {
+					artifact = self.receiveEvent.covered.represents.first().type;
+				}
+				chosenGaExecHost.deploy(artifact);
+				//artifact.deployTo(chosenGaExecHost);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				self.resolveDevice().isUndefined()
+			title : "Randomly create new ad-hoc GaExecHost"
+			do {
+				var chosenGaExecHost = self.getModel().createRandomGaExecHosts(1).first();
+				var artifact;
+				if(self.receiveEvent.covered.represents.first().type.isUndefined() or
+				   not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					artifact = self.getModel().createArtifact();
+					var prop = new Property;
+					self.getOwner().ownedAttribute.add(prop);
+					prop.name = artifact.name + prop.getRandomName();
+					prop.type = artifact;
+					self.receiveEvent.covered.first().represents = prop;
+				} else {
+					artifact = self.receiveEvent.covered.represents.first().type;
+				}
+				chosenGaExecHost.deploy(artifact);
+				//artifact.deployTo(chosenGaExecHost);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				self.resolveDevice().isUndefined()
+			title : "Create new ad-hoc GaExecHost with default values"
+			do {
+				var chosenGaExecHost = self.getModel().createDefaultGaExecHosts(1).first();
+				var artifact;
+				if(self.receiveEvent.covered.represents.first().type.isUndefined() or
+				   not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					artifact = self.getModel().createArtifact();
+					var prop = new Property;
+					self.getOwner().ownedAttribute.add(prop);
+					prop.name = artifact.name + prop.getRandomName();
+					prop.type = artifact;
+					self.receiveEvent.covered.first().represents = prop;
+				} else {
+					artifact = self.receiveEvent.covered.represents.first().type;
+				}
+				chosenGaExecHost.deploy(artifact);
+				//artifact.deployTo(chosenGaExecHost);
+				resetOutPerfValues();
+			}
+		}
+		fix {
+			guard: 
+				self.resolveDevice().isUndefined()
+			title : "Create new ad-hoc GaExecHost manually (opens dialogs)"
+			do {
+				var chosenGaExecHost = self.getModel().createGaExecHostsManually(1).first();
+				var artifact;
+				if(self.receiveEvent.covered.represents.first().type.isUndefined() or
+				   not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+					artifact = self.getModel().createArtifact();
+					var prop = new Property;
+					self.getOwner().ownedAttribute.add(prop);
+					prop.name = artifact.name + prop.getRandomName();
+					prop.type = artifact;
+					self.receiveEvent.covered.first().represents = prop;
+				} else {
+					artifact = self.receiveEvent.covered.represents.first().type;
+				}
+				chosenGaExecHost.deploy(artifact);
+				//artifact.deployTo(chosenGaExecHost);
+				resetOutPerfValues();
+			}
+		}
+		
+		fix {
+			title : "Remove GaAcqStep from " + self.name
+			do {
+				if(self.hasStereotype("GaAcqStep")) {
+					var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+					self.unapplyStereotype(gaAcqStep);
+				}
+				resetOutPerfValues();
+			}
+		}
+	}*/
+	
+	/*
+	// DONE
+	critique GaAcqStepWithNoProb {
+		guard: 
+			self.hasStereotype("GaAcqStep")
+		check:
+			self.getValue(self.getStereotype("GaAcqStep"), "prob").isDefined()
+		message : "GaAcqStep " + self.name + " (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")" + " without prob"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomProb();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultProb();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaAcqStepProbManually();
+				resetOutPerfValues();
+			}
+		}
+	}*/
+	
+	/*
+	// DONE
+	critique GaAcqStepWithNoRep {
+		guard: 
+			self.hasStereotype("GaAcqStep")
+		check:
+			self.getValue(self.getStereotype("GaAcqStep"), "rep").isDefined() 
+		message : "GaAcqStep " + self.name + " (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")" + " without rep"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomRep();
+			}
+		}
+		fix {
+			title : "Use default value (1.0)"
+			do {
+				self.setDefaultRep();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaAcqStepRepManually();
+				resetOutPerfValues();
+			}
+		}
+	}*/
+//}
+
+
+/*
+context Interaction {
+	guard:
+		(self.getOwner().hasStereotype("GaScenario") or self.getOwner().hasStereotype("GaWorkloadEvent")) and 
+		self.getOwner().classifierBehavior.isDefined()// and self.getOwner().classifierBehavior = self*/
+	
+	/*
+	// DONE
+	constraint UnnamedInteractionOfGaUseCase {
+		check:
+			self.getOwner().satisfies("GaUseCaseWithNoClassifierBehavior") and
+			(self.getOwner().hasStereotype("GaScenario") or self.getOwner().hasStereotype("GaWorkloadEvent") or self.getOwner().hasStereotype("GaStep")) and
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed Interaction (Ga*UseCase " + self.getOwner().name + ")"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}*/
+	
+	/*
+	critique InteractionWithNoArtifactLifelines {
+		check:
+			self.getLifelinesWithNoArtifactsOnLifelines().isEmpty()
+		message : "Interaction " + self.name + " contains Lifelines not representing Artifacts"
+		fix {
+			title : "Select Artifacts for the Lifelines not representing Artifacts manually (opens dialogs)"
+			do {
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoArtifactsOnLifelines();
+				for(l : Lifeline in lifelines) {
+					var artifacts : Sequence(Artifact) = Artifact.allInstances();
+					var artifactsNames = artifacts.select(i|i.name);
+					var choice = UserInput.choose("Select the Artifact for Lifeline (Interaction " + self.name + ", UseCase " + self.getOwner().name + ")", artifactsNames);
+					var chosenArtifact = artifacts.selectOne(i|i.name=choice);
+					l.represents.type = chosenArtifact;
+				}
+			}
+		}
+		fix {
+			title : "Make the Lifelines not representing Artifacts representing new ad-hoc Artifacts"
+			do {
+				var lifelines : Sequence(Lifeline) = self.getLifelinesWithNoArtifactsOnLifelines();
+				for(l : Lifeline in lifelines) {
+					var artifact = self.getModel().createArtifact();
+					var prop = new Property;
+					self.ownedAttribute.add(prop);
+					prop.name = artifact.name + "_LLProp";
+					prop.type = artifact;
+					l.represents = prop;
+				}
+			}
+		}
+		
+	}*/
+//}
+
+/*
+context Lifeline {
+	guard :
+		self.getModel.getGaAcqSteps().collect(m|m.receiveEvent).collect(e|e.covered).flatten().contains(self)
+	constraint NoArtifactOnLifelineWithGaAcqSteps {
+		check:
+			self.represents.type.isTypeOf(Artifact)
+		message : "Lifeline " + self.name + " does not have an Artifact (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")"
+		fix {
+			title : "Select Artifact manually (opens a dialog)"
+			do {
+				var artifacts : Sequence(Artifact) = Artifact.allInstances();
+				var artifactsNames = artifacts.select(i|i.name);
+				var choice = UserInput.choose("Select the Artifact for Lifeline (Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", artifactsNames);
+				var chosenArtifact = artifacts.selectOne(i|i.name=choice);
+				self.represents.type = chosenArtifact;
+			}
+		}
+		fix {
+			title : "Create new ad-hoc Artifact"
+			do {
+				var artifact = self.getModel().createArtifact();
+				var prop = new Property;
+				self.getOwner().ownedAttribute.add(prop);
+				prop.name = artifact.name + "_LLProp";
+				prop.type = artifact;
+				self.represents = prop;
+			}
+		}
+	}
+}
+*/
+
+
+//DONE
+context Device {
+
+/*
+	constraint UnnamedDevice {
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed Device"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+*/
+
+	constraint UnnamedGaExecHost {
+		guard: 
+			self.hasStereotype("GaExecHost")
+		check:
+			self.name.isDefined() and not self.name.equals("")
+		message : "Unnamed GaExecHost"
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+	
+	critique GaExecHostWithNoSpeedFactor {
+		guard: 
+			self.hasStereotype("GaExecHost")
+		check:
+			self.getValue(self.getStereotype("GaExecHost"), "speedFactor").isDefined() and
+			self.getValue(self.getStereotype("GaExecHost"), "speedFactor").isReal()
+		message : "GaExecHost " + self.name + " without speedFactor"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomSpeedFactor();
+			}
+		}
+		fix {
+			title : "Use default value (i.e. 1.0)"
+			do {
+				self.setDefaultSpeedFactor();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaExecHostSpeedFactorManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	critique GaExecHostWithNoResMult {
+		guard: 
+			self.hasStereotype("GaExecHost")
+		check:
+			self.getValue(self.getStereotype("GaExecHost"), "resMult").isDefined() and
+			self.getValue(self.getStereotype("GaExecHost"), "resMult").isInteger()
+		message : "GaExecHost " + self.name + " without resMult"
+		fix {
+			title : "Use random value"
+			do {
+				self.setRandomResMult();
+			}
+		}
+		fix {
+			title : "Use default value (i.e. 1)"
+			do {
+				self.setDefaultResMult();
+			}
+		}
+		fix {
+			title : "Add missing value manually (opens a dialog)"
+			do {
+				self.setGaExecHostResMultManually();
+				resetOutPerfValues();
+			}
+		}
+	}
+	
+	/*
+	// TO REMOVE
+	critique GaExecHostWithNoUtil {
+		guard: 
+			self.hasStereotype("GaExecHost")
+		check:
+			self.getValue(self.getStereotype("GaExecHost"), "utilization").isDefined() and
+			self.getValue(self.getStereotype("GaExecHost"), "utilization").notEmpty()
+		message : "GaExecHost " + self.name + " without utilizations"
+	}*/
+	
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////// QUERIES
+operation Model getGaUseCases() : List(UseCase){
+	return UseCase.allInstances().select(uc|uc.hasStereotype("GaScenario") and uc.hasStereotype("GaWorkloadEvent"));
+}
+
+operation Model getGaScenarios() : List(UseCase){
+	return UseCase.allInstances().select(uc|uc.hasStereotype("GaScenario"));
+}
+
+operation Model getGaWorkloadEvents() : List(UseCase){
+	return UseCase.allInstances().select(uc|uc.hasStereotype("GaWorkloadEvent"));
+}
+
+operation Model getGaSteps() : List(UseCase){
+	return UseCase.allInstances().select(uc|uc.hasStereotype("GaStep"));
+}
+
+operation Model getGaAcqSteps() : List(Messages){
+	return Message.allInstances().select(uc|uc.hasStereotype("GaAcqStep"));
+}
+
+operation Model getGaExecHosts() : List(Device){
+	return Device.allInstances().select(uc|uc.hasStereotype("GaExecHost"));
+}
+
+operation Model getGaScenariosNotGaWorkloadEvents() : List(UseCase){
+	var gaScenarios : List(UseCase) = self.getGaScenarios();
+	var gaWorkloadEvents : List(UseCase) = self.getGaWorkloadEvents();
+	var res : List(UseCase) = gaScenarios.select(s | not gaWorkloadEvents.contains(s));
+	return res;
+}
+
+operation Model getGaWorkloadEventsNotGaScenarios() : List(UseCase){
+	var gaScenarios : List(UseCase) = self.getGaScenarios();
+	var gaWorkloadEvents : List(UseCase) = self.getGaWorkloadEvents();
+	var res : List(UseCase) = gaWorkloadEvents.select(s | not gaScenarios.contains(s));
+	return res;
+}
+
+operation Model getGaStepsNotGaScenarios() : List(UseCase){
+	var gaScenarios : List(UseCase) = self.getGaScenarios();
+	var gaSteps : List(UseCase) = self.getGaSteps();
+	var res : List(UseCase) = gaSteps.select(s | not gaScenarios.contains(s));
+	return res;
+}
+
+operation Model getGaStepsNotGaWorkloadEvents() : List(UseCase){
+	var gaWorkloadEvents : List(UseCase) = self.getGaWorkloadEvents();
+	var gaSteps : List(UseCase) = self.getGaSteps();
+	var res : List(UseCase) = gaSteps.select(s | not gaWorkloadEvents.contains(s));
+	return res;
+}
+
+operation Model getGaScenariosOrWorkloadEventWithNoClassiferBehavior() : List(UseCase){
+	var res : List(UseCase) = UseCase.allInstamces().select(uc|uc.hasStereotype("GaScenario") or uc.hasStereotype("GaWorkloadEvent"));
+	return res;
+}
+
+operation UseCase getLifelinesWithNoManifestedComponent() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().select(l|l.getOwner().getOwner()=self and 
+																(not l.represents.type.isTypeOf(Artifact) or (l.represents.type.isTypeOf(Artifact) and 
+																												(l.represents.type.getManifestedComponents().isUndefined() or 
+																												l.represents.type.getManifestedComponents().isEmpty())
+																											 )
+																)
+															  )
+														.asSequence();
+	return res;
+}
+
+operation UseCase getLifelinesWithNoManifestedComponentExceptFirst() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().excluding(Lifeline.allInstances().first()).select(l|l.getOwner().getOwner()=self and 
+																(not l.represents.type.isTypeOf(Artifact) or (l.represents.type.isTypeOf(Artifact) and 
+																												(l.represents.type.getManifestedComponents().isUndefined() or 
+																												l.represents.type.getManifestedComponents().isEmpty())
+																											 )
+																)
+															  )
+														.asSequence();
+	return res;
+}
+
+
+operation Artifact getManifestedComponents() : Sequence(Component){
+	var manifestations = self.getManifestations();
+	var returnValue : Sequence(Component);
+	for(man in manifestations){
+		if( man.utilizedElement.isTypeOf(Component) ){
+			returnValue.add(man.utilizedElement);
+		}
+	}
+	return returnValue;
+}
+
+operation Message getComponents() : Sequence(Component) {
+	var moses : Sequence(MessageOccurrenceSpecification) = MessageOccurrenceSpecification.allInstances().select(mos|mos.getMessage()=self);
+	var comps : Sequence(Component) = moses.collect(m|m.covered).flatten().select(l|l.represents.type.isTypeOf(Artifact)).collect(l|l.represents.type.getManifestedComponents());
+	return comps.flatten();
+}
+
+operation Message getTargetComponents() : Sequence(Component) {
+	var mos : MessageOccurrenceSpecification = self.receiveEvent;
+	var comps : Sequence(Component) = mos.collect(m|m.covered).flatten().select(l|l.represents.type.isTypeOf(Artifact)).collect(l|l.represents.type.getManifestedComponents());
+	return comps.flatten();
+}
+
+operation Message getSourceComponents() : Sequence(Component) {
+	var mos : MessageOccurrenceSpecification = self.sendEvent;
+	var comps : Sequence(Component) = mos.collect(m|m.covered).flatten().select(l|l.represents.type.isTypeOf(Artifact)).collect(l|l.represents.type.getManifestedComponents());
+	return comps.flatten();
+}
+
+operation UseCase getLifelinesWithNoArtifactsOnLifelines() : List(Lifeline) {
+	var res : List(Lifeline) = self.ownedBehavior.select(b|b.isTypeOf(Interaction)).collect(i|not i.lifeline.represents.type.isTypeOf(Artifact)).asSequence();
+	return res;
+}
+
+operation UseCase getLifelinesWithArtifactsOnLifelines() : List(Lifeline) {
+	var res : List(Lifeline) = self.ownedBehavior.select(b|b.isTypeOf(Interaction)).collect(i|i.lifeline.represents.type.isTypeOf(Artifact)).asSequence();
+	return res;
+}
+
+operation Interaction getLifelinesWithNoArtifactsOnLifelines() : List(Lifeline) {
+	var res : List(Lifeline) = self.lifeline.select(l|not l.represents.type.isTypeOf(Artifact)).asSequence();
+	return res;
+}
+
+operation Interaction getLifelinesWithArtifactsOnLifelines() : List(Lifeline) {
+	var res : List(Lifeline) = self.lifeline.select(l|l.represents.type.isTypeOf(Artifact)).asSequence();
+	return res;
+}
+
+operation Message resolveDevice() : Device {
+	//self.receiveEvent.covered.represents.first().type; // This is the element on the lifeline
+	if(self.receiveEvent.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.first().type.isUndefined())
+		return null;
+	if(not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact))
+		return null;
+	return self.receiveEvent.covered.represents.first().type.getDeploymentDevice();
+}
+
+operation Message hasArtifact() : Boolean {
+	return self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact);
+}
+
+operation Message hasDeployedArtifact() : Boolean {
+	if(self.hasArtifact)
+		return self.receiveEvent.covered.represents.first().type.getDeploymentDevice().isDefined() and
+			   self.receiveEvent.covered.represents.first().type.getDeploymentDevice().notEmpty();
+	return false;
+}
+
+/*
+operation Message resolveDevice() : Device {
+	//self.receiveEvent.covered.represents.first().type; // This is the element on the lifeline
+	if(self.receiveEvent.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.type.isUndefined())
+		return null;
+	if(not self.receiveEvent.covered.represents.type.isTypeOf(Artifact))
+		return null;
+	return self.receiveEvent.covered.represents.type.getDeploymentDevice();
+}
+
+operation Message hasArtifact() : Boolean {
+	return self.receiveEvent.covered.represents.type.isTypeOf(Artifact);
+}
+
+operation Message hasDeployedArtifact() : Boolean {
+	if(self.hasArtifact)
+		return self.receiveEvent.covered.represents.type.getDeploymentDevice().isDefined() and
+			   self.receiveEvent.covered.represents.type.getDeploymentDevice().notEmpty();
+	return false;
+}
+*/
+operation Artifact getDeploymentDevice() : Device {
+	return Device.allInstances->selectOne(dev : Device | 
+		dev.getDeployments()->exists(deploy : Deployment | 
+			deploy.getDeployedArtifacts()->contains(self)
+		)
+	);
+}
+
+operation Element hasStereotype(name:String):Boolean {
+	var c: Sequence = self.getAppliedStereotypes(); // Sequence of Stereotypes
+	for(s:Stereotype in c){
+		if(s.name=name){
+			return true;
+		}
+	}
+	return false;
+}
+
+operation Element getStereotype(name:String):Stereotype {
+	var c: Sequence = self.getAppliedStereotypes(); // Sequence of Stereotypes
+	for(s:Stereotype in c){
+		if(s.name=name){
+			return s;
+		}
+	}
+	return null;
+}
+
+operation extractNumericString(s : String) : String {
+	var resString : String = "";
+	
+	var i : Integer = 0;
+	for(c in s.toCharSequence()) {
+		if(c.toString().isReal() or c.toString() = ".")
+			resString = resString.concat(c.toString());
+	}
+	//var res : Real = resString.asReal();
+	return resString;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////// ACTIONS
+operation resetOutPerfValues() {
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	var devices : Sequence(Device) = Device.allInstances();
+	for(d : Device in devices) {
+		if(d.hasStereotype("GaExecHost")) {
+			d.setValue(gaExecHost, "utilization", new Sequence());
+		}
+	}
+	var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+	var useCases : Sequence(UseCase) = UseCase.allInstances();
+	for(uc : UseCase in useCases) {
+		if(uc.hasStereotype("GaScenario")) {
+			uc.setValue(gaScenario, "execTime", new Sequence());
+			uc.setValue(gaScenario, "respT", new Sequence());
+			uc.setValue(gaScenario, "throughput", new Sequence());
+		}
+	}
+}
+
+operation Model createRandomGaExecHosts(howMany : Integer) : Sequence(Device) {
+	var res : Sequence(Device) = new Sequence(Device);
+	var i = 0;
+	while(i < howMany) {
+		var d : Device = new Device;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(d);
+		} else {
+			package = new Package();
+			package.name = "deploymentView";
+			package.packagedElement.add(d);
+			self.packagedElement.add(package);
+		}
+		d.setRandoms();
+		res.add(d);
+		i+=1;
+	}
+	return res;
+}
+
+operation Model createDefaultGaExecHosts(howMany : Integer) : Sequence(Device) {
+	var res : Sequence(Device) = new Sequence(Device);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var d : Device = new Device;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(d);
+		} else {
+			package = new Package();
+			package.name = "deploymentView";
+			package.packagedElement.add(d);
+			self.packagedElement.add(package);
+		}
+		d.setDefaults();
+		res.add(d);
+		i+=1;
+	}
+	return res;
+}
+
+operation Model createGaExecHostsManually(howMany : Integer) : Sequence(Device) {
+	var res : Sequence(Device) = new Sequence(Device);
+	var i = 0;
+	while(i < howMany) {
+		var d : Device = new Device;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(d);
+		} else {
+			package = new Package();
+			package.name = "deploymentView";
+			package.packagedElement.add(d);
+			self.packagedElement.add(package);
+		}
+		var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+		if(not d.hasStereotype("GaExecHost"))
+			d.applyStereotype(gaExecHost);
+			
+		var rand = new Native("java.util.Random");
+		var r = "GaExecHost" + rand.nextInt();
+		var name = UserInput.prompt("Enter a name for GaExecHost", r);
+		while(name.isUndefined()) {
+			r = "GaExecHost" + rand.nextInt();
+			name = UserInput.prompt("Enter a name for GaExecHost", r);
+		}
+		d.name = name;
+			
+		var enum = Enumeration.all.selectOne(e|e.name = "SchedPolicyKind");
+		var schedPolicyNames : Sequence(String) = enum.getOwnedLiterals().collect(l|l.name);
+		var schedPolicyChoice = UserInput.choose(
+											"Specify schedPolicy for GaExecHost " + d.name, 
+											schedPolicyNames);
+		d.setValue(gaExecHost, "schedPolicy", enum.getOwnedLiterals().selectOne(l|l.name=schedPolicyChoice));
+		
+		var speedFactor = UserInput.prompt("Specify speedFactor for GaExecHost " + d.name, "1.0");
+		while(not speedFactor.isReal()) {
+			while(speedFactor.asReal()<=0) {
+				speedFactor = UserInput.prompt("Specify speedFactor for GaExecHost " + d.name, "1.0");
+			}
+		}
+		d.setValue(gaExecHost, "speedFactor", speedFactor);
+		
+		var resMult = UserInput.prompt("Specify resMult for GaExecHost " + d.name, "1");
+		while(not resMult.isInteger()) {
+			while(resMult.asInteger()<=0) {
+				resMult = UserInput.prompt("Specify resMult for GaExecHost " + d.name, "1");
+			}
+		}
+		d.setValue(gaExecHost, "resMult", resMult);
+		res.add(d);
+		i+=1;
+	}
+	return res;
+}
+
+/*
+operation Model createDefaultGaExecHostsAutomatically(howMany : Integer) : Sequence(Device) {
+	var res : Sequence(Device) = new Sequence(Device);
+	var i = 0;
+	while(i < howMany) {
+		var d : Device = new Device;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(d);
+		} else {
+			package = new Package();
+			package.name = "deploymentView";
+			package.packagedElement.add(d);
+			self.packagedElement.add(package);
+		}
+		d.setDefaults();
+		res.add(d);
+		i+=1;
+	}
+	return res;
+}
+*/
+
+
+
+operation Device setRandoms() {
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var enum = getRandomSchedPolicy();
+	self.setValue(gaExecHost, "schedPolicy", enum);
+	var sf : Real = getRandomPositiveReal();
+	self.setValue(gaExecHost, "speedFactor", sf.toString());
+	var rm : Integer = getRandomPositiveInt();
+	self.setValue(gaExecHost, "resMult", rm.toString());
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+}
+
+operation Device setDefaults() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var enum = Enumeration.all.selectOne(e|e.name = "SchedPolicyKind");
+	self.setValue(gaExecHost, "schedPolicy", enum.getOwnedLiterals().selectOne(l|l.name='FIFO'));
+	self.setValue(gaExecHost, "speedFactor", "1.0");
+	self.setValue(gaExecHost, "resMult", "1");
+}
+
+operation Davice setRandomSpeedFactor() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var sf : Real = getRandomPositiveLimitedReal(100.0);
+	self.setValue(self.getStereotype("GaExecHost"), "speedFactor", sf.toString());
+}
+
+operation Device setDefaultSpeedFactor() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	self.setValue(gaExecHost, "speedFactor", "1.0");
+}
+
+operation Davice setRandomResMult() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var rm : Integer = getRandomPositiveLimitedInt(100);
+	self.setValue(self.getStereotype("GaExecHost"), "resMult", rm.toString());
+}
+
+operation Device setDefaultResMult() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaExecHost" + rand.nextInt();
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	self.setValue(gaExecHost, "resMult", "1");
+}
+
+operation Device setGaExecHostManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = UserInput.prompt("Specify name for GaExecHost", "GaExecHost" + rand.nextInt());
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var enum = Enumeration.all.selectOne(e|e.name = "SchedPolicyKind");
+	var schedPolicyNames : Sequence(String) = enum.getOwnedLiterals().collect(l|l.name);
+	var schedPolicyChoice = UserInput.choose(
+										"Specify schedPolicy for GaExecHost " + self.name, 
+										schedPolicyNames);
+	self.setValue(gaExecHost, "schedPolicy", enum.getOwnedLiterals().selectOne(l|l.name=schedPolicyChoice));
+	
+	var speedFactor = UserInput.prompt("Specify speedFactor for GaExecHost " + self.name, "1.0");
+	while(not speedFactor.isReal()) {
+		while(speedFactor.asReal()<=0) {
+			speedFactor = UserInput.prompt("Specify speedFactor for GaExecHost " + self.name, "1.0");
+		}
+	}
+	self.setValue(gaExecHost, "speedFactor", speedFactor);
+	
+	var resMult = UserInput.prompt("Specify resMult for GaExecHost " + self.name, "1");
+	while(not resMult.isInteger()) {
+		while(resMult.asInteger()<=0) {
+			resMult = UserInput.prompt("Specify resMult for GaExecHost " + self.name, "1");
+		}
+	}
+	self.setValue(gaExecHost, "resMult", resMult);
+}
+
+operation Device setGaExecHostSpeedFactorManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = UserInput.prompt("Specify name for GaExecHost", "GaExecHost" + rand.nextInt());
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var speedFactor = self.askForSpeedFactor();
+	self.setValue(gaExecHost, "speedFactor", speedFactor);
+}
+
+operation Device askForSpeedFactor() : Real {
+	var res : Real = 1.0;
+	if(self.hasStereotype("GaExecHost")) {
+		var res = UserInput.prompt("Specify speedFactor for GaExecHost " + self.name, "1.0");
+		while(res.isUndefined() or not res.isReal()) {
+			while(res.asReal()<=0) {
+				res = UserInput.prompt("Specify speedFactor for GaExecHost " + self.name, "1.0");
+			}
+		}
+	}
+	return res.asReal();
+}
+
+operation Device setGaExecHostResMultManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = UserInput.prompt("Specify name for GaExecHost", "GaExecHost" + rand.nextInt());
+	}
+	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
+	if(not self.hasStereotype("GaExecHost"))
+		self.applyStereotype(gaExecHost);
+	var resMult = self.askForResMult();
+	self.setValue(gaExecHost, "resMult", resMult);
+}
+
+operation Device askForResMult() : Integer {
+	var res : Integer = 1;
+	if(self.hasStereotype("GaExecHost")) {
+		var res = UserInput.prompt("Specify resMult for GaExecHost " + self.name, "1");
+		while(res.isUndefined() or not res.isInteger()) {
+			while(res.asInteger()<=0) {
+				res = UserInput.prompt("Specify resMult for GaExecHost " + self.name, "1");
+			}
+		}
+	}
+	return res.asInteger();
+}
+
+
+
+operation Model createRandomGaUseCases(howMany : Integer) : Sequence(UseCase) {
+	var res : Sequence(UseCase) = new Sequence(UseCase);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var uc : UseCase = new UseCase;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('dynamic')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(uc);
+		} else {
+			package = new Package();
+			package.name = "dynamicView";
+			package.packagedElement.add(uc);
+			self.packagedElement.add(package);
+		}
+		
+		if(uc.name.isUndefined()) {
+			uc.name = uc.getRandomName();
+		}
+		var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+		if(not self.hasStereotype("GaScenario"))
+			self.applyStereotype(gaScenario);
+		var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+		if(not self.hasStereotype("GaWorkloadEvent"))
+			self.applyStereotype(gaWorkloadEvent);
+		
+		var pattern : String = "";
+		var randType = getRandomPositiveInt() / 2;
+		if(not randType.isInteger())
+			pattern="open(";
+		else
+			pattern="closed(";
+		var patt : Real = getRandomPositiveReal();
+		pattern = pattern.concat(patt.toString() + ")");
+		uc.setValue(gaWorkloadEvent, "pattern", pattern);
+		var numMsgs : Integer = getRandomPositiveLimitedInt(30);
+		resetOutPerfValues();
+		
+		res.add(uc);
+		i+=1;
+	}
+	return res;
+}
+
+operation Model createDefaultGaUseCases(howMany : Integer) : Sequence(UseCase) {
+	var res : Sequence(UseCase) = new Sequence(UseCase);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var uc : UseCase = new UseCase;
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('dynamic')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(uc);
+		} else {
+			package = new Package();
+			package.name = "dynamicView";
+			package.packagedElement.add(uc);
+			self.packagedElement.add(package);
+		}
+		uc.setDefaults();
+		res.add(uc);
+		i+=1;
+	}
+	return res;
+}
+
+operation UseCase setDefaultGaScenario() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaScenario" + rand.nextInt();
+	}
+	var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+	if(not self.hasStereotype("GaScenario"))
+		self.applyStereotype(gaScenario);
+}
+
+operation UseCase setRandomGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern : String = "";
+	var randType = getRandomPositiveInt() / 2;
+	if(not randType.isInteger())
+		pattern="open(";
+	else
+		pattern="closed(";
+	var patt : Real = getRandomPositiveLimitedReal(100);
+	pattern = pattern.concat(patt.toString() + ")");
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setRandomOpenGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern : String = "open(";
+	var patt : Real = getRandomPositiveLimitedReal(100);
+	pattern = pattern.concat(patt.toString() + ")");
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setRandomClosedGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern : String = "closed(";
+	var patt : Real = getRandomPositiveLimitedReal(100);
+	pattern = pattern.concat(patt.toString() + ")");
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setDefaultGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	self.setValue(gaWorkloadEvent, "pattern", "closed(1.0)");
+}
+
+operation UseCase setDefaultOpenGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern : String = "open(1.0)";
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setDefaultClosedGaWorkloadEvent() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern : String = "closed(1.0)";
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setGaWorkloadEventManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaWorkloadEvent" + rand.nextInt();
+	}
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern = self.askForPattern();
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+operation UseCase setGaUseCaseManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaUseCase" + rand.nextInt();
+	}
+	var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+	if(not self.hasStereotype("GaScenario"))
+		self.applyStereotype(gaScenario);
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	var pattern = self.askForPattern();
+	self.setValue(gaWorkloadEvent, "pattern", pattern);
+}
+
+
+operation UseCase setGaStepProbManually() {
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	var prob = self.askForProb();
+	self.setValue(gaStep, "prob", prob);
+}
+
+operation UseCase setGaStepRepManually() {
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	var rep = self.askForRep();
+	self.setValue(gaStep, "rep", rep);
+}
+
+operation UseCase askForRep() : Real {
+	var res : Real = 1.0;
+	if(self.hasStereotype("GaStep")) {
+		var res = UserInput.prompt("Specify rep for GaStep " + self.name, "1.0");
+		while(res.isUndefined() or not res.isReal()) {
+			while(res.asReal()<=0) {
+				res = UserInput.prompt("Specify rep for GaStep " + self.name, "1.0");
+			}
+		}
+	}
+	return res.asReal();
+}
+
+operation UseCase askForProb() : Real {
+	var res : Real = 1.0;
+	if(self.hasStereotype("GaStep")) {
+		var res = UserInput.prompt("Specify prob for GaStep " + self.name, "1.0");
+		while(res.isUndefined() or not res.isReal()) {
+			while(res.asReal()<0 or res.asReal()>1) {
+				res = UserInput.prompt("Specify prob for GaStep " + self.name, "1.0");
+			}
+		}
+	}
+	return res.asReal();
+}
+
+operation UseCase askForPattern() : String {
+	var res : String = "closed(1.0)";
+	if(self.hasStereotype("GaWorkloadEvent")) {
+		res = UserInput.prompt("Specify pattern for the GaWorkloadEvent " + self.name + "\n(open(<interarrival_time>) or closed(<population>))", "closed(1.0)");
+		while(not (res.isDefined() and (res.contains("open") or res.contains("closed")) and extractNumericString(res).isReal())) {
+			res = UserInput.prompt("Specify pattern for the GaWorkloadEvent " + self.name + "\n(open(<interarrival_time>) or closed(<population>))", "closed(1.0)");
+		}
+	}
+	return res;
+}
+
+operation UseCase setDefaults() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaUseCase" + rand.nextInt();
+	}
+	var gaScenario : Stereotype = Stereotype.all.selectOne(s|s.name='GaScenario');
+	if(not self.hasStereotype("GaScenario"))
+		self.applyStereotype(gaScenario);
+	var gaWorkloadEvent : Stereotype = Stereotype.all.selectOne(s|s.name='GaWorkloadEvent');
+	if(not self.hasStereotype("GaWorkloadEvent"))
+		self.applyStereotype(gaWorkloadEvent);
+	self.setValue(gaWorkloadEvent, "pattern", "closed(1.0)");
+}
+
+operation UseCase setDefaultProb() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaStep" + rand.nextInt();
+	}
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	self.setValue(self.getStereotype("GaStep"), "prob", "1.0");
+}
+
+operation UseCase setDefaultRep() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaStep" + rand.nextInt();
+	}
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	self.setValue(self.getStereotype("GaStep"), "rep", "1.0");
+}
+
+operation UseCase setRandomProb() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaStep" + rand.nextInt();
+	}
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	var prob : Real = getRandomProb();
+	self.setValue(self.getStereotype("GaStep"), "prob", prob);
+}
+
+operation UseCase setRandomRep() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaStep" + rand.nextInt();
+	}
+	var gaStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaStep');
+	if(not self.hasStereotype("GaStep"))
+		self.applyStereotype(gaStep);
+	var rep : Real = getRandomPositiveReal();
+	self.setValue(self.getStereotype("GaStep"), "rep", rep);
+}
+
+
+operation Model createArtifacts(howMany : Integer) : Sequence(Artifact) {
+	var res : Sequence(Artifact) = new Sequence(Artifact);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var art : Artifact = new Artifact;
+		if(Component.allInstances().notEmpty()) {
+			var man : Manifestation = new Manifestation;
+			man.client.add(art);
+			var comp = self.getRandomComponent();
+			man.supplier.add(comp);
+			man.utilizedElement = comp;
+			art.manifestation.add(man);
+		}
+		var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+		if(package.isDefined()) {
+			package.packagedElement.add(art);
+		} else {
+			package = new Package();
+			package.name = "deploymentView";
+			package.packagedElement.add(art);
+			self.packagedElement.add(package);
+		}
+		res.add(art);
+		i+=1;
+	}
+	return res;
+}
+
+operation Interaction createLifeLines(howMany : Integer) : Sequence(Lifeline) {
+	var res : Sequence(Lifeline) = new Sequence(Lifeline);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var ll : Lifeline = new Lifeline;
+		self.lifeline.add(ll);
+		var unDeployableArtifacts = Artifact.allInstances().select(a|
+					Deployment.allInstances().exists(depl|depl.deployedArtifact.isDefined() and depl.deployedArtifact.contains(a))
+																  );
+		var deployableArtifacts = Artifact.allInstances().select(a|
+				not Deployment.allInstances().exists(depl|depl.deployedArtifact.isDefined() and depl.deployedArtifact.contains(a))
+																  );																  
+		if(deployableArtifacts.size() < howMany) {
+			deployableArtifacts.addAll(self.createArtifacts(howMany - deployableArtifacts.size()));
+		}
+		var randIndex : Integer = getRandomPositiveLimitedInt(deployableArtifacts.size());
+		var randArtifact : Artifact = deployableArtifacts.at(randIndex-1);
+		
+		var hosts = self.getModel().getGaExecHosts();
+		if(hosts.isEmpty()) {
+			hosts = self.getModel().createRandomGaExecHosts(1);
+		} else {
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newHost : Device = self.getModel().createRandomGaExecHosts(1).first();
+				randArtifact.deployTo(newHost);
+				hosts.add(newHost);
+			} else {
+				randIndex = rand.nextInt();
+				while(randIndex >= hosts.size()) {
+					randIndex = rand.nextInt();
+				}
+				var randHost : Device = hosts.at(randIndex);
+				randArtifact.deployTo(randHost);
+			}
+		}
+		var prop : Property = new Property;
+		prop.owner = ll;
+		prop.type = randArtifact;
+		res.add(ll);
+		i+=1;
+	}
+	return res;
+}
+
+
+operation Interaction createRandomGaAcqSteps(howMany : Integer) : Sequence(Message) {
+	var res : Sequence(Message) = new Sequence(Message);
+	var lifelines = self.getLifelinesWithArtifactsOnLifelines();
+	if(lifelines.isEmpty()) {
+		var numLL : Integer = getRandomPositiveLimitedInt(10);
+		lifelines = self.createLifeLines(numLL);
+	}
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var msg : Message = new Message;
+		msg.setRandoms();
+		msg.owner = self;
+		var sendMos : MessageOccurrenceSpecification = new MessageOccurrenceSpecification;/*
+		var rand = new Native("java.util.Random");
+		var randIndex : Integer = rand.nextInt();
+		while(randIndex >= lifelines.size()) {
+			randIndex = rand.nextInt();
+		}
+		var randLifeline : Lifeline = lifelines.at(randIndex);*/
+		var randIndex : Integer = getRandomPositiveLimitedInt(lifelines.size());
+		var randLifeline : Lifeline = lifelines.at(randIndex-1);
+		sendMos.name = sendMos.getRandomName();
+		sendMos.owner = self;
+		sendMos.covered = randLifeline;
+		msg.sendEvent = sendMos;
+		
+		var recMos : MessageOccurrenceSpecification = new MessageOccurrenceSpecification;/*
+		randIndex = rand.nextInt();
+		while(randIndex >= lifelines.size()) {
+			randIndex = rand.nextInt();
+		}
+		randLifeline = lifelines.at(randIndex);*/
+		randIndex = getRandomPositiveLimitedInt(lifelines.size());
+		randLifeline = lifelines.at(randIndex-1);
+		recMos.name = recMos.getRandomName();
+		recMos.owner = self;
+		recMos.covered = randLifeline;
+		msg.receiveEvent = recMos;
+		
+		var behExecSpec : BehaviorExecutionSpecification = new BehaviorExecutionSpecification;
+		behExecSpec.name = behExecSpec.getRandomName();
+		behExecSpec.owner = recMos.owner;
+		behExecSpec.covered = recMos.covered;
+		behExecSpec.start = recMos;
+		
+		var execOccSpec : ExecutionOccurrenceSpecification = new ExecutionOccurrenceSpecification;
+		execOccSpec.name = execOccSpec.getRandomName();
+		execOccSpec.owner = recMos.owner;
+		execOccSpec.covered = behExecSpec.covered;
+		execOccSpec.execution = behExecSpec;
+		
+		res.add(msg);
+		i+=1;
+	}
+	return res;
+}
+
+operation Message setRandoms() {
+	self.name = self.getRandomName();
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var servCount : Sequence(String) = new Sequence(String);
+	for(uc : UseCase in UseCase.all.select(u|u.hasStereotype("GaScenario") and u.hasStereotype("GaWorkloadEvent"))) {
+		var sf : Real = getRandomPositiveLimitedReal(10000.0);
+		servCount.add(sf.asString());
+	}
+	self.setValue(self.getStereotype("GaAcqStep"), "servCount", servCount);
+	var prob : Real = getRandomProb();
+	self.setValue(self.getStereotype("GaAcqStep"), "prob", prob.asString());
+	var rep : Real = getRandomPositiveReal();
+	self.setValue(self.getStereotype("GaAcqStep"), "rep", rep.asString());
+	var msgSize : Sequence(String) = new Sequence(String);
+	for(uc : UseCase in UseCase.all.select(u|u.hasStereotype("GaScenario") and u.hasStereotype("GaWorkloadEvent"))) {
+		var size : Real = getRandomPositiveReal();
+		msgSize.add(size.asString());
+	}
+	self.setValue(self.getStereotype("GaAcqStep"), "msgSize", msgSize);
+}
+
+operation Message setDefaults() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var servCount : Sequence(String) = new Sequence(String);
+	servCount.add("0.0");
+	self.setValue(self.getStereotype("GaAcqStep"), "servCount", servCount);
+	self.setValue(self.getStereotype("GaAcqStep"), "prob", "1.0");
+	self.setValue(self.getStereotype("GaAcqStep"), "rep", "1.0");
+	var msgSize : Sequence(String) = new Sequence(String);
+	msgSize.add("0.0");
+	self.setValue(self.getStereotype("GaAcqStep"), "msgSize", msgSize);
+}
+
+operation Message setDefaultServCount() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var servCountList : Sequence(String) = new Sequence(String);
+	servCountList.add("0.0");
+	self.setValue(self.getStereotype("GaAcqStep"), "servCount", servCountList);
+}
+
+operation Message setDefaultMsgSize() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var msgSizeList : Sequence(String) = new Sequence(String);
+	msgSizeList.add("0.0");
+	self.setValue(gaAcqStep, "msgSize", msgSizeList);
+	
+}
+
+operation Message setDefaultProb() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	self.setValue(gaAcqStep, "prob", "1.0");
+}
+
+operation Message setDefaultRep() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	self.setValue(gaAcqStep, "rep", "1.0");
+}
+
+operation Message setRandomServCount() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var servCount : Sequence(String) = new Sequence(String);
+	//for(uc : UseCase in UseCase.all.select(u|u.hasStereotype("GaScenario") and u.hasStereotype("GaWorkloadEvent"))) {
+		var sf : Real = getRandomPositiveLimitedReal(100.0);
+		servCount.add(sf.asString());
+	//}
+	self.setValue(self.getStereotype("GaAcqStep"), "servCount", servCount);
+}
+
+operation Message setRandomProb() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var prob : Real = getRandomProb();
+	self.setValue(self.getStereotype("GaAcqStep"), "prob", prob.asString());
+}
+
+operation Message setRandomRep() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var rep : Real = getRandomPositiveReal();
+	self.setValue(self.getStereotype("GaAcqStep"), "rep", rep.asString());
+}
+
+operation Message setRandomMsgSize() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var msgSize : Sequence(String) = new Sequence(String);
+	//for(uc : UseCase in UseCase.all.select(u|u.hasStereotype("GaScenario") and u.hasStereotype("GaWorkloadEvent"))) {
+		var size : Real = getRandomPositiveReal();
+		msgSize.add(size.asString());
+	//}
+	self.setValue(self.getStereotype("GaAcqStep"), "msgSize", msgSize);
+}
+
+operation Message setGaAcqStepManually() {
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+		
+	var rand = new Native("java.util.Random");
+	var r = "GaAcqStep" + rand.nextInt();
+	var name = UserInput.prompt("Enter a name for GaAcqStep", r);
+	while(name.isUndefined()) {
+		r = "GaAcqStep" + rand.nextInt();
+		name = UserInput.prompt("Enter a name for GaAcqStep", r);
+	}
+	self.name = name;
+	/*
+	var servCount = UserInput.prompt("Specify servCount for GaAcqStep " + self.name, "0.0");
+	while(servCount.isUndefined or not servCount.isReal()) {
+		while(servCount.asReal()<=0) {
+			servCount = UserInput.prompt("Specify servCount for GaAcqStep " + self.name, "0.0");
+		}
+	}
+	var servCountList : Sequence(String) = new Sequence(String);
+	servCountList.add(servCount);*/
+	var servCountList : Sequence(String) = self.askForServCount();
+	self.setValue(gaAcqStep, "servCount", servCountList);
+	/*
+	var prob = UserInput.prompt("Specify prob for GaAcqStep " + self.name, "1.0");
+	while(not prob.isReal()) {
+		while(prob.asReal()<0 or prob.asReal()>1) {
+			prob = UserInput.prompt("Specify prob for GaAcqStep " + self.name, "1.0");
+		}
+	}*/
+	var prob = self.askForProb();
+	self.setValue(gaAcqStep, "prob", prob.asString());
+	/*
+	var rep = UserInput.prompt("Specify rep for GaAcqStep " + self.name, "1.0");
+	while(not rep.isReal()) {
+		while(rep.asReal()<=0) {
+			rep = UserInput.prompt("Specify rep for GaAcqStep " + self.name, "1.0");
+		}
+	}*/
+	var rep = self.askForRep();
+	self.setValue(gaAcqStep, "rep", rep.asString());
+	/*
+	var msgSize = UserInput.prompt("Specify msgSize for GaAcqStep " + self.name, "0.0");
+	while(msgSize.isUndefined() or not msgSize.isReal()) {
+		while(msgSize.asReal()<=0) {
+			msgSize = UserInput.prompt("Specify msgSize for GaAcqStep " + self.name, "0.0");
+		}
+	}
+	var msgSizeList : Sequence(String) = new Sequence(String);
+	msgSizeList.add(msgSize);*/
+	var msgSizeList : Sequence(String) = self.askForMsgSize();
+	self.setValue(gaAcqStep, "msgSize", msgSizeList);
+}
+
+operation Message setGaAcqStepProbManually() {
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var prob = self.askForProb();
+	self.setValue(gaAcqStep, "prob", prob);
+}
+
+operation Message setGaAcqStepRepManually() {
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	var rep = self.askForRep();
+	self.setValue(gaAcqStep, "rep", rep.asString());
+}
+
+operation Message askForRep() : Real {
+	var res : Real = 1.0;
+	if(self.hasStereotype("GaAcqStep")) {
+		var res = UserInput.prompt("Specify rep for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "1.0");
+		while(res.isUndefined() or not res.isReal()) {
+			while(res.asReal()<=0) {
+				res = UserInput.prompt("Specify rep for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "1.0");
+			}
+		}
+	}
+	return res.asReal();
+}
+
+operation Message askForProb() : Real {
+	var res : Real = 1.0;
+	if(self.hasStereotype("GaAcqStep")) {
+		var res = UserInput.prompt("Specify prob for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "1.0");
+		while(res.isUndefined() or not res.isReal()) {
+			while(res.asReal()<0 or res.asReal()>1) {
+				res = UserInput.prompt("Specify prob for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "1.0");
+			}
+		}
+	}
+	return res.asReal();
+}
+
+operation Message setGaAcqStepServCountManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	var servCountList : Sequence(String) = self.askForServCount();
+	self.setValue(gaAcqStep, "servCount", servCountList);
+}
+
+operation Message askForServCount() : Sequence(String) {
+	var res : Sequence(String) = new Sequence(String);
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	//var gaUseCases : Sequence(UseCase) = self.getModel().getGaUseCases();
+	//for(uc in gaUseCases) {
+		var servCount = UserInput.prompt("Specify servCount for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "0.0");
+		while(servCount.isUndefined or not servCount.isReal()) {
+			while(servCount.asReal()<=0) {
+				servCount = UserInput.prompt("Specify servCount for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "0.0");
+			}
+		}
+		res.add(servCount);
+	//}
+	return res;
+}
+
+operation Message setGaAcqStepMsgSizeManually() {
+	if(self.name.isUndefined()) {
+		var rand = new Native("java.util.Random");
+		self.name = "GaAcqStep" + rand.nextInt();
+	}
+	var gaAcqStep : Stereotype = Stereotype.all.selectOne(s|s.name='GaAcqStep');
+	var msgSizeList : Sequence(String) = self.askForMsgSize();
+	self.setValue(gaAcqStep, "msgSize", msgSizeList);
+}
+
+operation Message askForMsgSize() : Sequence(String) {
+	var res : Sequence(String) = new Sequence(String);
+	if(not self.hasStereotype("GaAcqStep"))
+		self.applyStereotype(gaAcqStep);
+	//var gaUseCases : Sequence(UseCase) = self.getModel().getGaUseCases();
+	//for(uc in gaUseCases) {
+		var msgSize = UserInput.prompt("Specify msgSize for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "0.0");
+		while(msgSize.isUndefined or not msgSize.isReal()) {
+			while(msgSize.asReal()<=0) {
+				msgSize = UserInput.prompt("Specify msgSize for GaAcqStep " + self.name + "\n(Interaction " + self.getOwner().name + ", UseCase " + self.getOwner().getOwner().name + ")", "0.0");
+			}
+		}
+		res.add(msgSize);
+	//}
+	return res;
+}
+
+
+
+
+
+
+operation Artifact deployTo(d : Device) {
+	var newDepl : Deployment = new Deployment;/*
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(newDepl);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(newDepl);
+		self.packagedElement.add(package);
+	}*/
+	newDepl.name = self.name;
+	d.deployments.add(newDepl);
+	newDepl.deployedArtifact.add(self);
+	newDepl.supplier.add(self);
+	newDepl.client.add(d);
+	
+}
+
+operation Device deploy(a : Artifact) {
+	var newDepl : Deployment = new Deployment;/*
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(newDepl);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(newDepl);
+		self.packagedElement.add(package);
+	}*/
+	self.deployments.add(newDepl);
+	newDepl.deployedArtifact.add(a);
+	newDepl.supplier.add(a);
+	newDepl.client.add(self);
+	
+}
+
+
+
+operation Element getRandomName() : String {
+	var elemType = "";
+	if(self.type.isDefined())
+		elemType = self.type.name;
+	var rand = new Native("java.util.Random");
+	var n = rand.nextInt();
+	while(n <= 0) {
+		n = rand.nextInt();
+	}
+	return elemType + n;
+}
+
+operation Element askForName() : String {
+	var elemType = "";
+	if(self.type.isDefined())
+		elemType = self.type.name;
+	var r = self.getRandomName();
+	var name = UserInput.prompt("Enter a name for " + elemType, r);
+	while(name.isUndefined()) {
+		r = self.getRandomName();
+		name = UserInput.prompt("Enter a name for " + elemType, r);
+	}
+	return name;
+}
+
+operation askForPositiveInt(text : String) : Integer {
+	var howMany = UserInput.prompt(text, "1");
+	while(not howMany.isInteger()) {
+		while(howMany.asInteger()<=0) {
+			howMany = UserInput.prompt(text, "1");
+		}
+	}
+	return howMany.asInteger();
+}
+
+operation askForPositiveOrZeroInt(text : String) : Integer {
+	var howMany = UserInput.prompt(text, "0");
+	while(not howMany.isInteger()) {
+		while(howMany.asInteger()<0) {
+			howMany = UserInput.prompt(text, "0");
+		}
+	}
+	return howMany.asInteger();
+}
+
+operation askForPositiveReal(text : String) : Real {
+	var howMany = UserInput.prompt(text, "1.0");
+	while(not howMany.isReal()) {
+		while(howMany.isReal()<=0) {
+			howMany = UserInput.prompt(text, "1.0");
+		}
+	}
+	return howMany.asReal();
+}
+
+operation askForPositiveOrZeroReal(text : String) : Real {
+	var howMany = UserInput.prompt(text, "0.0");
+	while(not howMany.isReal()) {
+		while(howMany.isReal()<0) {
+			howMany = UserInput.prompt(text, "0.0");
+		}
+	}
+	return howMany.asReal();
+}
+
+operation Model getRandomComponent() : Component {
+	var comps = Component.allInstances();
+	if(comps.size() > 0) {
+		var randComp = new Native("java.util.Random");
+		var i = randComp.nextInt(comps.size());
+		while(i<0 or i>comps.size()) {
+			i = randComp.nextInt();
+		}
+		return comps.at(i);
+	}
+	return null;
+}
+
+operation Model getRandomOperation() : Operation {
+	var ops = Operation.allInstances();
+	if(ops.size() > 0) {
+		var randOp = new Native("java.util.Random");
+		var i = randOp.nextInt(ops.size());
+		while(i<0 or i>ops.size()) {
+			i = randOp.nextInt();
+		}
+		if(ops.at(i).getOwner().isTypeOf(Interface)) 
+			return ops.at(i);
+		else
+			return self.getRandomOperation();
+	}
+	return null;
+}
+
+operation getRandomGaUseCaseWithClosedPattern() : UseCase {
+	var ucs = getGaUseCases().select(u|isClosedclass(u));
+	var randUc = new Native("java.util.Random");
+	var i = randUc.nextInt(ucs.size());
+	while(i<0 or i>ucs.size()) {
+		i = randUc.nextInt();
+	}
+	return ucs.at(i);
+}
+
+operation Model getRandomGaExecHost() : Device {
+	var devs = Device.allInstances().select(d|d.hasStereotype("GaExecHost"));
+	if(devs.size() > 0) {
+		var randDev = new Native("java.util.Random");
+		var i = randDev.nextInt(devs.size());
+		while(i<0 or i>devs.size()) {
+			i = randDev.nextInt();
+		}
+		return devs.at(i);
+	}
+	return null;
+}
+
+operation getRandomSchedPolicy() : EnumerationLiteral {
+	var enums = Enumeration.all.select(e|e.name = "SchedPolicyKind");
+	var randSp = new Native("java.util.Random");
+	var i = randSp.nextInt(enums.size());
+	while(i<0 or i>enums.size()) {
+		i = randSp.nextInt();
+	}
+	var literals = enums.at(i).getOwnedLiterals();
+	var randLit = new Native("java.util.Random");
+	var j = randLit.nextInt();
+	while(j<0 or j>literals.size()) {
+		j = randLit.nextInt(literals.size());
+	}
+	return enums.at(i).getOwnedLiterals().at(j);
+}
+
+operation getRandomProb() : Real {
+	var randProb = new Native("java.util.Random");
+	var prob : Real = randProb.nextDouble();
+	while(prob<=0 or prob>1) {
+		prob = randProb.nextDouble();
+	}
+	return prob;
+}
+
+operation getRandomPositiveReal() : Real {
+	var randReal = new Native("java.util.Random");
+	var real : Real = randReal.nextDouble();
+	real = 0.00001 + (10000 - 0.00001) * randReal.nextDouble();
+	//real = randReal.nextDouble();
+	while(real<=0) {
+		real = 0.00001 + (10000 - 0.00001) * randReal.nextDouble();
+		//real = randReal.nextDouble();
+	}
+	//real = real.asString().substring(0, real.asString().indexOf(".") + 5).asReal();
+	return real;
+}
+
+operation getRandomPositiveInt() : Integer {
+	var int : Integer = 1;
+	var randInt = new Native("java.util.Random");
+	int = randInt.nextInt();
+	while(int<=0) {
+		int = randInt.nextInt(10001);
+	}
+	return int;
+}
+
+operation getRandomPositiveLimitedReal(upperBound : Real) : Real {
+	var real : Real = 0.00001;
+	if(upperBound>0) {
+		var randReal = new Native("java.util.Random");
+		real = 0.00001 + (upperBound - 0.00001) * randReal.nextDouble();
+		//real = randReal.nextDouble();
+		while(real<=0 or real>upperBound) {
+			real = 0.00001 + (upperBound - 0.00001) * randReal.nextDouble();
+			//real = randReal.nextDouble();
+		}
+	}
+	//real = real.asString().substring(0, real.asString().indexOf(".") + 5).asReal();
+	return real;
+}
+
+operation getRandomPositiveLimitedInt(upperBound : Integer) : Integer {
+	var int : Integer = 1;
+	if(upperBound>2) {
+		var randInt = new Native("java.util.Random");
+		int = randInt.nextInt();
+		while(int<=0 or int>upperBound) {
+			int = randInt.nextInt();
+		}
+	}
+	return int;
+}
+
+
+operation Model createArtifact() : Artifact {
+	var art : Artifact = new Artifact;
+	if(Component.allInstances().notEmpty()) {
+		var man : Manifestation = new Manifestation;
+		man.client.add(art);
+		var comp = self.getRandomComponent();
+		man.supplier.add(comp);
+		man.utilizedElement = comp;
+		art.manifestation.add(man);
+	}
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(art);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(art);
+		self.packagedElement.add(package);
+	}
+	art.name = art.getRandomName();
+	return art;
+}
+
+operation isClosedclass(uc : UseCase) : Boolean {
+	if(uc.hasStereotype("GaWorkloadEvent")) {
+		var s : Stereotype = uc.getStereotype("GaWorkloadEvent");
+		var p : String = uc.getValue(s,"pattern");
+		if(p.startsWith("closed"))
+			return true;
+	}
+	return false;
+}

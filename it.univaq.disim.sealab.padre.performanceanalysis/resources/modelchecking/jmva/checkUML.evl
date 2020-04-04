@@ -1,0 +1,1596 @@
+context Model {
+	guard: 
+		self.name.isDefined() and not self.name.equals("") and (not self.name.contains("Type") or self.name.contains("type"))
+		
+	constraint ModelContainsUnnamedElements {
+		check:
+			self.packagedElement.select(p|p.packagedElement.isDefined()).collect(p|p.packagedElement).flatten().select(el|
+				(el.getName().isUndefined() or el.getName().equals("")) and 
+				el.type.isDefined() and el.type.asString().startsWith("EClass") and
+				not el.isTypeOf(PackageImport) and not el.isTypeOf(ProfileApplication) and 
+				((el.isTypeOf(Model) and not (el.getName().contains("Type") or el.getName().contains("type"))) or 
+				el.isTypeOf(Component) or el.isTypeOf(Class) or el.isTypeOf(Interface) or 
+				el.isTypeOf(InterfaceRealization) or el.isTypeOf(Usage) or el.isTypeOf(Operation) or
+				el.isTypeOf(UseCase) or el.isTypeOf(Interaction) or el.isTypeOf(Lifeline) or 
+				(el.getOwner().isTypeOf(Interaction) and el.isTypeOf(Property)) or 
+				el.isTypeOf(Message) or el.isTypeOf(Artifact) or el.isKindOf(Node))
+			).includingAll(
+				InterfaceRealization.allInstances().select(ir|ir.getName().isUndefined() or ir.getName().equals(""))
+			).includingAll(
+				Usage.allInstances().select(u|u.getName().isUndefined() or u.getName().equals(""))
+			).includingAll(
+				Operation.allInstances().select(o|o.getName().isUndefined() or o.getName().equals(""))
+			).includingAll(
+				Interaction.allInstances().select(i|i.getName().isUndefined() or i.getName().equals(""))
+			).includingAll(
+				Lifeline.allInstances().select(l|l.getName().isUndefined() or l.getName().equals(""))
+			).includingAll(
+				Property.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+			).includingAll(
+				Message.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+			).isEmpty()
+		message : "Model " + self.getName() + " contains unnamed Elements"
+		fix {
+			title : "Set proper names"
+			do {
+				var els = self.packagedElement.select(p|p.packagedElement.isDefined()).collect(p|p.packagedElement).flatten().select(el|
+								el.type.isDefined() and el.type.asString().startsWith("EClass") and
+								not el.isTypeOf(PackageImport) and not el.isTypeOf(ProfileApplication) and 
+								((el.isTypeOf(Model) and not (el.getName().contains("Type") or el.getName().contains("type"))) or 
+								el.isTypeOf(Component) or el.isTypeOf(Class) or el.isTypeOf(Interface) or 
+								el.isTypeOf(InterfaceRealization) or el.isTypeOf(Usage) or el.isTypeOf(Operation) or
+								el.isTypeOf(UseCase) or el.isTypeOf(Interaction) or el.isTypeOf(Lifeline) or 
+								(el.getOwner().isTypeOf(Interaction) and el.isTypeOf(Property)) or 
+								el.isTypeOf(Message) or el.isTypeOf(Artifact) or el.isKindOf(Node)) and
+								(el.getName().isUndefined() or el.getName().equals(""))
+							).includingAll(
+								InterfaceRealization.allInstances().select(ir|ir.getName().isUndefined() or ir.getName().equals(""))
+							).includingAll(
+								Usage.allInstances().select(u|u.getName().isUndefined() or u.getName().equals(""))
+							).includingAll(
+								Operation.allInstances().select(o|o.getName().isUndefined() or o.getName().equals(""))
+							).includingAll(
+								Interaction.allInstances().select(i|i.getName().isUndefined() or i.getName().equals(""))
+							).includingAll(
+								Lifeline.allInstances().select(l|l.getName().isUndefined() or l.getName().equals(""))
+							).includingAll(
+								Property.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							).includingAll(
+								Message.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							);
+				for(el in els) {
+					el.name = el.getProperName();
+				}
+			}
+		}
+		fix {
+			title : "Set random names"
+			do {
+				var els = self.packagedElement.select(p|p.packagedElement.isDefined()).collect(p|p.packagedElement).flatten().select(el|
+								el.type.isDefined() and el.type.asString().startsWith("EClass") and
+								not el.isTypeOf(PackageImport) and not el.isTypeOf(ProfileApplication) and 
+								((el.isTypeOf(Model) and not (el.getName().contains("Type") or el.getName().contains("type"))) or 
+								el.isTypeOf(Component) or el.isTypeOf(Class) or el.isTypeOf(Interface) or 
+								el.isTypeOf(InterfaceRealization) or el.isTypeOf(Usage) or el.isTypeOf(Operation) or
+								el.isTypeOf(UseCase) or el.isTypeOf(Interaction) or el.isTypeOf(Lifeline) or 
+								(el.getOwner().isTypeOf(Interaction) and el.isTypeOf(Property)) or 
+								el.isTypeOf(Message) or el.isTypeOf(Artifact) or el.isKindOf(Node)) and
+								(el.getName().isUndefined() or el.getName().equals(""))
+							).includingAll(
+								InterfaceRealization.allInstances().select(ir|ir.getName().isUndefined() or ir.getName().equals(""))
+							).includingAll(
+								Usage.allInstances().select(u|u.getName().isUndefined() or u.getName().equals(""))
+							).includingAll(
+								Operation.allInstances().select(o|o.getName().isUndefined() or o.getName().equals(""))
+							).includingAll(
+								Interaction.allInstances().select(i|i.getName().isUndefined() or i.getName().equals(""))
+							).includingAll(
+								Lifeline.allInstances().select(l|l.getName().isUndefined() or l.getName().equals(""))
+							).includingAll(
+								Property.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							).includingAll(
+								Message.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							);
+				for(el in els) {
+					el.name = el.getRandomName();
+				}
+			}
+		}
+		fix {
+			title : "Set names manually (opens dialogs)"
+			do {
+				var els = self.packagedElement.select(p|p.packagedElement.isDefined()).collect(p|p.packagedElement).flatten().select(el|
+								el.type.isDefined() and el.type.asString().startsWith("EClass") and
+								not el.isTypeOf(PackageImport) and not el.isTypeOf(ProfileApplication) and 
+								((el.isTypeOf(Model) and not (el.getName().contains("Type") or el.getName().contains("type"))) or 
+								el.isTypeOf(Component) or el.isTypeOf(Class) or el.isTypeOf(Interface) or 
+								el.isTypeOf(InterfaceRealization) or el.isTypeOf(Usage) or el.isTypeOf(Operation) or
+								el.isTypeOf(UseCase) or el.isTypeOf(Interaction) or el.isTypeOf(Lifeline) or 
+								(el.getOwner().isTypeOf(Interaction) and el.isTypeOf(Property)) or 
+								el.isTypeOf(Message) or el.isTypeOf(Artifact) or el.isKindOf(Node)) and
+								(el.getName().isUndefined() or el.getName().equals(""))
+							).includingAll(
+								InterfaceRealization.allInstances().select(ir|ir.getName().isUndefined() or ir.getName().equals(""))
+							).includingAll(
+								Usage.allInstances().select(u|u.getName().isUndefined() or u.getName().equals(""))
+							).includingAll(
+								Operation.allInstances().select(o|o.getName().isUndefined() or o.getName().equals(""))
+							).includingAll(
+								Interaction.allInstances().select(i|i.getName().isUndefined() or i.getName().equals(""))
+							).includingAll(
+								Lifeline.allInstances().select(l|l.getName().isUndefined() or l.getName().equals(""))
+							).includingAll(
+								Property.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							).includingAll(
+								Message.allInstances().select(p|p.getName().isUndefined() or p.getName().equals(""))
+							);
+				for(el in els) {
+					el.name = el.askForName();
+				}
+			}
+		}
+	}
+	
+	
+	constraint NoDevices {
+		check: Device.allInstances().notEmpty()	
+		message : "No Devices have been specified"
+		fix {
+			title : "[RANDOM] Create a random number of new Devices"
+			do {
+				self.createDevices(getRandomPositiveLimitedInt(10), "RANDOM");
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Devices"
+			do {
+				var howMany : Integer = askForPositiveInt("Specify the number of Devices to create");
+				self.createDevices(howMany, "USER-DRIVEN");
+			}
+		}
+	}
+	
+	constraint NoUseCases {
+		guard : 
+				self.satisfies("NoDevices")
+		check: UseCase.allInstances().notEmpty()	
+		message : "No UseCases have been specified"
+		fix {
+			title : "[RANDOM] Create a random number of new UseCases"
+			do {
+				self.createUseCases(getRandomPositiveLimitedInt(10), "RANDOM");
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new UseCases"
+			do {
+				var howMany : Integer = askForPositiveInt("Specify the number of UseCases to create");
+				self.createUseCases(howMany, "USER-DRIVEN");
+			}
+		}
+	}
+	
+}
+
+
+
+context UseCase {
+	guard : self.satisfies("UnnamedElement")
+	
+	constraint UseCaseWithNoInteractions {
+		check : self.ownedBehavior.select(b|b.isTypeOf(Interaction)).notEmpty()
+		message : "No Interactions have been specified for UseCase " + self.getName()
+		fix {
+			title : "[RANDOM] Create a random number of new Interactions (the first one will be classifierBehavior)"
+			do {
+				self.createInteractions(getRandomPositiveLimitedInt(3), "RANDOM");
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Interactions (the first one will be classifierBehavior)"
+			do {
+				var howMany : Integer = askForPositiveInt("Specify the number of Interactions to create");
+				self.createInteractions(howMany, "USER-DRIVEN");
+			}
+		}
+	}
+	
+	constraint UseCaseWithNoClassifierBehavior {
+		check : self.classifierBehavior.isDefined()
+		message : "No classifierBehavior (Interaction) has been specified for UseCase " + self.getName()
+		fix {
+			guard : self.satisfies("UseCaseWithNoInteractions")
+			title : "[RANDOM] Randomly select a classifierBehavior"
+			do {
+				self.classifierBehavior = self.getRandomInteraction();
+			}
+		}
+		fix {
+			guard : self.satisfies("UseCaseWithNoInteractions")
+			title : "[USER-DRIVEN] Manually select a classifierBehavior"
+			do {
+				var ints : Sequence(Interaction) = Interaction.allInstances().select(i|i.name.isDefined() and i.getOwner()=self);
+				var intsNames : Sequence(String) = ints.collect(i|i.name);
+				var choice = UserInput.choose("Select classifierBehavior for UseCase " + self.getName(), intsNames);
+				self.classifierBehavior = Interaction.allInstances().selectOne(i|i.name=choice);
+			}
+		}
+		fix {
+			title : "[RANDOM] Create a new Interaction as classifierBehavior"
+			do {
+				self.createInteractions(1, "RANDOM");
+			}
+		}
+		fix {
+			title : "[RANDOM] Create a random number of new Interactions (the first one will be classifierBehavior)"
+			do {
+				self.createInteractions(getRandomPositiveLimitedInt(3), "RANDOM");
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Interactions (the first one will be classifierBehavior)"
+			do {
+				var howMany : Integer = askForPositiveInt("Specify the number of Interactions to create");
+				self.createInteractions(howMany, "USER-DRIVEN");
+			}
+		}
+	}
+	
+	
+	
+	constraint UseCaseWithNoLifelines {
+		guard: 
+			self.satisfies("UseCaseWithNoInteractions")
+		check:
+			self.ownedBehavior.collect(i|i.lifeline).flatten().notEmpty()
+		message : "No Lifelines have been specified for UseCase " + self.getName()
+		fix {
+			title : "[RANDOM] Create a random number of new (manifesting) Lifelines within the Interactions with no Lifelines"
+			do {
+				var ints = self.ownedBehavior.select(b|b.isTypeOf(Interaction) and b.lifeline.isEmpty());
+				for(i : Interaction in ints) {
+					i.createLifelines(getRandomPositiveLimitedInt(10), "RANDOM");
+				}
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Messages within the Interactions with no Messages"
+			do {
+				var ints = self.ownedBehavior.select(b|b.isTypeOf(Interaction) and b.lifeline.isEmpty());
+				for(i : Interaction in ints) {
+					var howMany : Integer = askForPositiveInt("Specify the number of Lifelines to create for Interaction " + i.getName());
+					i.createLifelines(howMany, "USER-DRIVEN");
+				}
+			}
+		}
+	}
+	
+	
+	constraint UseCaseWithUnmanifestingLifelines {
+		guard: 
+			self.satisfies("UseCaseWithNoLifelines")
+		check:
+			(self.getLifelinesWithNoManifestedComponent().isUndefined() or self.getLifelinesWithNoManifestedComponent().isEmpty()) or
+			(self.getLifelinesWithNoManifestedClass().isUndefined() or self.getLifelinesWithNoManifestedClass().isEmpty())
+		message : "The following Lifelines of the UseCase " + self.getName() + " do not manifest Component/Class: " +
+			self.getLifelinesWithNoManifestedComponent().includingAll(
+							self.getLifelinesWithNoManifestedClass().excludingAll(
+													self.getLifelinesWithManifestedComponent()))
+																.collect(l|l.getName())
+		fix {
+			title : "[RANDOM] Assign Manifestations to unmanifesting Lifelines"
+			do {
+				var ints = self.ownedBehavior.select(b|b.isTypeOf(Interaction) and b.lifeline.isEmpty());
+				for(i : Interaction in ints) {
+					var lifelines = self.getLifelinesWithNoManifestedComponent().includingAll(
+												self.getLifelinesWithNoManifestedClass().excludingAll(
+																		self.getLifelinesWithManifestedComponent())).asSequence()
+																				.select(l|l.getOwner()=i);
+					for(l : Lifeline in lifelines) {
+						var receiveCovereds = i.getMessages().select(m|m.receiveEvent.isDefined() and m.receiveEvent.covered.contains(l));
+						var signatures = i.getMessages().collect(m|m.signature).flatten().asSequence();
+						if(receiveCovereds.notEmpty()) {
+							var opsOwner = Component.allInstances().selectOne(c|c.interfaceRealization.isDefined() and c.interfaceRealization.contract.isDefined() and
+															c.interfaceRealization.contract.ownedOperation.isDefined() and 
+															c.interfaceRealization.contract.ownedOperation.flatten().containsAll(signatures));
+							if(opsOwner.isUndefined()) {
+								opsOwner = l.getModel().newComponent(mode);
+								opsOwner.interfaceRealization.clear();
+								opsOwner.packagedElement.remove(u|u.isTypeOf(Usage));
+								var ints = signatures.collect(s|s.getOwner()).flatten().select(i|i.isTypeOf(Interface));
+								for(i : Interface in ints) {
+									opsOwner.newInterfaceRealization(i);
+								}
+								
+							}
+							//owner di tutte le operation a questo punto definito, dunque gestione artifact, che puo esistere o meno
+							var art : Artifact;
+							if(Artifact.allInstances().exists(a|a.getManifestedComponents().contains(opsOwner))) {
+								var artifacts = Artifact.allInstances().select(a|a.getManifestedComponents().contains(opsOwner));
+								var randIndex : Integer = getRandomIndex(artifacts.size());
+								art = artifacts.at(randIndex);
+							} else {
+								art = l.getModel().newArtifact(mode);
+								art.manifestation.clear();
+								art.newManifestation(opsOwner);
+							}
+							var prop = i.ownedAttribute.selectOne(p|p.type.isDefined() and p.type=art);
+							if(prop.isUndefined()) {
+								prop = new Property;
+								i.ownedAttribute.add(prop);
+								prop.name = art.getName() + prop.getRandomName();
+								prop.type = art;
+							}
+							l.represents = prop;
+						} else {
+							l.assignArtifact(mode);
+						}
+						
+						
+						//SETTARE USAGES
+						var sendCovereds = i.getMessages().select(m|m.sendEvent.isDefined() and m.sendEvent.covered.contains(l));
+						if(sendCovereds.notEmpty()) {
+						
+						} else {
+							l.assignArtifact(mode);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	constraint UseCaseWithNoMessages {
+		guard :
+			self.satisfies("UseCaseWithNoInteractions") and self.satisfies("UseCaseWithUnmanifestingLifelines")
+		check :
+			self.ownedBehavior.select(b|b.isTypeOf(Interaction) and 
+				  				not Message.allInstances().exists(m|m.getOwner()=b)).isEmpty()
+		message : "The following Interactions of UseCase " + self.getName() + " do not contain any Message" +
+				  ": " + self.ownedBehavior.select(b|
+				  				b.isTypeOf(Interaction) and 
+				  				not Message.allInstances().exists(m|m.getOwner()=b)).collect(i|i.getName())
+		fix {
+			title : "[RANDOM] Create a random number of new Messages within the Interactions with no Messages"
+			do {
+				var ints = self.ownedBehavior.select(b|
+								  				b.isTypeOf(Interaction) and 
+								  				not Message.allInstances().exists(m|m.getOwner()=b));
+				for(i : Interaction in ints) {
+					i.createMessages(getRandomPositiveLimitedInt(10), "RANDOM");
+				}
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Messages within the Interactions with no Messages"
+			do {
+				var ints = self.ownedBehavior.select(b|
+								  				b.isTypeOf(Interaction) and 
+								  				not Message.allInstances().exists(m|m.getOwner()=b));
+				for(i : Interaction in ints) {
+					var howMany : Integer = askForPositiveInt("Specify the number of Messages to create for Interaction " + i.getName());
+					i.createMessages(howMany, "USER-DRIVEN");
+				}
+			}
+		}
+	}
+	
+	constraint UseCaseWithNoMessageOccurrenceSpecifications {
+		guard :
+			self.satisfies("UseCaseWithNoMessages")
+		check :
+			self.ownedBehavior.select(b|b.isTypeOf(Interaction) and 
+				  				not MessageOccurrenceSpecification.allInstances().exists(m|m.getOwner()=b)).isEmpty()
+		message : "The following Interactions of UseCase " + self.getName() + " do not contain any MessageOccurrenceSpecification" +
+				  ": " + self.ownedBehavior.select(b|
+				  				b.isTypeOf(Interaction) and 
+				  				not MessageOccurrenceSpecification.allInstances().exists(m|m.getOwner()=b)).collect(i|i.getName())
+		fix {
+			title : "[RANDOM] Create a random number of new MessageOccurrenceSpecifications within the Interactions with no MessageOccurrenceSpecification"
+			do {
+				var ints = self.ownedBehavior.select(b|
+								  				b.isTypeOf(Interaction) and 
+								  				not MessageOccurrenceSpecification.allInstances().exists(m|m.getOwner()=b));
+				for(i : Interaction in ints) {
+					i.createMessageOccurrenceSpecifications(getRandomPositiveLimitedInt(10), "RANDOM");
+				}
+			}
+		}
+		fix {
+			title : "[USER-DRIVEN] Create (how many?) new Messages within the Interactions with no Messages"
+			do {
+				var ints = self.ownedBehavior.select(b|
+								  				b.isTypeOf(Interaction) and 
+								  				not MessageOccurrenceSpecification.allInstances().exists(m|m.getOwner()=b));
+				for(i : Interaction in ints) {
+					var howMany : Integer = askForPositiveInt("Specify the number of MessageOccurrenceSpecifications to create for Interaction " + i.getName());
+					i.createMessageOccurrenceSpecifications(howMany, "USER-DRIVEN");
+				}
+			}
+		}
+	}
+	
+	
+	//add self.satisfies("MessageWithUnmanifestingArtifact")
+	constraint UseCaseWithNoDeviceMessages {
+		guard: 
+			self.getModel().satisfies("NoDevices") and self.satisfies("UseCaseWithNoInteractions") and 
+			self.satisfies("UseCaseWithNoMessages") and self.satisfies("UseCaseWithNoMessageOccurrenceSpecifications") and 
+			self.satisfies("UseCaseWithUnmanifestingLifelines")
+		check:
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and
+			m.resolveDevice().isUndefined()).isEmpty()
+		message : "The following Messages of UseCase " + self.getName() + " do not target any Device: " + 
+				  Message.allInstances().select(m|m.getOwner().getOwner()=self and m.resolveDevice().isUndefined()).collect(i|i.getName())
+		fix {
+			title : "[RANDOM] Randomly create/assign Devices"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and m.resolveDevice().isUndefined());
+				for(m in msgs) {
+					var randDevice : Device;
+					var prob : Real;
+					if(prob <= 0.1) {
+						randDevice = self.getModel().createDevices(1, mode).first();
+					} else {
+						randIndex = getRandomIndex(Device.allInstances().size());
+						randDevice = Device.allInstances().at(randIndex);
+					}
+					var artifact;
+					if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+					   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						artifact = m.getModel().createArtifacts(1, mode);
+						var prop = new Property;
+						m.getOwner().ownedAttribute.add(prop);
+						prop.name = artifact.name + prop.getRandomName();
+						prop.type = artifact;
+						m.receiveEvent.covered.first().represents = prop;
+					} else {
+						artifact = m.receiveEvent.covered.represents.first().type;
+					}
+					artifact.deployTo(randDevice);
+				}
+			}
+		}
+		fix {
+			title: "[USER-DRIVEN] Manually select Devices for Messages (opens dialogs)"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and m.resolveDevice().isUndefined());
+				for(m in msgs) {
+					var devices : Sequence(Device) = Device.allInstances().select(d|d.name.isDefined() and not d.name.equals(""));
+					var devicesNames = devices.collect(i|i.name);
+					var choice = UserInput.choose("Select the Device for Message " + m.name, devicesNames);
+					var chosenDevice = devices.select(d|d.name=choice).first();
+					var artifact;
+					if(m.receiveEvent.covered.represents.first().type.isUndefined() or
+					   not m.receiveEvent.covered.represents.first().type.isTypeOf(Artifact)) {
+						artifact = m.getModel().createArtifacts(1, mode);
+						var prop = new Property;
+						m.getOwner().ownedAttribute.add(prop);
+						prop.name = artifact.name + prop.getRandomName();
+						prop.type = artifact;
+						m.receiveEvent.covered.first().represents = prop;
+					} else {
+						artifact = m.receiveEvent.covered.represents.first().type;
+					}
+					artifact.deployTo(chosenDevice);
+				}
+			}
+		}
+		fix {
+			title : "[AUTO] Remove Messages"
+			do {
+				var msgs : Sequence(Message) = Message.allInstances().select(m|m.getOwner().getOwner()=self and m.messageSort.asString() <> "reply" and m.resolveDevice().isUndefined());
+				var ints = self.ownedBehavior.select(b|b.isTypeOf(Interaction) and b.getMessages().exists(m|msgs.contains(m)));
+				for(i in ints) {
+					var msgsToDel = i.getMessages().select(m|msgs.contains(m)).asSequence();
+					i.getMessages().removeAll(msgsToDel);
+				}
+			}
+		}
+	}
+	
+	
+	//add satisfies(NoOperations)
+	constraint UseCaseWithUnsignedMessages {
+		guard: 
+			self.satisfies("UseCaseWithNoInteractions") and self.satisfies("UseCaseWithNoMessages") 
+		check:
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface)) and m.messageSort.asString() <> "reply").isEmpty() 
+		message : "The following Messages of UseCase " + self.getName() + " do not target any Operation: " + 
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and (m.signature.isUndefined() or not m.signature.getOwner().isTypeOf(Interface)) and m.messageSort.asString() <> "reply").collect(i|i.getName()) 
+	}
+	
+	
+	constraint UseCaseWithSignedMessagesInNonRealizedInterface {
+		guard :
+			self.satisfies("UseCaseWithUnsignedMessages") and self.satisfies("UseCaseWithNoDeviceMessages")
+		check :
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and 
+									m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
+									not m.getTargetComponents().println("Comps for Message " + m.getName() + ": ").exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).isEmpty()
+		message : "The following signed Messages of UseCase " + self.name + " refer Operations of non-realized Interfaces:" +
+			Message.allInstances().select(m|m.getOwner().getOwner()=self and 
+									m.signature.getOwner().isTypeOf(Interface) and m.messageSort.asString() <> "reply" and 
+									not m.getTargetComponents().println("Comps for Message " + m.getName() + ": ").exists(c|c.interfaceRealization.collect(i|i.contract).contains(m.signature.getOwner()))).collect(i|i.getName()) 
+	}
+	
+}
+
+
+
+
+context Element {
+	guard : self.type.isDefined() and self.type.asString().startsWith("EClass") and
+			not self.isTypeOf(PackageImport) and not self.isTypeOf(ProfileApplication) and 
+			((self.isTypeOf(Model) and not (self.getName().contains("Type") or self.getName().contains("type"))) or 
+			self.isTypeOf(Component) or self.isTypeOf(Class) or self.isTypeOf(Interface) or 
+			self.isTypeOf(InterfaceRealization) or self.isTypeOf(Usage) or self.isTypeOf(Operation) or
+			self.isTypeOf(UseCase) or self.isTypeOf(Interaction) or self.isTypeOf(Lifeline) or 
+			(self.getOwner().isTypeOf(Interaction) and self.isTypeOf(Property)) or 
+			self.isTypeOf(Message) or self.isTypeOf(Artifact) or self.isKindOf(Node))
+			
+	constraint UnnamedElement {
+		check : self.getName().isDefined() and not self.getName().equals("")
+		message : "Unnamed Element (" + self.type.getName() + ")"
+		fix {
+			title : "Set proper name"
+			do {
+				var name = self.getProperName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set random name"
+			do {
+				var name = self.getRandomName();
+				self.name = name;
+			}
+		}
+		fix {
+			title : "Set name manually (opens a dialog)"
+			do {
+				var name = self.askForName();
+				self.name = name;
+			}
+		}
+	}
+}
+
+
+
+
+// OPERATIONS
+
+operation Element getProperName() : String {
+	var name = "";
+	if(self.isTypeOf(Model)) return self.getRandomName();
+	else if(self.isTypeOf(Component)) return self.getRandomName();
+	else if(self.isTypeOf(Class)) return self.getRandomName();
+	else if(self.isTypeOf(Interface)) return self.getRandomName();
+	else 
+		if(self.isTypeOf(InterfaceRealization)) {
+			if(self.contract.isDefined() and self.contract.getName().isDefined())
+				return self.contract.getName() + "_IR";
+			else
+				return self.getRandomName();
+		 } 
+	else
+		if(self.isTypeOf(Usage)) {
+			if(self.supplier.isDefined() and self.supplier.first().getName().isDefined())
+				return self.supplier.first().getName() + "_U";
+			else
+				return self.getRandomName();
+		 } 
+	else
+		if(self.isTypeOf(Operation)) {
+			self.name = self.getRandomName();
+			if(self.getOwner().isTypeOf(Component) and self.getOwner().getName().isDefined()) 
+				self.name = self.name.concat("_" + self.getOwner().getName());
+		 	return self.name;
+		 } 
+	else
+		if(self.isTypeOf(UseCase))
+			return self.getRandomName();
+	else
+		if(self.isTypeOf(Interaction)) {
+			self.name = self.getRandomName();
+			if(self.getOwner().isTypeOf(UseCase) and self.getOwner().getName().isDefined())
+				self.name = self.name.concat("_" + self.getOwner().getName());
+		 	return self.name;
+		 } 
+	else
+		if(self.isTypeOf(Lifeline)) {
+			self.name = self.getRandomName();
+			if(self.represents.isDefined() and self.represents.isTypeOf(Property) and 
+			   self.represents.type.isDefined() and self.represents.type.isTypeOf(Artifact) and 
+			   self.represents.type.getName().isDefined())
+			   		self.name = self.name.concat("_" + self.represents.type.getName());
+			else
+				if(self.getOwner().isTypeOf(Interaction) and self.getOwner().getName().isDefined())
+					self.name = self.name.concat("_" + self.getOwner().getName());
+		 	return self.name;
+		 } 
+	else
+		if(self.isTypeOf(Property)) {
+			self.name = self.getRandomName();
+			if(self.type.isDefined() and self.type.isTypeOf(Artifact) and self.type.getName().isDefined())
+			   		self.name = self.name.concat("_" + self.type.getName());
+			else
+				if(self.getOwner().isTypeOf(Interaction) and self.getOwner().getName().isDefined())
+					self.name = self.name.concat("_" + self.getOwner().getName());
+		 	return self.name;
+		 } 
+	else
+		if(self.isTypeOf(Message)) {
+			self.name = self.getRandomName();
+			if(self.signature.isDefined() and self.signature.getName().isDefined())
+			   		self.name = self.name.concat("_" + self.signature.getName());
+		 	return self.name;
+		 } 
+	else if(self.isTypeOf(Artifact)) {
+			self.name = self.getRandomName();
+			if(self.manifestation.isDefined() and self.manifestation.notEmpty() and 
+			   (self.manifestation.first().isTypeOf(Component) or self.manifestation.first().isTypeOf(Class)) and
+			   self.manifestation.first().getName().isDefined())
+			   		self.name = self.name.concat("_" + self.manifestation.first().getName());
+		 	return self.name;
+		 } 
+	else
+		if(self.isKindOf(Node)) return self.getRandomName();
+	else
+		return self.getRandomName();
+	return name;
+}
+
+operation Element getRandomName() : String {
+	var elemType = "";
+	if(self.type.isDefined())
+		elemType = self.type.name;
+	var rand = new Native("java.util.Random");
+	var n = rand.nextInt();
+	while(n <= 0) {
+		n = rand.nextInt();
+	}
+	return elemType + n;
+}
+
+operation Element askForName() : String {
+	var elemType = "";
+	if(self.type.isDefined())
+		elemType = self.type.name;
+	var r = self.getRandomName();
+	var name = UserInput.prompt("Enter a name for " + elemType, r);
+	while(name.isUndefined()) {
+		r = self.getRandomName();
+		name = UserInput.prompt("Enter a name for " + elemType, r);
+	}
+	return name;
+}
+
+operation Model createDevices(howMany : Integer, mode : String) : Sequence(Device) {
+	var res : Sequence(Device) = new Sequence(Device);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newDevice(mode));
+		i+=1;
+	}
+	return res;
+}
+
+
+operation Model createUseCases(howMany : Integer, mode : String) : Sequence(UseCase) {
+	var res : Sequence(UseCase) = new Sequence(UseCase);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newUseCase(mode));
+		i+=1;
+	}
+	return res;
+}
+
+
+operation UseCase createInteractions(howMany : Integer, mode : String) : Sequence(Interaction) {
+	var res : Sequence(Interaction) = new Sequence(Interaction);
+	var i : Integer = 0;
+	while(i < howMany) {
+		var inter : Interaction = self.newInteraction(mode);
+		res.add(inter);
+		if(i=0)
+			self.classifierBehavior = inter;
+		i+=1;
+	}
+	self.classifierBehavior = self.ownedBehavior.select(i|i.isTypeOf(Interaction)).first();
+	return res;
+}
+
+
+operation Interaction createLifelines(howMany : Integer, mode : String) : Sequence(Lifeline) {
+	var res : Sequence(Lifeline) = new Sequence(Lifeline);
+	var i : Integer = 0;
+	while(i < howMany.asInteger()) {
+		var ll : Lifeline = self.newLifeline(mode);
+		res.add(ll);
+		i+=1;
+	}
+	return res;
+}
+
+operation Interaction createMessages(howMany : Integer, mode : String) : Sequence(Message) {
+	var res : Sequence(Message) = new Sequence(Message);
+	var i : Integer = 0;
+	while(i < howMany.asInteger()) {
+		var m : Message = self.newMessage(mode);
+		res.add(m);
+		i+=1;
+	}
+	return res;
+}
+
+operation Interface createOperations(howMany : Integer, mode : String) : Sequence(Operation) {
+	var res : Sequence(Operation) = new Sequence(Operation);
+	var i : Integer = 0;
+	while(i < howMany.asInteger()) {
+		var o : Operation = self.newOperation(mode);
+		res.add(o);
+		i+=1;
+	}
+	return res;
+}
+
+operation Model createInterfaces(howMany : Integer, mode : String) : Sequence(Interface) {
+	var res : Sequence(Interface) = new Sequence(Interface);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newInterface(mode));
+		i+=1;
+	}
+	return res;
+}
+
+operation Interaction createMessageOccurrenceSpecifications(howMany : Integer, mode : String) : Sequence(MessageOccurrenceSpecification) {
+	var res : Sequence(MessageOccurrenceSpecification) = new Sequence(MessageOccurrenceSpecification);
+	var i : Integer = 0;
+	while(i < howMany.asInteger()) {
+		var moses : Sequence(MessageOccurrenceSpecification) = self.newMessageOccurrenceSpecifications(mode);
+		res.addAll(moses);
+		i+=1;
+	}
+	return res;
+}
+
+/*
+operation Component createInterfaceRealizations(howMany : Integer, mode : String) : Sequence(InterfaceRealization) {
+	var res : Sequence(InterfaceRealization) = new Sequence(InterfaceRealization);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newInterfaceRealization(mode));
+		i+=1;
+	}
+	return res;
+}
+
+operation Component createUsages(howMany : Integer, mode : String) : Sequence(Usage) {
+	var res : Sequence(Usage) = new Sequence(Usage);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newUsage(mode));
+		i+=1;
+	}
+	return res;
+}
+*/
+
+operation Model createComponents(howMany : Integer, mode : String) : Sequence(Component) {
+	var res : Sequence(Component) = new Sequence(Component);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newComponent(mode));
+		i+=1;
+	}
+	return res;
+}
+
+operation Model createArtifacts(howMany : Integer, mode : String) : Sequence(Artifact) {
+	var res : Sequence(Artifact) = new Sequence(Artifact);
+	var i : Integer = 0;
+	while(i < howMany) {
+		res.add(self.newArtifact(mode));
+		i+=1;
+	}
+	return res;
+}
+
+
+operation Lifeline assignArtifact(mode : String) {
+	var arts = self.getModel().getArtifacts();
+	if(arts.isEmpty()) {
+		arts = self.getModel().createArtifacts(10, true);
+	}
+	if(mode.equals("RANDOM")) {
+		var randArtifact : Artifact;
+		var randIndex : Integer = getRandomIndex(arts.size());
+		var prob : Real = getRandomProb();
+		if(prob <= 0.1) {
+			randArtifact = self.getModel().createArtifacts(1, mode).first();
+		} else {
+			randIndex = getRandomIndex(arts.size());
+			randArtifact = arts.at(randIndex);
+		}
+		if(not Property.allInstances().select(p|p.getOwner()=self.getOwner()).exists(p|p.type=randArtifact)) {
+			var prop : Property = new Property;
+			prop.name = prop.getProperName();
+			prop.type = randArtifact;
+			self.represents = prop;
+			self.getOwner().ownedAttribute.add(prop);
+		} else {
+			self.represents = Property.allInstances().select(p|p.getOwner()=self.getOwner()).selectOne(p|p.type.isDefined() and p.type=randArtifact);
+		}
+		if(randArtifact.getManifestedComponents().isEmpty())
+			randArtifact.assignManifestation(mode);
+		if(randArtifact.getDeploymentDevice().isUndefined())
+			randArtifact.assignDeployment(mode);
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+		
+	}
+}
+
+
+operation Message assignSignature(ints : Sequence(Interface), mode : String) {
+	var randOp : Operation;
+	if(ints.notEmpty()) {
+		if(mode.equals("RANDOM")) {
+			var randIndex : Integer = getRandomIndex(ints.size());
+			var randInt : Interface = ints.at(randIndex);
+			if(randInt.ownedOperation.isDefined() and randInt.ownedOperation.size()>0) {
+				var candidateOps = randInt.collect(i|i.ownedOperation).flatten();
+				randIndex = getRandomIndex(candidateOps.size());
+				randOp  = candidateOps.at(randIndex);
+				self.signature = randOp;
+			}
+		} else
+		if(mode.equals("USER-DRIVEN")) {
+		
+		}
+	}
+}
+
+
+operation Artifact assignManifestation(mode : String) {
+	var comps = self.getModel().getComponents();
+	if(comps.isEmpty()) {
+		comps = self.getModel().createRandomComponents(10, true);
+	} 
+	if(mode.equals("RANDOM")) {
+		var randIndex : Integer = getRandomIndex(comps.size());
+		var prob : Real = getRandomProb();
+		if(prob <= 0.1) {
+			var newComp : Component = self.getModel().createComponents(1, mode).first();
+			newComp.assignInterfaceRealizations(mode);
+			newComp.assignUsages(mode);
+			self.newManifestation(newComp);
+		} else {
+			randIndex = getRandomIndex(comps.size());
+			var randComp : Component = comps.at(randIndex);
+			self.newManifestation(randComp);
+		}
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+	
+	}
+}
+
+operation Artifact assignDeployment(mode : String) {
+	var hosts = self.getModel().getDevices();
+	if(hosts.isEmpty()) {
+		hosts = self.getModel().createDevices(1, mode);
+	}
+	if(mode.equals("RANDOM")) {
+		var randIndex : Integer = getRandomIndex(hosts.size());
+		var prob : Real = getRandomProb();
+		if(prob <= 0.5) {
+			var newHost : Device = self.getModel().createDevices(1, mode).first();
+			self.deployTo(newHost);
+		} else {
+			randIndex = getRandomIndex(hosts.size());
+			var randHost : Device = hosts.at(randIndex);
+			self.deployTo(randHost);
+		}
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+		
+	}
+}
+
+
+operation Component assignInterfaceRealizations(mode : String) {
+	if(self.getModel().getInterfaces().isEmpty()) {
+		ints = self.getModel().createInterfaces(2, mode);
+	}
+	var ints = self.getNonRealizedInterfaces();
+	if(mode.equals("RANDOM")) {
+		var howManyIntReals : Integer = getRandomPositiveLimitedInt(5);
+		var i : Integer = 0;
+		while(i < howManyIntReals) {
+			var randIndex : Integer = getRandomIndex(ints.size());
+			var newIntReal : InterfaceRealization;
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newInterface : Interface = self.getModel().createInterfaces(1, mode).first();
+				newInterface.newOperation();
+				newIntReal = self.newInterfaceRealization(newInterface);
+			} else {
+				randIndex = getRandomIndex(ints.size());
+				var randInterface : Interface = ints.at(randIndex);
+				newIntReal = self.newInterfaceRealization(randInterface);
+				//ints.remove(newInterface);
+			}
+			i+=1;
+		}
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+		
+	}
+}
+
+operation Component assignUsages(mode : String) {
+	if(self.getModel().getInterfaces().isEmpty()) {
+		ints = self.getModel().createInterfaces(2, mode);
+	}
+	var ints = self.getNonUsedInterfaces();
+	if(mode.equals("RANDOM")) {
+		var howManyUsages : Integer = getRandomPositiveLimitedInt(5);
+		var i : Integer = 0;
+		while(i < howManyUsages) {
+			var randIndex : Integer = getRandomIndex(ints.size());
+			var newUsage : Usage;
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newInterface : Interface = self.getModel().createInterfaces(1, mode).first();
+				newInterface.newOperation();
+				newUsage = self.newUsage(newInterface);
+			} else {
+				randIndex = getRandomIndex(ints.size());
+				var randInterface : Interface = ints.at(randIndex);
+				newUsage = self.newUsage(randInterface);
+				//ints.remove(newInterface);
+			}
+			i+=1;
+		}
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+		
+	}
+}
+
+
+
+operation Lifeline setUserDriven(mode : String) {
+	if(mode.equals("USER-DRIVEN")) {
+		self.name = self.getProperName();
+	}
+	if(mode.equals("MANUAL")) {
+		self.name = askForName();
+	}
+	var artifactsNames : Sequence(String) = Artifact.allInstances().collect(s|s.name).asOrderedSet().add("Create new").invert();
+	var choice = UserInput.chooseMany("Select Artifact for Lifeline " + self.getName(), stepsNames);
+	var artifact : Artifact = null;
+	if(choice.equals("Create new")) {
+		artifact = self.getModel().createArtifact();
+		
+		var compsNames : Sequence(String) = Component.allInstances().collect(s|s.name).asOrderedSet().add("Create new").invert();
+		var choice = UserInput.choose("Select Component manifested by Artifact " + artifact.getName(), compsNames);
+		var comp : Component = null;
+		if(choice.equals("Create new")) {
+			comp = self.getModel().createComponents(1).first();
+		} else {
+			comp = Component.allInstances().selectOne(u|u.name=choice);
+		}
+		artifact.newManifestation(comp);
+		
+		var devicesNames : Sequence(String) = Devices.allInstances().collect(s|s.name).asOrderedSet().add("Create new").invert();
+		var choice = UserInput.choose("Select Deployment host for Artifact " + artifact.getName(), devicesNames);
+		var device : Device = null;
+		if(choice.equals("Create new")) {
+			device = self.getModel().createDevices(1).first();
+		} else {
+			device = Device.allInstances().selectOne(u|u.name=choice);
+		}
+		artifact.deployTo(device);
+		
+	} else {
+		artifact = Artifact.allInstances().selectOne(u|u.name=choice);
+		if(Manifestation.allInstances().exists(m|m.client=artifact and 
+												m.utilizedElement.isTypeOf(Component))) {
+			//already manifesting (do nothing))
+		} else {
+			//manifest
+			var compsNames : Sequence(String) = Component.allInstances().collect(s|s.name).asOrderedSet().add("Create new").invert();
+			var choice = UserInput.choose("Select Component manifested by Artifact " + artifact.getName(), compsNames);
+			var comp : Component = null;
+			if(choice.equals("Create new")) {
+				comp = self.getModel().createComponents(1).first();
+			} else {
+				comp = Component.allInstances().selectOne(u|u.name=choice);
+			}
+			artifact.newManifestation(comp);
+		}
+		
+		var unDeployableArtifacts = Artifact.allInstances().select(a|
+					Deployment.allInstances().exists(depl|depl.deployedArtifact.isDefined() and depl.deployedArtifact.contains(a))
+																  );
+		if(unDeployableArtifacts.contains(artifact)) {
+			//already deployed (do nothing))
+		} else {
+			//deploy
+			var devicesNames : Sequence(String) = Devices.allInstances().collect(s|s.name).asOrderedSet().add("Create new").invert();
+			var choice = UserInput.choose("Select Deployment host for Artifact " + artifact.getName(), devicesNames);
+			var device : Device = null;
+			if(choice.equals("Create new")) {
+				device = self.getModel().createDevices(1).first();
+			} else {
+				device = Device.allInstances().selectOne(u|u.name=choice);
+			}
+			artifact.deployTo(device);
+		}
+		
+	}
+}
+
+/*
+operation Interaction createMessages(howMany : Integer, recursive : Boolean, mode : String) : Sequence(Message) {
+	var res : Sequence(Message) = new Sequence(Message);
+	var i = 0;
+	while(i < howMany.asInteger()) {
+		var msg : Message = new Message;
+		self.getMessages().add(msg);
+		if(mode.equals("RANDOM")) {
+			msg.setRandomly(recursive);
+		} else {
+			ll.setUserDriven(mode);
+		}
+		res.add(ll);
+		i+=1;
+	}
+	return res;
+}*/
+
+operation Message setRandomly(recursive : Boolean) {
+	self.name = self.getProperName();
+	var candidateSignatures = Operation.allInstances().select(o|o.satisfies("OperationInNonRealizedOrNonUsedInterface"));
+	var randIndex : Integer = getRandomIndex(candidateSignatures.size());
+	var ops = self.getModel().getOperations();
+	if(ops.isEmpty()) {
+		ops = self.getModel().createRandomOperations(1);
+	} else {
+		var prob : Real = getRandomProb();
+		if(prob <= 0.5) {
+			var newOp : Operation = self.getModel().createRandomOperations(1, recursive).first();
+			self.signature = newOp;
+		} else {
+			randIndex = getRandomIndex(ops.size());
+			var randOp : Operation = ops.at(randIndex);
+			self.signature = randOp;
+		}
+	}
+}
+
+
+
+
+operation Operation setRandomly(recursive : Boolean) {
+	self.name = self.getProperName();
+	var candidateInterfaces = Interface.allInstances().select(i|i.satisfies("NonRealizedOrNonUsedInterface"));
+	var randIndex : Integer = getRandomIndex(candidateInterfaces.size());
+	var ints = self.getModel().getInterfaces();
+	if(ints.isEmpty()) {
+		ints = self.getModel().createInterfaces(1, false, true, true);
+	}
+	var prob : Real = getRandomProb();
+	if(prob <= 0.5) {
+		var newInt : Interface = self.getModel().createInterfaces(1, false, true, true).first();
+		newInt.ownedOperation.add(self);
+		self.signature = newInt;
+	} else {
+		randIndex = getRandomIndex(ints.size());
+		var randInt : Interface = ints.at(randIndex);
+		randInt.ownedOperation.add(self);
+	}
+}
+
+
+operation Interface setRandomly(recursiveOnOps : Boolean, recursiveOnRealiz : Boolean, recursiveOnUses : Boolean) {
+	self.name = self.getProperName();
+	
+	if(recursiveOnOps) {
+		var howManyOps : Integer = getRandomPositiveLimitedInt(5);
+		var i : Integer = 0;
+		while(i < howManyOps) {
+			var candidateOps = Operation.allInstances().select(o|o.satisfies("OperationInNonRealizedInterface"));
+			var randIndex : Integer = getRandomIndex(candidateOps.size());
+			var ops = self.getModel().getOperations();
+			if(ops.isEmpty()) {
+				ops = self.getModel().createRandomOperations(1, false);
+			}
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newOp : Operation = self.getModel().createRandomOperations(1, false).first();
+				self.ownedOperation.add(newOp);
+			} else {
+				randIndex = getRandomIndex(ops.size());
+				var randOp : Operation = ops.at(randIndex);
+				self.ownedOperation.add(randOp);
+			}
+			i+=1;
+		}
+	}
+	
+	if(recursiveOnRealiz) {
+		var howManyReals : Integer = getRandomPositiveLimitedInt(3);
+		var i : Integer = 0;
+		while(i < howManyReals) {
+			var candidateComps = Component.allInstances().select(c|not c.interfaceRealization.exists(r|r.contract=self));
+			var randIndex : Integer = getRandomIndex(candidateComps.size());
+			var comps = self.getModel().getComponents();
+			if(comps.isEmpty()) {
+				comps = self.getModel().createRandomComponents(1, false);
+			}
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newComp : Component = self.getModel().createRandomComponents(1, false).first();
+				newComp.newInterfaceRealization(self);
+			} else {
+				randIndex = getRandomIndex(comps.size());
+				var randComp : Component = comps.at(randIndex);
+				randComp.newInterfaceRealization(self);
+			}
+			i+=1;
+		}
+	}
+	
+	if(recursiveOnUses) {
+		var howManyUses : Integer = getRandomPositiveLimitedInt(3);
+		var i : Integer = 0;
+		while(i < howManyUses) {
+			var candidateComps = Component.allInstances().select(c|not c.packagedElement.exists(el|el.isTypeOf(Usage) and el.supplier.contains(self)));
+			var randIndex : Integer = getRandomIndex(candidateComps.size());
+			var comps = self.getModel().getComponents();
+			if(comps.isEmpty()) {
+				comps = self.getModel().createRandomComponents(1, false);
+			}
+			var prob : Real = getRandomProb();
+			if(prob <= 0.5) {
+				var newComp : Component = self.getModel().createRandomComponents(1, false).first();
+				newComp.newUsage(self);
+			} else {
+				randIndex = getRandomIndex(comps.size());
+				var randComp : Component = comps.at(randIndex);
+				randComp.newUsage(self);
+			}
+			i+=1;
+		}
+	}
+	
+}
+
+
+
+operation Artifact deployTo(d : Device) {
+	var newDepl : Deployment = new Deployment;
+	d.deployments.add(newDepl);
+	newDepl.deployedArtifact.add(self);
+	newDepl.supplier.add(self);
+	newDepl.client.add(d);
+}
+
+operation Model newDevice(mode : String) : Device {
+	var d : Device = new Device;
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(d);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(d);
+		self.packagedElement.add(package);
+	}
+	d.setElementName(mode);
+	return d;
+}
+
+
+
+operation Model newUseCase(mode : String) : UseCase {
+	var uc : UseCase = new UseCase;
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('dynamic')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(uc);
+	} else {
+		package = new Package();
+		package.name = "dynamicView";
+		package.packagedElement.add(uc);
+		self.packagedElement.add(package);
+	}
+	uc.setElementName(mode);
+	var howManyInteractions : Integer = getRandomPositiveLimitedInt(5);
+	if(mode.equals("USER-DRIVEN")) {
+		howManyInteractions = askForPositiveInt("Specify the number of Interactions to create for UseCase " + uc.getName());
+	}
+	uc.createInteractions(howManyInteractions.asInteger());
+	return uc;
+}
+
+operation Model newComponent(mode : String) : Component {
+	var c : Component = new Component;
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('static')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(c);
+	} else {
+		package = new Package();
+		package.name = "staticView";
+		package.packagedElement.add(c);
+		self.packagedElement.add(package);
+	}
+	c.setElementName(mode);
+	c.assignInterfaceRealizations(mode);
+	c.assignUsages(mode);
+	return c;
+}
+
+operation UseCase newInteraction(mode : String) : Interaction {
+	var i : Interaction = new Interaction;
+	i.setElementName(mode);
+	i.useCase.add(self);
+	self.ownedBehavior.add(i);
+	
+	var howManyLifelines : Integer = 10;
+	var howManyMessages : Integer = 10;
+	var howManyMsgOccSpecs : Integer = 10;
+	
+	if(mode.equals("RANDOM")) {
+		howManyLifelines = getRandomPositiveRangedInt(2, 10).println("HOW MANY LIFELINES: ");
+		howManyMessages = getRandomPositiveLimitedInt(10).println("HOW MANY MESSAGES: ");
+		howManyMsgOccSpecs = getRandomPositiveLimitedInt(10).println("HOW MANY MSG OCC SPECS: ");
+	}
+	
+	if(mode.equals("USER-DRIVEN")) {
+		howManyLifelines = askForPositiveInt("Specify the number of Lifelines to create for UseCase " + d.getName());
+		howManyMessages = askForPositiveInt("Specify the number of Messages to create for UseCase " + d.getName());
+		howManyMsgOccSpecs = askForPositiveInt("Specify the total number of MessageOccurrenceSpecifications to create for UseCase " + d.getName());
+	}
+	
+	i.createLifelines(howManyLifelines.asInteger(), mode);
+	i.createMessages(howManyMessages.asInteger(), mode);
+	i.createMessageOccurrenceSpecifications(howManyMsgOccSpecs.asInteger(), mode);
+	return i;
+}
+
+operation Artifact newManifestation(c : Component) : Manifestation {
+	var man : Manifestation = new Manifestation;
+	man.client.add(self);
+	man.supplier.add(c);
+	man.utilizedElement = c;
+	if(self.manifestation.isDefined())
+		self.manifestation.clear();
+	self.manifestation.add(man);
+	return man;
+}
+
+operation Model newInterface(mode : String) : Interface {
+	var i : Interface = new Interface;
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('static')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(i);
+	} else {
+		package = new Package();
+		package.name = "staticView";
+		package.packagedElement.add(i);
+		self.packagedElement.add(package);
+	}
+	i.setElementName(mode);
+	var howManyOperations : Integer = 10;
+	if(mode.equals("RANDOM")) {
+		howManyOperations = getRandomPositiveLimitedInt(10).println("HOW MANY OPERATIONS: ");
+	}
+	if(mode.equals("USER-DRIVEN")) {
+		howManyOperations = askForPositiveInt("Specify the number of Operations to create for Interface " + i.getName());
+	}
+	i.createOperations(howManyOperations.asInteger(), mode);
+	return i;
+}
+
+operation Component newInterfaceRealization(i : Interface) : InterfaceRealization {
+	var ir : InterfaceRealization = new InterfaceRealization;
+	ir.client.add(self);
+	ir.supplier.add(i);
+	ir.contract = i;
+	if(self.interfaceRealization.isDefined())
+		self.interfaceRealization.clear();
+	self.interfaceRealization.add(ir);
+	return ir;
+}
+
+operation Component newUsage(i : Interface) : Usage {
+	var u : Usage = new Usage;
+	u.client.add(self);
+	u.supplier.add(i);
+	self.packagedElement.add(u);
+	return u;
+}
+
+operation Interface newOperation(mode : String) : Operation {
+	var op : Operation = new Operation;
+	op.setElementName(mode);
+	self.ownedOperation.add(op);
+	return op;
+}
+
+operation Interaction newLifeline(mode : String) : Lifeline {
+	var ll : Lifeline = new Lifeline;
+	ll.setElementName(mode);
+	self.lifeline.add(ll);
+	ll.assignArtifact(mode);
+	return ll;
+}
+
+
+
+
+operation Interaction newMessage(mode : String) : Message {
+	var m : Message = new Message;
+	m.setElementName(mode);
+	self.getMessages().add(m);
+	var candidateInterfaces = self.getLifelinesWithManifestedComponent().collect(l|l.represents.type.getManifestedComponents()).collect(c|c.interfaceRealization.flatten().contract).flatten().asSequence();
+	m.assignSignature(candidateInterfaces, mode);
+	return m;
+}
+
+
+operation Interaction newMessageOccurrenceSpecifications(mode : String) : Sequence(MessageOccurrenceSpecification) {
+	var moses : Sequence(MessageOccurrenceSpecification);
+	var sendMos : MessageOccurrenceSpecification = new MessageOccurrenceSpecification;
+	var receiveMos : MessageOccurrenceSpecification = new MessageOccurrenceSpecification;
+	if(self.getMessages().notEmpty()) {
+		if(mode.equals("RANDOM")) {
+			var randMsg : Message;
+			var randIndex : Integer = getRandomIndex(self.getMessages().size());
+			var randMsg : Message = self.getMessages().at(randIndex);
+			receiveMos.setElementName(mode);
+			var opOwners = Component.allInstances().select(c|c.interfaceRealization.isDefined() and c.interfaceRealization.contract.isDefined() and
+															c.interfaceRealization.contract.ownedOperation.isDefined() and 
+															c.interfaceRealization.contract.ownedOperation.flatten().contains(randMsg.signature));
+			randIndex = getRandomIndex(opOwners.size());	
+			var randOwner = opOwners.at(randIndex);
+			var ll : Lifeline = self.getLifelinesWithManifestedComponent().selectOne(l|l.represents.type.getManifestedComponents().contains(randOwner));
+			while(ll.isUndefined()) {
+				ll = self.getLifelinesWithManifestedComponent().selectOne(l|l.represents.type.getManifestedComponents().contains(randOwner));
+			}
+			receiveMos.covered = new Sequence(Lifeline);
+			receiveMos.covered.add(ll);
+			receiveMos.setMessage(randMsg);
+			randMsg.receiveEvent = receiveMos;
+			sendMos.setElementName(mode);
+			var lifelines = self.getLifelinesWithManifestedComponent().excluding(ll);
+			randIndex = getRandomIndex(lifelines.size());	
+			var randSender = lifelines.at(randIndex);
+			sendMos.covered = new Sequence(Lifeline);
+			sendMos.covered.add(randSender);
+			sendMos.setMessage(randMsg);
+			randMsg.sendEvent = sendMos;
+		} else
+		if(mode.equals("USER-DRIVEN")) {
+			
+		}
+	}
+	moses.add(sendMos);
+	moses.add(receiveMos);
+	self.fragment.addAll(moses);
+	return moses;
+}
+
+
+
+operation Model newArtifact(mode : String) : Artifact {
+	var a : Artifact = new Artifact;
+	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	if(package.isDefined()) {
+		package.packagedElement.add(a);
+	} else {
+		package = new Package();
+		package.name = "deploymentView";
+		package.packagedElement.add(a);
+		self.packagedElement.add(package);
+	}
+	a.setElementName(mode);
+	if(a.getManifestedComponents().isEmpty())
+		a.assignManifestation(mode);
+	if(a.getDeploymentDevice().isUndefined())
+		a.assignDeployment(mode);
+	return a;
+}
+
+
+operation UseCase getLifelinesWithNoManifestedComponent() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().select(l|l.getOwner().getOwner()=self and (l.represents.isUndefined() or 
+												(l.represents.isTypeOf(Property) and
+																(not l.represents.type.isTypeOf(Artifact) or (l.represents.type.isTypeOf(Artifact) and 
+																												(l.represents.type.getManifestedComponents().isUndefined() or 
+																												l.represents.type.getManifestedComponents().isEmpty())
+																											 )
+																)
+															  )
+												))
+														.asSequence();
+	return res;
+}
+
+operation UseCase getLifelinesWithManifestedComponent() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().select(l|l.getOwner().getOwner()=self and (l.represents.isUndefined() or 
+												(l.represents.isTypeOf(Property) and
+																l.represents.type.isTypeOf(Artifact) and 
+																	(l.represents.type.getManifestedComponents().isDefined() and 
+																	l.represents.type.getManifestedComponents().notEmpty())
+															  )
+												))
+														.asSequence();
+	return res;
+}
+
+operation Interaction getLifelinesWithManifestedComponent() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().select(l|l.getOwner()=self and l.represents.isDefined() and l.represents.isTypeOf(Property) and
+																l.represents.type.isTypeOf(Artifact) and 
+																	(l.represents.type.getManifestedComponents().isDefined() and 
+																	l.represents.type.getManifestedComponents().notEmpty())
+															  )
+														.asSequence();
+	return res;
+}
+
+operation Artifact getManifestedComponents() : Sequence(Component){
+	var manifestations = self.getManifestations();
+	var returnValue : Sequence(Component);
+	for(man in manifestations){
+		if( man.utilizedElement.isTypeOf(Component) ){
+			returnValue.add(man.utilizedElement);
+		}
+	}
+	return returnValue;
+}
+
+operation UseCase getLifelinesWithNoManifestedClass() : List(Lifeline) {
+	var res : List(Lifeline) = Lifeline.allInstances().select(l|l.getOwner().getOwner()=self and (l.represents.isUndefined() or 
+																(not l.represents.type.isTypeOf(Artifact) or (l.represents.type.isTypeOf(Artifact) and 
+																												(l.represents.type.getManifestedClasses().isUndefined() or 
+																												l.represents.type.getManifestedClasses().isEmpty())
+																											 )
+																))
+															  )
+														.asSequence();
+	return res;
+}
+
+operation Artifact getManifestedClasses() : Sequence(Component){
+	var manifestations = self.getManifestations();
+	var returnValue : Sequence(Component);
+	for(man in manifestations){
+		if( man.utilizedElement.isTypeOf(Class) ){
+			returnValue.add(man.utilizedElement);
+		}
+	}
+	return returnValue;
+}
+
+operation Artifact getDeploymentDevice() : Device {
+	return Device.allInstances->selectOne(dev : Device | 
+		dev.getDeployments()->exists(deploy : Deployment | 
+			deploy.getDeployedArtifacts()->contains(self)
+		)
+	);
+}
+
+operation Message resolveDevice() : Device {
+	if(self.receiveEvent.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.isUndefined())
+		return null;
+	if(self.receiveEvent.covered.represents.isUndefined())
+		return null;
+	if(not self.receiveEvent.covered.represents.first().type.isUndefined())
+		return null;
+	if(not self.receiveEvent.covered.represents.first().type.isTypeOf(Artifact))
+		return null;
+	return self.receiveEvent.covered.represents.first().type.getDeploymentDevice();
+}
+
+operation Message getTargetComponents() : Sequence(Component) {
+	var mos : MessageOccurrenceSpecification = self.receiveEvent;
+	var comps : Sequence(Component) = mos.collect(m|m.covered).flatten().select(l|l.represents.type.isTypeOf(Artifact)).collect(l|l.represents.type.getManifestedComponents());
+	return comps.flatten();
+}
+
+operation Component getNonRealizedInterfaces() : List(Interface){
+	return Interface.allInstances().excludingAll(self.interfaceRealization.collect(ir|ir.contract));
+}
+
+operation Component getNonUsedInterfaces() : List(Interface){
+	return Interface.allInstances().excludingAll(self.packagedElement.select(el|el.isTypeOf(Usage)).collect(u|u.supplier));
+}
+
+operation Model getDevices() : List(Device){
+	return Device.allInstances();
+}
+
+operation Model getComponents() : List(Component){
+	return Component.allInstances();
+}
+
+operation Model getInterfaces() : List(Interface){
+	return Interface.allInstances();
+}
+
+operation Model getOperations() : List(Operation){
+	return Operation.allInstances();
+}
+
+operation Model getArtifacts() : List(Artifact){
+	return Artifact.allInstances();
+}
+
+
+operation getRandomPositiveLimitedInt(upperBound : Integer) : Integer {
+	var int : Integer = 1;
+	if(upperBound>2) {
+		var rand = new Native("java.util.Random");
+		int = (rand.nextDouble() * (upperBound + 1)).asInteger();
+		while(int <= 0 or int > upperBound) {
+			int = (rand.nextDouble() * (upperBound + 1)).asInteger();
+		}
+	}
+	return int;
+}
+
+operation getRandomPositiveRangedInt(lowerBound : Integer, upperBound : Integer) : Integer {
+	var int : Integer = 1;
+	if(upperBound>2 and lowerBound < upperBound) {
+		var rand = new Native("java.util.Random");
+		int = (rand.nextDouble() * (upperBound + 1)).asInteger();
+		while(int < lowerBound or int > upperBound) {
+			int = (rand.nextDouble() * (upperBound + 1)).asInteger();
+		}
+	}
+	return int;
+}
+
+operation getRandomIndex(upperBound : Integer) : Integer {
+	var int : Integer = 0;
+	if(upperBound>2) {
+		var rand = new Native("java.util.Random");
+		int = (rand.nextDouble() * (upperBound + 1)).asInteger();
+		if(int<0) {
+			int = 0;
+		}
+		if(int>=upperBound) {
+			int = upperBound-1;
+		}
+	}
+	return int;
+}
+
+operation getRandomProb() : Real {
+	var randProb = new Native("java.util.Random");
+	var prob : Real = randProb.nextDouble();
+	while(prob<=0 or prob>1) {
+		prob = randProb.nextDouble();
+	}
+	return prob;
+}
+
+operation Element setElementName(mode : String) {
+	if(mode.equals("RANDOM")) {
+		self.name = self.getProperName();
+	} else
+	if(mode.equals("USER-DRIVEN")) {
+		self.name = self.askForName();
+	}
+}

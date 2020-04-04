@@ -10,15 +10,11 @@ import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dt.editor.EolEditor;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import helpers.EOL_Utils;
-import model.EOL_Library_F_Operation;
 import model.EOL_Library_Operation_Superclass;
-import views.EOL_Library_Tree;
 
 /**
  * It extends Epsilon EolEditor in order to save changes to a single operation of an EOL file of the library 

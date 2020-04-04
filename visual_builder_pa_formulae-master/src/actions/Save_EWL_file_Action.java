@@ -10,8 +10,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 
 import dialogs.MessageDialog_EXL_Name;
-import it.spe.disim.univaq.porting.evl2exl.Evl2Ewl;
-import it.spe.disim.univaq.porting.util.PortingUtil;
+import it.univaq.disim.sealab.padre.epsilon_porting.evl2exl.Evl2Ewl;
+import it.univaq.disim.sealab.padre.epsilon_porting.util.PortingUtil;
 import model.EVL_Tree_Root;
 
 /**

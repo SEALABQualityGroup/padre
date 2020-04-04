@@ -82,13 +82,13 @@ operation Interaction getUseCase() : UseCase{
 //messaggi in uscita da una lifeline
 operation Interaction getOutcomingMessageOf(component : Component) : Sequence(Message){
 	var returnValue : Sequence(Message) = new Sequence(Message);
-	var componentLf = component.getLifeline(self);
-	if(componentLf.isUndefined()){
-		showError("Method: getMessageOf() in interaction.eol");
+	var componentLfs = component.getLifelines(self);
+	if(componentLfs.isUndefined()){
+		showError("Method: getOutcomingMessageOf in interaction.eol");
 		return null;
 	}
-	for (mes in self.getMessages()) {
-		if(not mes.isReturn() and componentLf.getCoveredBys()->exists(iterator | iterator == mes.getSendEvent())){
+	for (mes in self.getMessages().select(m|m.hasStereotype("GaAcqStep"))) {
+		if(not mes.isReturn() and componentLfs.exists(l|l.getCoveredBys()->exists(iterator | iterator == mes.getSendEvent()))){
 			returnValue.add(mes);
 		}
 	}
@@ -98,13 +98,13 @@ operation Interaction getOutcomingMessageOf(component : Component) : Sequence(Me
 //messaggi in entrata ad una lifeline
 operation Interaction getIncomingMessageOf(component : Component) : Sequence(Message){
 	var returnValue : Sequence(Message) = new Sequence(Message);
-	var componentLf = component.getLifeline(self);
-	if(componentLf.isUndefined()){
-		showError("Method: getMessageOf() in interaction.eol");
+	var componentLfs = component.getLifelines(self);
+	if(componentLfs.isUndefined()){
+		showError("Method: getIncomingMessageOf() in interaction.eol");
 		return null;
 	}
-	for (mes in self.getMessages()) {
-		if(not mes.isReturn() and componentLf.getCoveredBys()->exists(iterator | iterator == mes.getReceiveEvent())){
+	for (mes in self.getMessages().select(m|m.hasStereotype("GaAcqStep"))) {
+		if(not mes.isReturn() and componentLfs.exists(l|l.getCoveredBys()->exists(iterator | iterator == mes.getReceiveEvent()))){
 			returnValue.add(mes);
 		}
 	}
