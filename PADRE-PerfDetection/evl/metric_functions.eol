@@ -22,24 +22,32 @@ operation Message F_probExec() : Boolean{
 }
 
 operation UML!Operation F_probExec() : Boolean{
-	
+	info("UML!Operation F_probExec() : Boolean");
 	var listOfMes = self.getAllOwnMessages();
+	info(self.name);
+	info(listOfMes.asString);
 	var listOfIntOperands = self.getOwnerInteractionOperands();
 	
 	if(not self.hasStereotype("GaStep"))
 		return false;
+	
+	
 	if(listOfMes.isEmpty()){
+		log("F_probExec of [" + self.name + "] equal to [1] --> [false]");
 		return false;
 	}
 	if(listOfIntOperands.isEmpty()){
+		log("F_probExec of [" + self.name + "] equal to [1] --> [true]");
 		return true; 
 	}
 
 	for(int in listOfIntOperands){
 		if( int.hasStereotype("GaStep") and (int.getValue(int.getStereotype("GaStep"), "prob").asReal() == 1) ){
+			log("F_probExec of [" + self.name + "] equal to [1] --> [true]");		
 			return true;
 		}
 	}
+	log("F_probExec of [" + self.name + "] equal to [1] --> [false]");
 	return false;
 }
 
@@ -55,7 +63,7 @@ operation UML!Operation F_probExec4EP() : Boolean{
 		return false;
 		
 	if(self.retrieveOperation().isDefined()){
-		log("Number of messages of [" + self.owner.name + "] --> [" + self.retrieveOperation().size()+"]");
+		info("Number of messages of [" + self.owner.name + "] --> [" + self.retrieveOperation().size()+"]");
 		return true;
 	}
 	else{
@@ -63,17 +71,24 @@ operation UML!Operation F_probExec4EP() : Boolean{
 	}
 }
 
-operation Component F_probExec() : Boolean {
+operation UML!Component F_probExec() : Boolean {
+	info("UML!Component F_probExec() : Boolean");
+	info("self--> " + self.name);
 	var opGreater = self.getOperationsWithResDemandGreaterOrEqual(th_maxResDemand());
+	info("opGreater --> " + opGreater.asString());
 	
 	if(opGreater.isUndefined() or opGreater.isEmpty()){
 		return false;
 	}
-	var opLesser = self.getOperationsWithResDemandLesserThan(th_minResDemand());
+	
+	var opLess = self.getOperationsWithResDemandLessThan(th_minResDemand());
+	info("opLess --> " + opLess.asString());
 	
 	for (opG in opGreater){
 		var opGInteractionOperands = opG.getOwnerInteractionOperands();
-		for(opL in opLesser){
+		info("opG --> " + opG.asString());
+		info("opGInteractionOperands --> " + opGInteractionOperands.asString());
+		for(opL in opLess){
 			for(opLInteractionOperand in opL.getOwnerInteractionOperands()){
 				for(opGInteractionOperand in opGInteractionOperands){
 					var opGInteractionOperandStereotype = opGInteractionOperand.getStereotype("GaStep");
@@ -81,17 +96,19 @@ operation Component F_probExec() : Boolean {
 					if(opGInteractionOperandStereotype.isDefined() and opLInteractionOperandStereotype.isDefined()){
 						if( (opGInteractionOperand.getValue(opGInteractionOperandStereotype, "prob").asReal() + 
 								opLInteractionOperand.getValue(opLInteractionOperandStereotype, "prob").asReal() ) == 1 )
+								info("F_probExec of [" + self.name + "] equal to [1] --> [true]");
 								return true;
 					}
 				}
 			}
 		}
 	}
+	log("F_probExec of [" + self.name + "] equal to [1] --> [false]");
 	return false;
 }
 
 operation UML!Component F_numClientConnects(th_numClientConnects : Real) : Boolean{
-	("F_numClientConnects of [" + self.name + "] --> " + self.getRequireds().size()).println();
+	log("F_numClientConnects of [" + self.name + "] --> " + self.getRequireds().size());
 	
 	//if(not self.hasStereotype("PaRunTInstance")) 
 	//	return false;
@@ -106,7 +123,7 @@ operation UML!Component F_numClientConnects(th_numClientConnects : Real) : Boole
 operation UML!Component F_numMsgsIn(th_numReceivedMsgs : List(Real)) : Boolean{
 	log("F_numMsgsIn of [" + self.name + "]--> " + self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).size());
 
-	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and not self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isEmpty())
+	if(self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).isDefined() and self.getCriticalLifeline4BlobContainerAP(th_numReceivedMsgs).notEmpty())
 		return true;
 	return false;
 }
@@ -207,10 +224,7 @@ operation Node F_resDemandCpuGreaterOrEqualThan( th_maxResDemandCpu : Real ) : B
 	
 	var criticOperation = self.getCpuCriticOperation();
 	
-	if(debug()){
-		("criticOperation of ["+self.getName()+"]").println();
-		("criticOperation --> "+criticOperation).println();
-	}
+	info("criticOperation of ["+self.getName()+"] --> "+criticOperation);
 	
 	if(criticOperation.isUndefined() or criticOperation.getAppliedStereotypes().isUndefined() ){
 		showError("Context: Node, Method: F_resDemandCpuGreaterOrEqualThan() in metrics_functions.eol");
@@ -225,10 +239,8 @@ operation Node F_resDemandCpuGreaterOrEqualThan( th_maxResDemandCpu : Real ) : B
 	
 	var servCount = criticOperation.getTag("GaStep", "servCount");
 	
-	if(debug()){
-		("servCount of ["+self.getName()+"] --> "+servCount).println();
-		("th_maxResDemandCpu --> "+th_maxResDemandCpu).println();
-	}
+	info("servCount of ["+self.getName()+"] --> "+servCount).println();
+	info("th_maxResDemandCpu --> "+th_maxResDemandCpu);
 	
 	if(servCount->first().asReal() >= th_maxResDemandCpu ){
 		return true;
@@ -332,11 +344,13 @@ operation Operation F_resDemandDiskLesserThan( th_minResDemandDisk : Real ) : Bo
 	return false;	
 }
 
-operation Operation F_resDemandLesserThan( th_minResDemand : List(Real) ) : Boolean{
+operation Operation F_resDemandLessThan( th_minResDemand : List(Real) ) : Boolean{
+	info("F_resDemandLessThan( th_minResDemand : List(Real) ) : Boolean");
+	info(self.name);
 	var turnback : Boolean = false;
 	
 	if(self.isUndefined() or self.getAppliedStereotypes().isUndefined() ){
-		("the element is undefined").println();
+		info("the element is undefined");
 		showError("Method: F_resDemandLesserThan() in metrics_functions.eol");
 	}
 	
@@ -346,12 +360,14 @@ operation Operation F_resDemandLesserThan( th_minResDemand : List(Real) ) : Bool
 	
 	var i : Integer = 0;
 	for(demand in servCount){
+		info("demand.asReal() --> " + demand.asString());
 		if(demand.asReal() < th_minResDemand.at(i) ){ //al primo demand < della soglia relativa ritorna true
 			turnback = true;
 			break;
 		}
 		i = i+1;
 	}
+	info("turnback --> " + turnback);
 	return turnback;	
 }
 
@@ -376,6 +392,7 @@ operation UML!Operation F_resDemand(th_maxResDemand : List(Real)) : Boolean{
 			i = i+1;
 		}
 	}
+	log("F_resDemand of [" + self.name + "] greater than ["+ th_maxResDemand +"] --> ["+ turnback +"]");
 	return turnback;	
 }
 
@@ -404,13 +421,13 @@ operation UML!Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResD
 		return false;*/
 		
 	var opHeavy = self.getOperationsWithResDemandGreaterOrEqual(th_maxOpResDemand);
-	var opLightweight = self.getOperationsWithResDemandLesserThan(th_minResDemand);
+	var opLightweight = self.getOperationsWithResDemandLessThan(th_minResDemand);
 	
-	log("F_resDemand of [" + self.name + "]-> opHeavy: [" + opHeavy.size() + "]  and opLightweight [" + opLightweight.size() + "]");
+	log("F_resDemand of [" + self.name + "] --> opHeavy: [" + opHeavy.size() + "]  and opLightweight [" + opLightweight.size() + "]");
 	
 	//ho almeno un'operazione con un utilizzazione maggiore ed una con un'utilizzazione minore
 	//delle threshold
-	if(not opHeavy.isEmpty() and not opLightweight.isEmpty()){
+	if(opHeavy.notEmpty() and opLightweight.notEmpty()){
 		return true;
 	}
 	return false;
@@ -464,15 +481,15 @@ operation Component F_resDemand(th_maxOpResDemand : List( Real ), th_minResDeman
 	//	return false;
 				
 	var opGreater = self.getOperationsWithResDemandGreaterOrEqual(th_maxOpResDemand);
-	var opLesser = self.getOperationsWithResDemandLesserThan(th_minResDemand);
+	var opLess = self.getOperationsWithResDemandLesserThan(th_minResDemand);
 	
-	if(opGreater.notEmpty() and opLesser.notEmpty()){
+	if(opGreater.notEmpty() and opLess.notEmpty()){
 		return true;
 	}
 	return false;
 }
 
-operation Operation F_T(th_SthReq : Real) : Boolean{
+operation UML!Operation F_T(th_SthReq : Real) : Boolean{
 	info("Operation F_T(th_SthReq : Real) : Boolean");
 	var listOfUseCases : List(UseCase) = self.getUseCases(); 
 	if(listOfUseCases.isEmpty()){
@@ -563,8 +580,11 @@ operation Message F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean{
 }
 
 operation UML!Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	
+	info("UML!Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean");
 	var listOfProcessNode : List(Node) = new List(Node);
+	
+	listOfProcessNode = self.getProcessNodes();
+	info(listOfProcessNode.asString());
 		
 	if(listOfProcessNode.isEmpty()){
 		return false; //non ci sono nodi con lo stereotipo giusto o la classe non è deployata
@@ -579,13 +599,13 @@ operation UML!Operation F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 			}
 		}
 	}
-	return not listOfProcessNodeWithUtilizationGreater.isEmpty().println();
+	log("F_maxHwUtil of [" + self.name + "] with HW Utilization greater than [" + th_maxHwUtil +"] --> [" + listOfProcessNodeWithUtilizationGreater.size() + "]");
+	return not listOfProcessNodeWithUtilizationGreater.isEmpty();
 }
 
 operation UML!Component F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	if(not self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).isEmpty())
-		return true;
-	return false;	
+	log("F_maxHwUtil of [" + self.name + "] with HW Utilization greater than [" + th_maxHwUtil +"] --> [" + self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).size() + "]");
+	return self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).notEmpty();	
 }
 
 
@@ -658,27 +678,13 @@ operation Node F_maxDiskUtil(th_maxDiskUtil : Real) : Boolean {
 	return false;
 }
 
-operation Component F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
-	//if(debug()){
-		("getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil) ["+self.getName()+"] --> "+self.getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil).size()).println();
-	//}
-	
-	//if(self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).notEmpty()){
-	if(self.getDevicesWithMaxUtilizationGreaterThan(th_maxHwUtil).notEmpty()){
-		return true;
-	}
-	return false;	
-}
-
 operation Node F_maxQL(th_maxQL : Real) : Boolean {
 	
 	if(self.hasStereotype("RtUnit") and
 		self.getTag("RtUnit", "queueSize").isDefined() and 
 			self.getTag("RtUnit", "queueSize").asReal() > th_maxQL ){
-		if(debug()){
-			("queueSize of ["+self.getName()+"] --> "+self.getTag("RtUnit", "queueSize").asReal()).println();
-			("queueSize threshold --> "+th_maxQL).println();
-		}
+		info("queueSize of ["+self.getName()+"] --> "+self.getTag("RtUnit", "queueSize").asReal()).println();
+		info("queueSize threshold --> "+th_maxQL);
 		
 		return true;
 	}
@@ -711,9 +717,10 @@ operation Component F_minNetUtil(th_minNetUtil : Real) : Boolean{
 }
 
 //TODO da rivedere
-operation Component F_RT(th_SrtReq : Real) : Boolean {
+operation UML!Component F_RT(th_SrtReq : Real) : Boolean {
+	info("UML!Component F_RT(th_SrtReq : Real) : Boolean");
 	var opGreater = self.getOperationsWithResDemandGreaterOrEqual(th_maxResDemand());
-	var opLesser = self.getOperationsWithResDemandLesserThan(th_minResDemand());
+	var opLess = self.getOperationsWithResDemandLesserThan(th_minResDemand());
 
 	var opG_Messages : Sequence(Message) = new Sequence(Message);
 	var messageList : List(Operation) = new List(Operation);
@@ -730,8 +737,9 @@ operation Component F_RT(th_SrtReq : Real) : Boolean {
 			}
 		}
 	}
-	for(opL in opLesser){
+	for(opL in opLess){
 		var opL_Interactions = opL.getAllInteractions();
+		info("opL_Interactions --> " + opL_Interactions.asString);
 		for(int in opL_Interactions){
 			for(mes in opL.getMessagesIn(int) ){
 				//verifico se il mes e' contenuto in un alternative fragment (AF)
@@ -752,24 +760,25 @@ operation Component F_RT(th_SrtReq : Real) : Boolean {
 					}	
 				}
 			}
-			if(not messageList.isEmpty()){
+			if(messageList.notEmpty()){
 				operationMap.put(int.getUseCase(), messageList.clone());
 			}
 			messageList.clear();
 		}
 	}
+	
 	var criticalUCs : List(UseCase) = new List(UseCase);
+	info("operationMap --> " + operationMap.asString);
 	for(uc in operationMap.keySet()){	
 		if(uc.getValue(uc.getStereotype("GaScenario"), "respT")->first().asReal() >= th_SrtReq )
 			criticalUCs.add(uc);
 	}
-	if(not criticalUCs.isEmpty()){
-		return true;
-	}
-	return false;
+	info(criticalUCs.asString);
+	log("F_RT of [" + self.name + "] with Response Time greater than [" + th_SrtReq +"] --> [" + criticalUCs.size() + "]");
+	return criticalUCs.notEmpty();
 }
 
-operation Operation F_RT(th_SrtReq : Real) : Boolean{
+operation UML!Operation F_RT(th_SrtReq : Real) : Boolean{
 	return self.getUseCases()->exists(iterator | iterator.hasStereotype("GaScenario") and iterator.getValue(iterator.getStereotype("GaScenario"), "respT")->first().asReal() > th_SrtReq );
 }
 

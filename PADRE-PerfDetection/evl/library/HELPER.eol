@@ -5,8 +5,6 @@ operation getMeanValue(values : Sequence) : Real {
 		return 0.0;
 }
 
-
-
 operation Model getGaScenarios() : List(UseCase){
 	return UseCase.allInstances().select(uc|uc.hasStereotype("GaScenario"));
 }
@@ -151,6 +149,21 @@ operation getRandomPositiveInt() : Integer {
 	return int;
 }
 
+operation isPaF(name: String){
+	log("PaF detection rules for --> [" + name +"]" );
+	return true;
+}
+
+operation isEP(name: String){
+	log("EP detection rules for --> [" + name +"]" );
+	return true;
+}
+
+operation isBlob(name: String){
+	log("Blob detection rules for --> [" + name +"]" );
+	return true;
+}
+
 operation showError(msg : String) {
 	if(debug())
 		("[[ "+ msg +" ]]").errln("There was an error!!! ");
@@ -167,4 +180,30 @@ operation info(message : String){
 
 operation log(string : String){
 	string.println();
+}
+
+operation showThresholds() {
+	log("------ showThresholds ------");
+	log("th_maxMsgs --> " + th_maxMsgs().asString());
+	log("th_numReceivedMsgs --> " + th_numReceivedMsgs().asString());
+	log("th_numSentMsgs --> " + th_numSentMsgs().asString());
+	log("th_maxRemMsgs --> " + th_maxRemMsgs().asString());
+	log("th_maxRemInst --> " + th_maxRemInst().asString());
+	log("th_maxClientConnects --> " + th_maxClientConnects().asString());
+	log("th_maxSupplierConnects --> " + th_maxSupplierConnects().asString());
+	log("th_maxExF --> " + th_maxExF().asString());
+	log("th_maxResDemand --> " + th_maxResDemand().asString());
+	log("th_minResDemand --> " + th_minResDemand().asString());
+	log("th_maxOpResDemand --> " + th_maxOpResDemand().asString());
+	log("th_minOpResDemand --> " + th_minOpResDemand().asString());
+	log("th_maxHwUtil --> " + th_maxHwUtil().asString());
+	log("th_maxNetUtil --> " + th_maxNetUtil().asString());
+	log("th_minNetUtil --> " + th_minNetUtil().asString());
+	log("th_SrtReq --> " + th_SrtReq().asString());
+	log("th_SthReq --> " + th_SthReq().asString());
+	log("th_maxQL --> " + th_maxQL().asString());
+	log("th_probExecEp --> " + th_probExecEp().asString());
+	log("------------");
+
+
 }

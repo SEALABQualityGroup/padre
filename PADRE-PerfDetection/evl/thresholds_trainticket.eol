@@ -1,6 +1,7 @@
 /******** DESIGN **************/
 operation th_maxMsgs() : Real{
 	var th_maxMsgs : Real = 3;
+	
 	return th_maxMsgs;
 }
 
@@ -10,10 +11,10 @@ operation th_maxMsgs() : Real{
 }*/
 
 operation th_numReceivedMsgs() : List(Real){
-	var th_maxReceivedMsgs : List(Real);
-	th_maxReceivedMsgs.add(1.21);
-	th_maxReceivedMsgs.add(1.64); 
-	return th_maxReceivedMsgs;
+	var th_numReceivedMsgs : List(Real);
+	th_numReceivedMsgs.add(1.21);
+	th_numReceivedMsgs.add(1.64);
+	return th_numReceivedMsgs;
 }
 
 /*operation th_numSentMsgs() : Real{
@@ -57,13 +58,13 @@ operation th_maxExF() : Real{
 
 operation th_maxResDemand() : List(Real){
 	var th_maxResDemand : List( Real ) = new List( Real );
-	th_maxResDemand.add(4138.36);
+	th_maxResDemand.add(3500.36);
 	return th_maxResDemand;
 }
 
 operation th_minResDemand() : List(Real){	
 	var th_minResDemand : List( Real ) = new List( Real );
-	th_minResDemand.add(24607.78);
+	th_minResDemand.add(3200);
 	return th_minResDemand;
 }
 

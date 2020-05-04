@@ -1,5 +1,6 @@
 import "metric_functions.eol";
-import "thresholds_Trainticket.eol";
+//import "thresholds_eSsopper.eol";
+import "thresholds_trainticket.eol";
 
 //libraries
 import "library/artifact.eol";
@@ -23,6 +24,10 @@ import "library/package.eol";
 //HELPER
 import "library/HELPER.eol";
 
+pre{
+	showThresholds();
+}
+
 
 
 /*********************************************************************************************
@@ -36,7 +41,7 @@ context UML!Operation {
 	critique PaF {
 		check: 
 			not (self.F_probExec() and 	self.F_resDemand(th_maxResDemand()) and
-					(not self.F_T(th_SthReq()) or not self.F_maxHwUtil(th_maxHwUtil()) )) 
+					(self.F_T(th_SthReq()) or self.F_maxHwUtil(th_maxHwUtil()->first()) )) 
 		message : "PaF <Operation> " + self.name
 		fix {
 			title : "Move it to a New Component deployed to a New Node"
@@ -109,7 +114,8 @@ context UML!Operation {
  *							MAX HW UTIL is in the first position							 *
  *					CPU max and min are in second and third position						 *	
  *					DISK max and min are in fourth and fifth position						 *
- *********************************************************************************************
+ *********************************************************************************************/
+ 
 context Node {
 	critique CPS {
 		check: 
@@ -141,7 +147,8 @@ context Node {
 			}
 		}
 	}
-}*/
+}
+
 /*
 context Node {
 	critique CPS {
@@ -212,7 +219,7 @@ context Node {
 		}
 	}
 }
-*/
+
 /*
 context Node {
 	critique CPS_DISK {
@@ -260,12 +267,11 @@ context Node {
  *										reviewed											 *
  *********************************************************************************************/
 
-context Component {
+context UML!Component {
  	critique ExtensiveProcessingAP{
  		check:
- 			not (self.F_resDemand(th_maxResDemand(), th_minResDemand()) and 
- 					self.F_probExec() and 
- 						( self.F_maxHwUtil(th_maxHwUtil())) or self.F_RT(th_SrtReq()) )
+ 			not (self.F_resDemand(th_maxResDemand(), th_minResDemand()) and self.F_probExec() and 
+ 						( self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_RT(th_SrtReq()) ))
  		message : "EP <" + self.type.name + "> " + self.name
  		fix {
 			title : "Move it to a new Component deployed to a new Node"
@@ -301,6 +307,7 @@ context Component {
  *							Antipattern Detection and Validation							 *
  *										reviewed 											 *
  *********************************************************************************************/
+
 context UML!Component {
 	critique Blob_DataContainer{
 		check:
@@ -377,13 +384,13 @@ context UML!Component {
 	}
 }
 
-/*
+
 context Component {
 	critique Blob_DataController {
-		check {
+		check:
 			not( self.F_numClientConnects(th_maxClientConnects()) and self.F_numMsgsOut(th_numSentMsgs()) and 
 				(self.F_maxHwUtil(th_maxHwUtil()->first()) or self.F_maxNetUtil(th_maxNetUtil())) )
-		}
+				
 		message : "Blob Container <" + self.type.name + "> " + self.getName()
 		fix {
 			title : "Move its Critical Operation to a New Component deployed to a New Node"
@@ -433,7 +440,7 @@ context Component {
  *										reviewed											 *
  *********************************************************************************************/
  
-/* 
+
 context Component {
  	critique EmptySemiTruck{
  		check{
@@ -451,14 +458,14 @@ context Component {
 		}
  	}
 }
-*/
+
 
 /*********************************************************************************************
  *																							 *
  *	 								Tower of Babel											 *
  *							Antipattern Detection and Validation							 *
  *									reviewed												 *
- *********************************************************************************************
+ *********************************************************************************************/
  
  context Component {
  	critique TowerOfBabel{

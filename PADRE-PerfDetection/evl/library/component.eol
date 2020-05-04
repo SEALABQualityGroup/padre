@@ -40,7 +40,7 @@ operation UML!Component getLifelines() : List(Lifeline){
 			returnValue.add(lifeline);
 		}
 	}
-	log("Lifeline of [" + self.name + "] -> " + returnValue.size());
+	info("Lifeline of [" + self.name + "] -> " + returnValue.size());
 	return returnValue;
 }
 
@@ -147,7 +147,7 @@ operation Component getUsageRelations() : List(Usage){
  */
 operation Component getAllArtifacts() : Sequence(Artifact){
 	info("Component getAllArtifacts() : Sequence(Artifact)");
-	log("Number of Artifacts of [" + self.name + "] --> [" + Artifact.allInstances().select(a|a.manifestation.utilizedElement.contains(self)).size() +"]");
+	info("Number of Artifacts of [" + self.name + "] --> [" + Artifact.allInstances().select(a|a.manifestation.utilizedElement.contains(self)).size() +"]");
 
 	return Artifact.allInstances().select(a|a.manifestation.utilizedElement.contains(self));
 }
@@ -452,9 +452,7 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 	for(lf in lifelines){
 		var mapOfInteracationAndOutgoingMsgs = lf.getOutgoingMessages(); //OK - returns a Map(interaction, seq of Mes)
 		var outgoingMsgsProbability = 0.0;
-		if(debug()){
-			("number of outgoing messages of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getOutgoingMessages().size()).println();
-		}
+		info("number of outgoing messages of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getOutgoingMessages().size());
 		
 		for(int in mapOfInteracationAndOutgoingMsgs.keySet()){
 			for(mes in mapOfInteracationAndOutgoingMsgs.get(int)){
@@ -481,9 +479,7 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 			outgoingMsgsProbability = outgoingMsgsProbability + mes.getSendEvent().getProbabilityOf();
 		}*/
 		
-		if(debug()){
-			("outgoingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+outgoingMsgsProbability).println();
-		}
+		info("outgoingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+outgoingMsgsProbability);
 		
 		/*if(outgoingMsgsProbability >= th_numReceivedMsgs)
 			returnValue.add(lf);*/
@@ -525,7 +521,7 @@ operation Component getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(R
 
 operation UML!Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node){
 	info("UML!Component getNodesWithUtilizationGreaterThan(th_maxHwUtil : Real) : Sequence(Node)");
-	log("Number of nodes of [" + self.name + "] with utilization >= " + th_maxHwUtil + " --> [" + self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil).size +"]");
+	info("Number of nodes of [" + self.name + "] with utilization >= " + th_maxHwUtil + " --> [" + self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil).size +"]");
 	return self.getNodes()->select(n : Node | n.getUtilization() >= th_maxHwUtil);
 }
 
@@ -591,10 +587,8 @@ operation Component getOperationsWithCpuResDemandGreaterOrEqual(th_maxResDemand 
 		showError("Method: getOperationsWithCpuResDemandGreaterOrEqual() in component.eol");
 	}
 	
-	if(debug()){
-		("returnValue of ["+self.getName()+"] --> "+returnValue).println();
-		("listOfOperations of ["+self.getName()+"] --> "+listOfOperations).println();
-	}
+	info("returnValue of ["+self.getName()+"] --> "+returnValue);
+	info("listOfOperations of ["+self.getName()+"] --> "+listOfOperations);
 	
 	return returnValue->sortBy(iterator | iterator.getAverageDemand());
 }
@@ -617,12 +611,14 @@ operation Component getOperationsWithDiskResDemandGreaterOrEqual(th_maxResDemand
 	return returnValue->sortBy(iterator | iterator.getAverageDemand());
 }
 
-operation Component getOperationsWithResDemandLesserThan(th_minResDemand : List(Real) ) : List(Operation){
+operation Component getOperationsWithResDemandLessThan(th_minResDemand : List(Real) ) : List(Operation){
+	info("getOperationsWithResDemandLessThan(th_minResDemand : List(Real) ) : List(Operation)");
 	var listOfOperations = self.getOperations();
+	info("listOfOperations --> " + listOfOperations.asString());
 	var returnValue : List(Operation) = new List(Operation);
 	for(op in listOfOperations){
 		if(op.hasStereotype('GaStep')){
-			if(op.F_resDemandLesserThan(th_minResDemand) ){
+			if(op.F_resDemandLessThan(th_minResDemand) ){
 				returnValue.add(op);
 			}
 		}
@@ -973,7 +969,7 @@ operation Component getUsedFormat() : Any{
 		var selfLf : Lifeline = int.getLifelineOf(self);
 		var listOfMes = selfLf.getIncomingMessages();
 		//var listOfMes = int.getMessageOf(self);
-		for(mes in listOfMes){
+		for(mes in listOfMes.get(int)){
 			if(mes.hasStereotype("GaEventTrace") and mes.getValue(mes.getStereotype("GaEventTrace"), "format").isDefined() ){
 				if( mapFormatTypeUsage.isEmpty() or 
 						not mapFormatTypeUsage.containsKey(mes.getValue(mes.getStereotype("GaEventTrace"), "format"))){
@@ -1018,7 +1014,7 @@ operation Map getMostUsed() : Map {
 
 operation Component reduceNumberOfSupplierConnects(th_maxConnects : Real) : Boolean{
 	
-	log("reduce number of Supplier connects of --> "+self.getName());
+	info("reduce number of Supplier connects of --> "+self.getName());
 	
 	var listOfOperations = self.getOperations();
 	
@@ -1087,7 +1083,7 @@ operation Component reduceNumberOfSupplierConnects(th_maxConnects : Real) : Bool
 
 operation Component reduceNumberOfClientConnects(th_maxConnects : Real) : Boolean{
 	
-	("reduce number of clients connects of --> "+ self.getName()).println();
+	info("reduce number of clients connects of --> "+ self.getName());
 	
 	var listOfUsedInterfaces = self.getRequireds();
 	

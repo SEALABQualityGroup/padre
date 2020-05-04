@@ -250,7 +250,7 @@ operation UML!Node getUtilization() : Real{
 	var utilization : Real;
 	if(self.hasStereotype("GaExecHost")){
 		var selfUtilization = self.getTag("GaExecHost", "utilization");
-		log("Utilzation of [" + self.name + "] --> [" + selfUtilization.asString() + "]");
+		info("Utilzation of [" + self.name + "] --> [" + selfUtilization.asString() + "]");
 		if(selfUtilization.isDefined() and not selfUtilization.isEmpty()){
 			return selfUtilization->first().asReal();
 		}else{
@@ -963,9 +963,7 @@ operation Node getCpuCriticOperation() : Operation{
 		return null;
 	}
 	
-	if(debug()){
-		("components of ["+self.getName()+"] --> "+ components).println();
-	}
+	info("components of ["+self.getName()+"] --> "+ components);
 	
 	
 	for(comp in components){

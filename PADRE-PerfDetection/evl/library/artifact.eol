@@ -134,7 +134,7 @@ operation Artifact getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(Re
 		var mapOfInteracationAndOutgoingMsgs = lf.getOutgoingMessages(); //OK - returns a Map(interaction, seq of Mes)
 		var outgoingMsgsProbability = 0.0;
 		//if(debug()){
-			("number of outgoing messages of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getOutgoingMessages().size()).println();
+			info("number of outgoing messages of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+lf.getOutgoingMessages().size());
 		//}
 		
 		for(int in mapOfInteracationAndOutgoingMsgs.keySet()){
@@ -151,9 +151,7 @@ operation Artifact getCriticalLifeline4BlobControllerAP(th_numSentMsgs : List(Re
 				default : showError("Method: getCriticalLifeline4BlobContainerAP in component.eol"); 
 			}
 		}
-		//if(debug()){
-			("outgoingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+outgoingMsgsProbability).println();
-		//}
+		info("outgoingMsgsProbability of ["+lf.represents.type.name+"] in ["+lf.getInteraction().getName()+"] --> "+outgoingMsgsProbability);
 	}
 	
 	return returnValue;
