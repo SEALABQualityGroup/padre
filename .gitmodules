@@ -1,0 +1,3 @@
+[submodule "PADRE-PerfDetection"]
+	path = PADRE-PerfDetection
+	url = git@github.com:SEALABQualityGroup/padre-perf_detection.git
