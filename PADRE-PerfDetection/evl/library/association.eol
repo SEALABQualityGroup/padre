@@ -1,3 +1,0 @@
-operation Association isNetworkLink() : Boolean{
-	return self.hasStereotype("GaCommChannel");
-}
