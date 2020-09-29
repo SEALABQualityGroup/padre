@@ -80,7 +80,7 @@ operation Node cloneLink(listOfLinkedNode : List(Property), packageContainer : P
 	}
 }
 
-operation Model createNewNode() : Node{
+/*operation Model createNewNode() : Node{
 	var newNode : Node = new Node; //creo il nuovo nodo
 	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
 	packageContainer.addElement(newNode);
@@ -96,13 +96,13 @@ operation Model createNewNode() : Node{
 	newNode.name = newNode.getRandomName();
 	newNode.setRandoms();
 	return newNode;
-}
+}*/
 
 operation Node createNewNode() : Node{
 	var newNode : Node = new Node; //creo il nuovo nodo
 	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
 	packageContainer.addElement(newNode);
-	newNode.setRandoms();
+	//newNode.setRandoms();
 	newNode.name = self.getName()+" Splitted";
 	
 	var listOfLinkedNode = self.getDirectlyLinkedNode();
@@ -111,8 +111,8 @@ operation Node createNewNode() : Node{
 	newNode.cloneLink(listOfLinkedNode, packageContainer);
 	newNode.cloneAppliedStereotypesFrom(self);
 	
-	self.resetUtilization();
-	newNode.resetUtilization();
+//	self.resetUtilization();
+	//newNode.resetUtilization();
 	
 	return newNode;
 }
@@ -139,6 +139,11 @@ operation Node createNewDevice() : Device {
 
 
 operation Node setRandoms() {
+	
+	for(s in Stereotype.all){
+		s.println();
+	}
+
 	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
 	if(not self.hasStereotype("GaExecHost"))
 		self.applyStereotype(gaExecHost);

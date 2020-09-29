@@ -338,6 +338,9 @@ Comment:.
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379601367_716922_7592" name="" visibility="private" type="_19_0_2_28c0145_1584378950648_584973_6562" association="_19_0_2_28c0145_1584379601367_851415_7590"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379604585_918417_7605" name="" visibility="private" type="_19_0_2_28c0145_1584378919609_437957_6465" association="_19_0_2_28c0145_1584379604584_798180_7603"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379607836_590001_7618" name="" visibility="private" type="_19_0_2_28c0145_1584378926017_559379_6493" association="_19_0_2_28c0145_1584379607835_145304_7616"/>
+        <ownedAttribute xmi:id="_wpoJoe4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wpoJou4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzIKEe4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzIKEu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYwU4e6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYwU4u6eEeqzpbBxmAFElg"/>
         <deployment xmi:id="_19_0_2_28c0145_1584541824887_166535_5563" name="" visibility="public" client="_19_0_2_28c0145_1584379044134_55785_6672" supplier="_19_0_2_28c0145_1584541824885_4997_5562" deployedArtifact="_19_0_2_28c0145_1584541824885_4997_5562"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379053674_703057_6700" name="container-gateway" visibility="public">
@@ -350,6 +353,9 @@ Comment:.
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379396926_633901_7110" name="" visibility="private" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_19_0_2_28c0145_1584379396926_768424_7109"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379401926_325866_7123" name="" visibility="private" type="_19_0_2_28c0145_1584378996063_589343_6603" association="_19_0_2_28c0145_1584379401925_534249_7122"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379405301_846805_7136" name="" visibility="private" type="_19_0_2_28c0145_1584379066589_747822_6728" association="_19_0_2_28c0145_1584379405301_15948_7135"/>
+        <ownedAttribute xmi:id="_wpltYe4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wpltYu4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzFt0e4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzFt0u4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYsqge6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYsqgu6eEeqzpbBxmAFElg"/>
         <deployment xmi:id="_19_0_2_28c0145_1584541898068_912895_5609" name="" visibility="public" client="_19_0_2_28c0145_1584379053674_703057_6700" supplier="_19_0_2_28c0145_1584541898066_996852_5608" deployedArtifact="_19_0_2_28c0145_1584541898066_996852_5608"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379066589_747822_6728" name="container-items" visibility="public">
@@ -399,11 +405,17 @@ Comment:.
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379455803_68330_7202" name="" visibility="private" type="_19_0_2_28c0145_1584379211473_380252_6955" association="_19_0_2_28c0145_1584379455802_539155_7200"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379536319_766576_7409" name="" visibility="private" type="_19_0_2_28c0145_1584379194813_261214_6927" association="_19_0_2_28c0145_1584379536318_452579_7408"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379589779_180798_7552" name="" visibility="private" type="_19_0_2_28c0145_1584379044134_55785_6672" association="_19_0_2_28c0145_1584379589779_925622_7551"/>
+        <ownedAttribute xmi:id="_wprM8e4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wprM8u4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzJYMe4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzJYMu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYzYMe6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYzYMu6eEeqzpbBxmAFElg"/>
         <deployment xmi:id="_19_0_2_28c0145_1584541662132_213429_5448" name="" visibility="public" client="_19_0_2_28c0145_1584379144495_978791_6883" supplier="_19_0_2_28c0145_1584541662130_940295_5447" deployedArtifact="_19_0_2_28c0145_1584541662130_940295_5447"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379178817_76649_6915" name="container-products-db" visibility="public">
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379178825_94749_6918" name="" visibility="private" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_19_0_2_28c0145_1584379178824_124575_6916"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379533090_64414_7396" name="" visibility="private" type="_19_0_2_28c0145_1584379194813_261214_6927" association="_19_0_2_28c0145_1584379533089_103072_7395"/>
+        <ownedAttribute xmi:id="_wpkfQe4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wplGUO4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzEfsO4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzEfse4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYq1UO6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYq1Ue6eEeqzpbBxmAFElg"/>
       </packagedElement>
       <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_19_0_2_28c0145_1584379178824_124575_6916" name="" visibility="public" memberEnd="_19_0_2_28c0145_1584379178824_670946_6917 _19_0_2_28c0145_1584379178825_94749_6918"/>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379194813_261214_6927" name="container-registration" visibility="public">
@@ -423,6 +435,9 @@ Comment:.
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379536319_645212_7410" name="" visibility="private" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_19_0_2_28c0145_1584379536318_452579_7408"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379539087_266737_7423" name="" visibility="private" type="_19_0_2_28c0145_1584379066589_747822_6728" association="_19_0_2_28c0145_1584379539086_757566_7421"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379542226_919313_7436" name="" visibility="private" type="_19_0_2_28c0145_1584379072484_165501_6757" association="_19_0_2_28c0145_1584379542225_510143_7434"/>
+        <ownedAttribute xmi:id="_wpnike4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wpniku4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzHjAe4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzHjAu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYvGwe6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYvGwu6eEeqzpbBxmAFElg"/>
         <deployment xmi:id="_19_0_2_28c0145_1584536935442_709674_5333" name="" visibility="public" client="_19_0_2_28c0145_1584379194813_261214_6927" supplier="_19_0_2_28c0145_1584536935440_861919_5332" deployedArtifact="_19_0_2_28c0145_1584536935440_861919_5332"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379211473_380252_6955" name="container-security" visibility="public">
@@ -433,6 +448,9 @@ Comment:.
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379455802_994102_7201" name="" visibility="private" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_19_0_2_28c0145_1584379455802_539155_7200"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379459457_172085_7214" name="" visibility="private" type="_19_0_2_28c0145_1584379066589_747822_6728" association="_19_0_2_28c0145_1584379459456_796236_7213"/>
         <ownedAttribute xmi:id="_19_0_2_28c0145_1584379462710_622353_7227" name="" visibility="private" type="_19_0_2_28c0145_1584378942682_381362_6534" association="_19_0_2_28c0145_1584379462709_8857_7226"/>
+        <ownedAttribute xmi:id="_wpm7ge4KEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_wpm7gu4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzG78e4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzG78u4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYt4oe6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYt4ou6eEeqzpbBxmAFElg"/>
         <deployment xmi:id="_19_0_2_28c0145_1584541848140_803513_5586" name="" visibility="public" client="_19_0_2_28c0145_1584379211473_380252_6955" supplier="_19_0_2_28c0145_1584541848138_295417_5585" deployedArtifact="_19_0_2_28c0145_1584541848138_295417_5585"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Node" xmi:id="_19_0_2_28c0145_1584379234322_251566_6983" name="container-wishlist" visibility="public">
@@ -533,6 +551,69 @@ Comment:.
       </packagedElement>
       <packagedElement xmi:type="uml:Artifact" xmi:id="_19_0_2_28c0145_1584541898066_996852_5608" name="gateway" visibility="public" fileName="">
         <manifestation xmi:id="_19_0_2_28c0145_1584541910952_825495_5629" name="" visibility="public" client="_19_0_2_28c0145_1584541898066_996852_5608" supplier="_19_0_2_28c0145_1584374284661_640221_5110" utilizedElement="_19_0_2_28c0145_1584374284661_640221_5110"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Node" xmi:id="_wpEwAO4KEeqD4sxOHdDtbw" name="container-products Splitted">
+        <ownedAttribute xmi:id="_wpkfQO4KEeqD4sxOHdDtbw" name="container-products-db" type="_19_0_2_28c0145_1584379178817_76649_6915" association="_wplGUO4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_wpltYO4KEeqD4sxOHdDtbw" name="container-gateway" type="_19_0_2_28c0145_1584379053674_703057_6700" association="_wpltYu4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_wpm7gO4KEeqD4sxOHdDtbw" name="container-security" type="_19_0_2_28c0145_1584379211473_380252_6955" association="_wpm7gu4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_wpnikO4KEeqD4sxOHdDtbw" name="container-registration" type="_19_0_2_28c0145_1584379194813_261214_6927" association="_wpniku4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_wpoJoO4KEeqD4sxOHdDtbw" name="container-config" type="_19_0_2_28c0145_1584379044134_55785_6672" association="_wpoJou4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_wprM8O4KEeqD4sxOHdDtbw" name="container-products" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_wprM8u4KEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzIxIe4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_DzIxIu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYxjAe6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYxjAu6eEeqzpbBxmAFElg"/>
+        <deployment xmi:id="_wp_9Ee4KEeqD4sxOHdDtbw" name="products" client="_wpEwAO4KEeqD4sxOHdDtbw" supplier="_wp2zIO4KEeqD4sxOHdDtbw" deployedArtifact="_wp2zIO4KEeqD4sxOHdDtbw"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wplGUO4KEeqD4sxOHdDtbw" name="A_container-products-db_container-products Splitted" memberEnd="_wpkfQO4KEeqD4sxOHdDtbw _wpkfQe4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wpltYu4KEeqD4sxOHdDtbw" name="A_container-gateway_container-products Splitted" memberEnd="_wpltYO4KEeqD4sxOHdDtbw _wpltYe4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wpm7gu4KEeqD4sxOHdDtbw" name="A_container-security_container-products Splitted" memberEnd="_wpm7gO4KEeqD4sxOHdDtbw _wpm7ge4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wpniku4KEeqD4sxOHdDtbw" name="A_container-registration_container-products Splitted" memberEnd="_wpnikO4KEeqD4sxOHdDtbw _wpnike4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wpoJou4KEeqD4sxOHdDtbw" name="A_container-config_container-products Splitted" memberEnd="_wpoJoO4KEeqD4sxOHdDtbw _wpoJoe4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_wprM8u4KEeqD4sxOHdDtbw" name="A_container-products_container-products Splitted" memberEnd="_wprM8O4KEeqD4sxOHdDtbw _wprM8e4KEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:Artifact" xmi:id="_wp2zIO4KEeqD4sxOHdDtbw" name="products">
+        <manifestation xmi:id="_wp_9EO4KEeqD4sxOHdDtbw" name="products" client="_wp2zIO4KEeqD4sxOHdDtbw" supplier="_19_0_2_28c0145_1584374454716_967707_5373" utilizedElement="_19_0_2_28c0145_1584374454716_967707_5373"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Node" xmi:id="_DzCDcO4LEeqD4sxOHdDtbw" name="container-products Splitted">
+        <ownedAttribute xmi:id="_DzD4oO4LEeqD4sxOHdDtbw" name="container-products-db" type="_19_0_2_28c0145_1584379178817_76649_6915" association="_DzEfse4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzFt0O4LEeqD4sxOHdDtbw" name="container-gateway" type="_19_0_2_28c0145_1584379053674_703057_6700" association="_DzFt0u4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzG78O4LEeqD4sxOHdDtbw" name="container-security" type="_19_0_2_28c0145_1584379211473_380252_6955" association="_DzG78u4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzHjAO4LEeqD4sxOHdDtbw" name="container-registration" type="_19_0_2_28c0145_1584379194813_261214_6927" association="_DzHjAu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzIKEO4LEeqD4sxOHdDtbw" name="container-config" type="_19_0_2_28c0145_1584379044134_55785_6672" association="_DzIKEu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzIxIO4LEeqD4sxOHdDtbw" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_DzIxIu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_DzJYMO4LEeqD4sxOHdDtbw" name="container-products" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_DzJYMu4LEeqD4sxOHdDtbw"/>
+        <ownedAttribute xmi:id="_LYyKEe6eEeqzpbBxmAFElg" name="container-products Splitted" type="_LYhrYO6eEeqzpbBxmAFElg" association="_LYyKEu6eEeqzpbBxmAFElg"/>
+        <deployment xmi:id="_DzL0cO4LEeqD4sxOHdDtbw" name="products" client="_DzCDcO4LEeqD4sxOHdDtbw" supplier="_DzKmUO4LEeqD4sxOHdDtbw" deployedArtifact="_DzKmUO4LEeqD4sxOHdDtbw"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzEfse4LEeqD4sxOHdDtbw" name="A_container-products-db_container-products Splitted" memberEnd="_DzD4oO4LEeqD4sxOHdDtbw _DzEfsO4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzFt0u4LEeqD4sxOHdDtbw" name="A_container-gateway_container-products Splitted" memberEnd="_DzFt0O4LEeqD4sxOHdDtbw _DzFt0e4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzG78u4LEeqD4sxOHdDtbw" name="A_container-security_container-products Splitted" memberEnd="_DzG78O4LEeqD4sxOHdDtbw _DzG78e4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzHjAu4LEeqD4sxOHdDtbw" name="A_container-registration_container-products Splitted" memberEnd="_DzHjAO4LEeqD4sxOHdDtbw _DzHjAe4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzIKEu4LEeqD4sxOHdDtbw" name="A_container-config_container-products Splitted" memberEnd="_DzIKEO4LEeqD4sxOHdDtbw _DzIKEe4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzIxIu4LEeqD4sxOHdDtbw" name="A_container-products Splitted_container-products Splitted" memberEnd="_DzIxIO4LEeqD4sxOHdDtbw _DzIxIe4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_DzJYMu4LEeqD4sxOHdDtbw" name="A_container-products_container-products Splitted" memberEnd="_DzJYMO4LEeqD4sxOHdDtbw _DzJYMe4LEeqD4sxOHdDtbw"/>
+      <packagedElement xmi:type="uml:Artifact" xmi:id="_DzKmUO4LEeqD4sxOHdDtbw" name="products">
+        <manifestation xmi:id="_DzLNYO4LEeqD4sxOHdDtbw" name="products" client="_DzKmUO4LEeqD4sxOHdDtbw" supplier="_19_0_2_28c0145_1584374454716_967707_5373" utilizedElement="_19_0_2_28c0145_1584374454716_967707_5373"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Node" xmi:id="_LYhrYO6eEeqzpbBxmAFElg" name="container-products Splitted">
+        <ownedAttribute xmi:id="_LYqOQO6eEeqzpbBxmAFElg" name="container-products-db" type="_19_0_2_28c0145_1584379178817_76649_6915" association="_LYq1Ue6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYsqgO6eEeqzpbBxmAFElg" name="container-gateway" type="_19_0_2_28c0145_1584379053674_703057_6700" association="_LYsqgu6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYt4oO6eEeqzpbBxmAFElg" name="container-security" type="_19_0_2_28c0145_1584379211473_380252_6955" association="_LYt4ou6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYvGwO6eEeqzpbBxmAFElg" name="container-registration" type="_19_0_2_28c0145_1584379194813_261214_6927" association="_LYvGwu6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYwU4O6eEeqzpbBxmAFElg" name="container-config" type="_19_0_2_28c0145_1584379044134_55785_6672" association="_LYwU4u6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYxjAO6eEeqzpbBxmAFElg" name="container-products Splitted" type="_wpEwAO4KEeqD4sxOHdDtbw" association="_LYxjAu6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYyKEO6eEeqzpbBxmAFElg" name="container-products Splitted" type="_DzCDcO4LEeqD4sxOHdDtbw" association="_LYyKEu6eEeqzpbBxmAFElg"/>
+        <ownedAttribute xmi:id="_LYzYMO6eEeqzpbBxmAFElg" name="container-products" type="_19_0_2_28c0145_1584379144495_978791_6883" association="_LYzYMu6eEeqzpbBxmAFElg"/>
+        <deployment xmi:id="_LY2bge6eEeqzpbBxmAFElg" name="products" client="_LYhrYO6eEeqzpbBxmAFElg" supplier="_LY1NYO6eEeqzpbBxmAFElg" deployedArtifact="_LY1NYO6eEeqzpbBxmAFElg"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYq1Ue6eEeqzpbBxmAFElg" name="A_container-products-db_container-products Splitted" memberEnd="_LYqOQO6eEeqzpbBxmAFElg _LYq1UO6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYsqgu6eEeqzpbBxmAFElg" name="A_container-gateway_container-products Splitted" memberEnd="_LYsqgO6eEeqzpbBxmAFElg _LYsqge6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYt4ou6eEeqzpbBxmAFElg" name="A_container-security_container-products Splitted" memberEnd="_LYt4oO6eEeqzpbBxmAFElg _LYt4oe6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYvGwu6eEeqzpbBxmAFElg" name="A_container-registration_container-products Splitted" memberEnd="_LYvGwO6eEeqzpbBxmAFElg _LYvGwe6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYwU4u6eEeqzpbBxmAFElg" name="A_container-config_container-products Splitted" memberEnd="_LYwU4O6eEeqzpbBxmAFElg _LYwU4e6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYxjAu6eEeqzpbBxmAFElg" name="A_container-products Splitted_container-products Splitted" memberEnd="_LYxjAO6eEeqzpbBxmAFElg _LYxjAe6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYyKEu6eEeqzpbBxmAFElg" name="A_container-products Splitted_container-products Splitted" memberEnd="_LYyKEO6eEeqzpbBxmAFElg _LYyKEe6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_LYzYMu6eEeqzpbBxmAFElg" name="A_container-products_container-products Splitted" memberEnd="_LYzYMO6eEeqzpbBxmAFElg _LYzYMe6eEeqzpbBxmAFElg"/>
+      <packagedElement xmi:type="uml:Artifact" xmi:id="_LY1NYO6eEeqzpbBxmAFElg" name="products">
+        <manifestation xmi:id="_LY2bgO6eEeqzpbBxmAFElg" name="products" client="_LY1NYO6eEeqzpbBxmAFElg" supplier="_19_0_2_28c0145_1584374454716_967707_5373" utilizedElement="_19_0_2_28c0145_1584374454716_967707_5373"/>
       </packagedElement>
     </packagedElement>
     <packagedElement xmi:type="uml:Package" xmi:id="_19_0_2_28c0145_1584380301787_22496_7922" name="marte_resources" visibility="public" URI="">
@@ -2876,27 +2957,27 @@ Comment:.
   <NFPs:NfpType xmi:id="_GEMyOW-CEeqmpuYYGHlOBw" base_DataType="_55fyMBFGEdyBd9q9NMDXUQ" valueAttrib="_76_I0BFGEdyBd9q9NMDXUQ"/>
   <NFPs:NfpType xmi:id="_GEMyOm-CEeqmpuYYGHlOBw" base_DataType="_ACuvABD_EdyybZnLxHsjyA" exprAttrib="_EC4KsBD_EdyybZnLxHsjyA"/>
   <NFPs:Dimension xmi:id="_GEMyO2-CEeqmpuYYGHlOBw" baseDimension="_GEMyP2-CEeqmpuYYGHlOBw _GEMyQ2-CEeqmpuYYGHlOBw" base_Enumeration="_DyNg0A4zEdysTsAUPnp57Q">
-    <baseExponent>1</baseExponent>
-    <baseExponent>-1</baseExponent>
+    <baseExponent xmi:id="_xdlTIMv9EeqkQ6GycQCZWA">1</baseExponent>
+    <baseExponent xmi:id="_xdlTIcv9EeqkQ6GycQCZWA">-1</baseExponent>
   </NFPs:Dimension>
   <NFPs:Dimension xmi:id="_GEMyPG-CEeqmpuYYGHlOBw" baseDimension="_GEMyQW-CEeqmpuYYGHlOBw _GEMyQG-CEeqmpuYYGHlOBw _GEMyQ2-CEeqmpuYYGHlOBw" base_Enumeration="_UaKKgA4zEdysTsAUPnp57Q">
-    <baseExponent>2</baseExponent>
-    <baseExponent>1</baseExponent>
-    <baseExponent>-2</baseExponent>
+    <baseExponent xmi:id="_xdlTIsv9EeqkQ6GycQCZWA">2</baseExponent>
+    <baseExponent xmi:id="_xdlTI8v9EeqkQ6GycQCZWA">1</baseExponent>
+    <baseExponent xmi:id="_xdlTJMv9EeqkQ6GycQCZWA">-2</baseExponent>
   </NFPs:Dimension>
   <NFPs:Dimension xmi:id="_GEMyPW-CEeqmpuYYGHlOBw" baseDimension="_GEMyQ2-CEeqmpuYYGHlOBw" base_Enumeration="_qFaygA4yEdysTsAUPnp57Q">
-    <baseExponent>-1</baseExponent>
+    <baseExponent xmi:id="_xdlTJcv9EeqkQ6GycQCZWA">-1</baseExponent>
   </NFPs:Dimension>
   <NFPs:Dimension xmi:id="_GEMyPm-CEeqmpuYYGHlOBw" baseDimension="_GEMyQW-CEeqmpuYYGHlOBw" base_Enumeration="_Sw5dsBFUEdyUJeMeN__D-A">
-    <baseExponent>2</baseExponent>
+    <baseExponent xmi:id="_xdlTJsv9EeqkQ6GycQCZWA">2</baseExponent>
   </NFPs:Dimension>
   <NFPs:Dimension xmi:id="_GEMyP2-CEeqmpuYYGHlOBw" symbol="D" base_Enumeration="_2pVmEA4yEdysTsAUPnp57Q"/>
   <NFPs:Dimension xmi:id="_GEMyQG-CEeqmpuYYGHlOBw" symbol="M" base_Enumeration="_fuoVADJSEd211cMdxu944g"/>
   <NFPs:Dimension xmi:id="_GEMyQW-CEeqmpuYYGHlOBw" symbol="L" base_Enumeration="_g5AQ0A4zEdysTsAUPnp57Q"/>
   <NFPs:Dimension xmi:id="_GEMyQm-CEeqmpuYYGHlOBw" baseDimension="_GEMyQW-CEeqmpuYYGHlOBw _GEMyQG-CEeqmpuYYGHlOBw _GEMyQ2-CEeqmpuYYGHlOBw" base_Enumeration="_ijhHUA4yEdysTsAUPnp57Q">
-    <baseExponent>2</baseExponent>
-    <baseExponent>1</baseExponent>
-    <baseExponent>-3</baseExponent>
+    <baseExponent xmi:id="_xdl6MMv9EeqkQ6GycQCZWA">2</baseExponent>
+    <baseExponent xmi:id="_xdl6Mcv9EeqkQ6GycQCZWA">1</baseExponent>
+    <baseExponent xmi:id="_xdl6Msv9EeqkQ6GycQCZWA">-3</baseExponent>
   </NFPs:Dimension>
   <NFPs:Dimension xmi:id="_GEMyQ2-CEeqmpuYYGHlOBw" symbol="T" base_Enumeration="_Iaa3gA4yEdysTsAUPnp57Q"/>
   <Time:Clock xmi:id="_GEUG8G-CEeqmpuYYGHlOBw" base_InstanceSpecification="_42TqEA-JEdyNj8xzjk-DoA"/>
@@ -2911,79 +2992,80 @@ Comment:.
   <GQAM:GaScenario xmi:id="_GEUG-W-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584375404652_771804_5885"/>
   <GQAM:GaScenario xmi:id="_GEUG-m-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584375305873_170187_5857"/>
   <GQAM:GaStep xmi:id="_GEUG-2-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376285866_55561_6175">
-    <servCount>2605.0</servCount>
+    <servCount xmi:id="_xdnvYMv9EeqkQ6GycQCZWA">2605.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUG_G-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_3_28c0145_1585236726435_102510_5254">
-    <servCount>2890.0</servCount>
+    <servCount xmi:id="_xdnvYcv9EeqkQ6GycQCZWA">2890.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuAG-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_3_28c0145_1585236674450_975469_5250">
-    <servCount>2089.0</servCount>
+    <servCount xmi:id="_xdnvYsv9EeqkQ6GycQCZWA">2089.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuAW-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_3_28c0145_1585236628393_269963_5246">
-    <servCount>1903.0</servCount>
+    <servCount xmi:id="_xdnvY8v9EeqkQ6GycQCZWA">1903.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuAm-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376214341_587477_6125">
-    <servCount>1903.0</servCount>
+    <servCount xmi:id="_xdnvZMv9EeqkQ6GycQCZWA">1903.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuA2-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376397487_210275_6229">
-    <servCount>1700.0</servCount>
+    <servCount xmi:id="_xdnvZcv9EeqkQ6GycQCZWA">1700.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuBG-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_3_28c0145_1585236501762_987943_5236">
-    <servCount>1775.0</servCount>
+    <servCount xmi:id="_xdnvZsv9EeqkQ6GycQCZWA">1775.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuBW-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376048231_423152_6021">
-    <servCount>202601.0</servCount>
+    <servCount xmi:id="_xdnvZ8v9EeqkQ6GycQCZWA">202601.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEUuBm-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584378796545_172461_6418" base_Message="_19_0_2_28c0145_1584378796545_172461_6418"/>
   <GQAM:GaStep xmi:id="_GEUuB2-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584378387413_783125_6324" base_Message="_19_0_2_28c0145_1584378387413_783125_6324"/>
   <GQAM:GaStep xmi:id="_GEUuCG-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376072730_766108_6046" base_Message="_19_0_2_28c0145_1584376072730_766108_6046">
-    <servCount>202601.0</servCount>
+    <servCount xmi:id="_xdoWcMv9EeqkQ6GycQCZWA">202601.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVEG-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376166076_774730_6078" base_Message="_19_0_2_28c0145_1584376166076_774730_6078">
-    <servCount>1775.0</servCount>
+    <servCount xmi:id="_xdoWccv9EeqkQ6GycQCZWA">1775.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVEW-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376360330_227113_6203" base_Message="_19_0_2_28c0145_1584376360330_227113_6203">
-    <servCount>2089.0</servCount>
+    <servCount xmi:id="_xdoWcsv9EeqkQ6GycQCZWA">2089.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVEm-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376284484_973342_6167" base_Message="_19_0_2_28c0145_1584376284484_973342_6167">
-    <servCount>2605.0</servCount>
+    <servCount xmi:id="_xdoWc8v9EeqkQ6GycQCZWA">2605.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVE2-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376396138_27158_6221" base_Message="_19_0_2_28c0145_1584376396138_27158_6221">
-    <servCount>1700.0</servCount>
+    <servCount xmi:id="_xdoWdMv9EeqkQ6GycQCZWA">1700.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVFG-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376212801_390876_6117" base_Message="_19_0_2_28c0145_1584376212801_390876_6117">
-    <servCount>1903.0</servCount>
+    <servCount xmi:id="_xdoWdcv9EeqkQ6GycQCZWA">1903.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaStep xmi:id="_GEVVFW-CEeqmpuYYGHlOBw" base_NamedElement="_19_0_2_28c0145_1584376317851_998282_6185" base_Message="_19_0_2_28c0145_1584376317851_998282_6185">
-    <servCount>2890.0</servCount>
+    <servCount xmi:id="_xdo9gMv9EeqkQ6GycQCZWA">2890.0</servCount>
   </GQAM:GaStep>
   <GQAM:GaExecHost xmi:id="_GEVVFm-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379044134_55785_6672"/>
   <GQAM:GaExecHost xmi:id="_GEVVF2-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379211473_380252_6955"/>
   <GQAM:GaExecHost xmi:id="_GEVVGG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379053674_703057_6700"/>
   <GQAM:GaExecHost xmi:id="_GEV8IG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379144495_978791_6883">
-    <utilization>0.078</utilization>
+    <utilization xmi:id="_xdo9gcv9EeqkQ6GycQCZWA">0.078</utilization>
   </GQAM:GaExecHost>
   <GQAM:GaExecHost xmi:id="_GEV8IW-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379242408_848201_7014"/>
   <GQAM:GaExecHost xmi:id="_GEV8Im-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379178817_76649_6915"/>
   <GQAM:GaExecHost xmi:id="_GEV8I2-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379234322_251566_6983"/>
   <GQAM:GaExecHost xmi:id="_GEV8JG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379194813_261214_6927"/>
   <GQAM:GaExecHost xmi:id="_GEV8JW-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379066589_747822_6728">
-    <utilization>0.784</utilization>
+    <utilization xmi:id="_xdpkkMv9EeqkQ6GycQCZWA">0.784</utilization>
   </GQAM:GaExecHost>
   <GQAM:GaExecHost xmi:id="_GEV8Jm-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379117480_959125_6872"/>
   <GQAM:GaExecHost xmi:id="_GEV8J2-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379112229_842788_6840"/>
   <GQAM:GaExecHost xmi:id="_GEV8KG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379094508_305842_6829"/>
   <GQAM:GaExecHost xmi:id="_GEWjMG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379087941_73378_6798"/>
   <GQAM:GaExecHost xmi:id="_GEWjMW-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378996063_589343_6603">
-    <utilization>0.021</utilization>
+    <utilization xmi:id="_xdpkkcv9EeqkQ6GycQCZWA">0.021</utilization>
   </GQAM:GaExecHost>
   <GQAM:GaExecHost xmi:id="_GEWjMm-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379072484_165501_6757"/>
   <GQAM:GaExecHost xmi:id="_GEWjM2-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584379009935_160035_6631"/>
   <GQAM:GaExecHost xmi:id="_GEWjNG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378950648_584973_6562"/>
   <GQAM:GaExecHost xmi:id="_GEWjNW-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378926017_559379_6493"/>
   <GQAM:GaExecHost xmi:id="_GEWjNm-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378828192_551206_6436">
-    <utilization>0.933</utilization>
+    <utilization xmi:id="_xdpkksv9EeqkQ6GycQCZWA">0.933</utilization>
   </GQAM:GaExecHost>
   <GQAM:GaExecHost xmi:id="_GEWjN2-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378942682_381362_6534"/>
   <GQAM:GaExecHost xmi:id="_GEWjOG-CEeqmpuYYGHlOBw" base_Classifier="_19_0_2_28c0145_1584378919609_437957_6465"/>
+  <GQAM:GaExecHost xmi:id="_wpe_sO4KEeqD4sxOHdDtbw" resMult="114568054" base_Classifier="_wpEwAO4KEeqD4sxOHdDtbw" schedPolicy="LeastLaxityFirst" speedFactor="4046.891146623479"/>
 </xmi:XMI>

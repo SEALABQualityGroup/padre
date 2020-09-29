@@ -80,15 +80,46 @@ operation th_minOpResDemand() : List(Real){
 	return th_minOpResDemand;
 }
 
-/*operation th_maxHwUtil() : Real{
-	//Hw Utilization
-	var th_maxHwUtil : Real = 0.85;
-	return th_maxHwUtil;
-}*/
+operation Real sqrt(value : Real){
+
+	
+}
 
 operation th_maxHwUtil() : Sequence(Real){
 	//Hw Utilization
 	var th_maxHwUtil : Sequence(Real);
+	
+	var nodes = Node.all->select(n | n.hasStereotype("GaExecHost"));
+	
+	var utils : Sequence(Real);
+	
+	for(n in nodes){
+		utils.add(n.getTag("GaExecHost", "utilization")->first().asReal());
+	}
+	
+	utils.println("Sum of utils -> ");
+	utils.sum.println("Total UTILS -> ");
+	
+	var avg = utils.sum() / utils.size();
+	
+	var stddev : Real;
+	
+	for(x in utils){
+		var aux = 0.0;
+		aux = x - avg;
+		aux = aux * aux;
+				
+		stddev = stddev + aux;
+	}
+	
+	var mathTool = Native("java.lang.Math");
+	mathTool.class.println("MATH TOOL ->");
+	mathTool.sqrt(stddev/utils.size().asDouble()).println("MATH SQRT -> ");
+	
+	avg.println("Util avg -> ");
+	stddev.println("STDDEV -> ");
+	
+	
 	th_maxHwUtil.add(0.49); //max
 	th_maxHwUtil.add(0.1548); //min
 	return th_maxHwUtil;

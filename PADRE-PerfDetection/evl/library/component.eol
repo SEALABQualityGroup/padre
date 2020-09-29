@@ -48,7 +48,7 @@ operation UML!Component getLifelines() : List(Lifeline){
 
 
 //recupero le lifeline del component
-operation Component getLifelines() : List(Lifeline){
+/*operation Component getLifelines() : List(Lifeline){
 	var returnValue : List(Lifeline) = new List (Lifeline);
 	for(lifeline in Lifeline.allInstances){
 		if(lifeline.getInteraction().isDefined() and lifeline.getRepresents().getType() == self){
@@ -56,7 +56,7 @@ operation Component getLifelines() : List(Lifeline){
 		}
 	}
 	return returnValue;
-}
+}*/
 
 /*
 operation Component getLifeline(interaction : Interaction) : Lifeline{
@@ -293,6 +293,10 @@ operation Component deployOnNewNode() :Boolean {
 }
 
 operation Component deployOn(node : Node){
+	
+	(node.name).println();
+	(self.name).println();
+	
 	var newArtifact : Artifact = new Artifact;
 	var newManifestation; 
 	var newDeployment; 

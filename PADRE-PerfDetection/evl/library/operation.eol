@@ -110,11 +110,13 @@ operation Operation splitClass() : Class{
 //recupero tutti i message dell'operazione
 operation Operation getAllOwnMessages() : List(Message){
 	var returnValue : List(Message) = new List(Message);
+	
 	for(message in Message.allInstances){
 		if(message.hasStereotype("GaStep") and message.getSignature() == self){
 			returnValue.add(message);
 		}
 	}
+	
 	return returnValue;
 }
 
@@ -1387,3 +1389,7 @@ operation Operation getMeanDemand() : Real {
 	return meanDem;
 }
 
+operation UML!Operation test(){
+	for(s in Stereotype.all)
+		s.println();
+}

@@ -608,7 +608,7 @@ operation UML!Component F_maxHwUtil(th_maxHwUtil : Real) : Boolean{
 	return self.getNodesWithUtilizationGreaterThan(th_maxHwUtil).notEmpty();	
 }
 
-
+//By ARCELLI
 operation Device F_maxHwUtil(th_maxHwUtil : Real, operator : String) : Boolean {
 	if(self.hasStereotype("GaExecHost") ){
 		var utilization = self.getMaxUtilization();//self.getValue(self.getStereotype('GaExecHost'), 'utilization')->collect(u|u.asReal())->max().println("MAX UTILIZATION OF DEVICE "+self.getName()+": ");
@@ -776,6 +776,18 @@ operation UML!Component F_RT(th_SrtReq : Real) : Boolean {
 	info(criticalUCs.asString);
 	log("F_RT of [" + self.name + "] with Response Time greater than [" + th_SrtReq +"] --> [" + criticalUCs.size() + "]");
 	return criticalUCs.notEmpty();
+}
+
+
+operation test_F_RT() {
+
+	"$$$$$$$$$$$$$".println();
+
+	for(uc in UML!UseCase.allInstances){
+		uc.getValue(uc.getStereotype("GaScenario"), "respT").println();
+	}
+	
+	"$$$$$$$$$$$$$".println();
 }
 
 operation UML!Operation F_RT(th_SrtReq : Real) : Boolean{
