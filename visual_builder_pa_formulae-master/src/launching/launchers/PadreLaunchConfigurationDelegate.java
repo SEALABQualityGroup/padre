@@ -24,11 +24,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.epsilon.common.dt.console.EpsilonConsole;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
-import org.eclipse.epsilon.eol.IEolExecutableModule;
+import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dt.debug.EolDebugTarget;
 import org.eclipse.epsilon.eol.dt.debug.EolDebugger;
 import org.eclipse.epsilon.eol.dt.launching.EclipseContextManager;
@@ -75,7 +74,7 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 	}
 
 	@Override
-	public IEolExecutableModule createModule() {
+	public IEolModule createModule() {
 		return new EvlModule();
 	}
 
@@ -85,7 +84,7 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 	}
 
 	@Override
-	protected void preExecute(IEolExecutableModule module) throws CoreException, EolRuntimeException {
+	protected void preExecute(IEolModule module) throws CoreException, EolRuntimeException {
 //		IEolExecutableModule m = createModule();
 //		String checkModuleEvl = getFilePath(Platform.getBundle("it.univaq.disim.sealab.padre.performanceanalysis").getResource("modelChecking/jmva/checkModel.evl").getPath());
 //		try {
@@ -136,7 +135,7 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 	}
 
 	public boolean launch(ILaunchConfiguration configuration, String mode, ILaunch launch,
-			IProgressMonitor progressMonitor, IEolExecutableModule module, EolDebugger debugger,
+			IProgressMonitor progressMonitor, IEolModule module, EolDebugger debugger,
 			String lauchConfigurationSourceAttribute, boolean setup, boolean disposeModelRepository)
 			throws CoreException {
 
@@ -284,6 +283,18 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 
 		return parsed;
 
+	}
+
+	@Override
+	public IEolModule getDefaultModule(ILaunchConfiguration configuration) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String getLanguage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

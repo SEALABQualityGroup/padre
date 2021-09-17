@@ -24,6 +24,7 @@ import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.tools.EolSystem;
 import org.eclipse.epsilon.etl.EtlModule;
 
+
 public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 
 	protected List<IModel> models;
@@ -241,7 +242,7 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 	 * @return the string of the full path
 	 */
 	protected String getFullPath(String path) {
-		return FileUtil.getFile(path, this.getClass()).getAbsolutePath();
+		return FileUtil.getFileURL(path, this.getClass()).getAbsolutePath();
 	}
 
 	/**
@@ -287,7 +288,7 @@ public abstract class ETL_Transformation implements IXmiMetamodelsServices {
 	 */
 	protected void showPopUp() {
 		EolSystem system = new EolSystem();
-		system.setContext(((EtlModule) module).getContext());
+		system.setContext(((EtlModule)module).getContext());
 		((EtlModule) module).getContext().getFrameStack().put(Variable.createReadOnlyVariable("System", system));
 		((EtlModule) module).getContext().setUserInput(new JFaceUserInput(new PrettyPrinterManager()));
 	}

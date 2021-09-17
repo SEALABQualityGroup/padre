@@ -21,7 +21,7 @@ import java.util.List;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.eol.IEolExecutableModule;
+import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.execute.context.Variable;
@@ -32,14 +32,14 @@ import org.eclipse.epsilon.evl.execute.UnsatisfiedConstraint;
 
 public abstract class EpsilonStandaloneExample {
 	
-	protected IEolExecutableModule module;
+	protected IEolModule module;
 	protected List<Variable> parameters = new ArrayList<Variable>();
 	
 	protected Object result;
 	
 //	public abstract IEolModule createModule();
 
-	public abstract IEolExecutableModule createModule();
+	public abstract IEolModule createModule();
 	
 	public abstract List<IModel> getModels() throws Exception;
 	
@@ -82,7 +82,7 @@ public abstract class EpsilonStandaloneExample {
 		return parameters;
 	}
 	
-	protected Object execute(IEolExecutableModule module) 
+	protected Object execute(IEolModule module) 
 			throws EolRuntimeException {
 		return module.execute();
 	}
