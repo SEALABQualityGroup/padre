@@ -1,0 +1,58 @@
+				if (!isPerfAnOnDemand()) {
+
+					ModelTransformation uml2lqn = 
+							new ModelTransformation("/home/xeder/Desktop/projects/padre/org.sealab.uml2lqn/trasformation/uml2lqn.etl");
+					
+					// Getting the URIs of the UML metamodel and of the MARTE profile
+					List<String> umlMetamodelURIs = new ArrayList<String>();
+					List<String> lqnMetamodelURIs = new ArrayList<String>();
+					EList<EPackage> martePackages = 
+							org.eclipse.papyrus.MARTE.MARTEPackage.eINSTANCE.getESubpackages();	
+					
+					martePackages.forEach(element -> umlMetamodelURIs.add(element.getNsURI()));
+					umlMetamodelURIs.add(UMLPackage.eNS_URI);
+					umlMetamodelURIs.add(StandardPackage.eNS_URI);
+					umlMetamodelURIs.add(EcorePackage.eNS_URI);
+
+					// Adds the UML model to the transformation
+					uml2lqn.addModel(uml2lqn.createEmfModel("UML", model.getModelFileUri(), umlMetamodelURIs, true, true));
+					
+					// Metamodel
+					//XSDEcoreBuilder xsdEcoreBuilder = new XSDEcoreBuilder();
+					ResourceSet lqnMetaSet = new ResourceSetImpl();					 
+					URI lqnMetaURI = URI.createFileURI("/home/xeder/Desktop/projects/padre/org.sealab.uml2lqn/lqnxsd/lqn.ecore");
+					Resource lqnMetaRes = lqnMetaSet.getResource(lqnMetaURI, true);
+					
+					List<String> lqnMetaList = new ArrayList<String>();
+					lqnMetaList.add(lqnMetaURI.toString());
+
+					// Create XML File
+					String resultPath = "/home/xeder/Desktop/projects/padre/org.sealab.uml2lqn/result/output.xml";
+					File result = new File(resultPath);
+					try {
+						result.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					// Create the Model
+					URI resultURI = URI.createFileURI(resultPath);
+					EmfModel resultModel = uml2lqn.create("LQN", resultURI, lqnMetaList, true, true);
+					
+					// Creating the Resource for the LQN model
+					ResourceSet setResult = new ResourceSetImpl();
+					Resource resResult = setResult.createResource(resultURI);
+					resultModel.setResource(resResult);
+					
+					// Register the LQN metamodel
+					EPackage metamodelPackage = (EPackage) lqnMetaRes.getContents().get(0);
+					setResult.getPackageRegistry().put(metamodelPackage.getNsURI(), metamodelPackage);
+					
+					uml2lqn.addModel(resultModel);
+					
+					// Execute the ETL
+					uml2lqn.run();
+
+					System.out.println("Performance Analysed!");
+				}
+			}

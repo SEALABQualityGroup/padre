@@ -1,0 +1,54 @@
+			if (!isPerfAnOnDemand()) {
+					// Adds the UML model to the transformation
+					factory.loadModel(model);
+					factory.loadUmlMarte(model);
+					/* 
+					 * Creates the XML File containing the LQN resulting
+					 * from the transformation
+					 */
+					File result = new File(resultPath);
+					URI resultURI = null;
+					try {
+						result.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					resultURI = URI.createFileURI(resultPath);
+					// Creates the LQN model
+					EmfModel lqn = factory.createEmfModel("LQN", resultURI, true, true);
+					
+					factory.loadXSD(lqn, xsdPath);
+					factory.loadModel(lqn);
+					
+					
+					// Executes the ETL script
+					TransformationAgent.run(etlPath, Arrays.asList(model, lqn));
+					/* 
+					 * Creates an object representing the .xml coming from the transformation
+					 * and calls the EOL script that modifies it
+					 */
+					/*
+					PlainXmlModel resultModel = factory.createXmlModel("PlainLQN", result, true, true);
+					try {
+						resultModel.load();
+					} catch (EolModelLoadingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					TransformationAgent.run(changeRootPath, Arrays.asList(resultModel));
+					*/
+
+					// Call the solver 
+					ProcessBuilder builder = new ProcessBuilder("lqns", "-P", "cycles=yes", resultPath);
+					try {
+						Process solver = builder.start();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}			
+					
+					System.out.println("Solver Executed!");
+				}
+			}
+		}
+	}	

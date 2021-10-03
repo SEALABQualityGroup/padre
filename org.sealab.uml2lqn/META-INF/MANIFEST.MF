@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PADRE-UML2LQN
+Bundle-SymbolicName: PADRE-UML2LQN
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: PADRE.UML2LQN
+Bundle-RequiredExecutionEnvironment: JavaSE-15
+Export-Package: uml2lqn
