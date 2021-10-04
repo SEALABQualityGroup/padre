@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,17 +120,16 @@ public class PadreEVLValidationView extends ValidationView {
 			PathProvider paths = new PathProvider();
 			String resultPath = paths.getResultPath();
 			String outputPath = resultPath + "output.xml";
-
+			
 			String tempPath = "/home/xeder/Desktop/projects/eclipse/workspace/padre-example/model/train-ticket/train-ticket_out_dam.uml";
 			
 			EmfModel model = (EmfModel) module.getContext().getModelRepository().getModels().get(0);
 			
 			// Creates and sets the resources object for the model
-			ResourceSet modelSet = new ResourceSetImpl();
-			Resource modelRes = modelSet.createResource(URI.createFileURI(tempPath));
+			//ResourceSet modelSet = new ResourceSetImpl();
+			//Resource modelRes = modelSet.createResource(URI.createFileURI(tempPath));
+			//model.setResource(modelRes);
 			
-			model.setResource(modelRes);
-
 			/* 
 			 * Registers the metamodels of UML and MARTE
 			 * in the local registry of the model
@@ -144,7 +141,7 @@ public class PadreEVLValidationView extends ValidationView {
 				if (!isPerfAnOnDemand()) {
 					//Creates a new result file
 					File result = new File(outputPath);
-					URI resultURI = URI.createFileURI(outputPath);
+					URI resultUri = URI.createFileURI(outputPath);
 
 					try {
 						result.createNewFile();
@@ -155,12 +152,13 @@ public class PadreEVLValidationView extends ValidationView {
 						e.printStackTrace();
 					}
 					// Creates the LQN model
-					EmfModel lqn = factory.createEmfModel("LQN", resultURI, true, true);
+					EmfModel lqn = factory.createEmfModel("LQN", resultUri, true, true);
 					factory.loadXSD(lqn, paths.getLqnXsd().getPath());
 					// Executes the UML2LQN ETL script
 					TransformationAgent.run(
-							paths.getTransformation().getPath(), 
+							paths.getTransformation(),
 							Arrays.asList(model, lqn));
+
 					// Output Formatting
 					try {
 						String xml = Files.readString(result.toPath());
@@ -195,7 +193,7 @@ public class PadreEVLValidationView extends ValidationView {
 					factory.loadUml(model);
 
 					TransformationAgent.run(
-							paths.getBackAnnotation().getPath(), 
+							paths.getBackAnnotation(), 
 							Arrays.asList(model, lqxoModel)
 					);
 					System.out.println("The performance estimation has been reported to the UML model!");

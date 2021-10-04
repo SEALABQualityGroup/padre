@@ -36,8 +36,7 @@ public class PadreModelFactory {
 		model.setStoredOnDisposal(storedOnDisposal);
 		
 		return model;
-	}
-	
+	}	
 	public PlainXmlModel createXmlModel(
 			String name,
 			File file,

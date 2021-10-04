@@ -25,18 +25,18 @@ public class TransformationAgent{
 		}
 	}
 
-	public static void run(String path, List<Model> models) {
-		String extension = FilenameUtils.getExtension(path);
+	public static void run(File scriptFile, List<Model> models) {
+		String extension = FilenameUtils.getExtension(scriptFile.getPath());
 		extension = extension.toLowerCase();
 		
 		EolModule module = createModule(extension);
 		
 		try {
-			module.parse(new File(path));
+			module.parse(scriptFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		module.getContext().getModelRepository().addModels(models);
 		//module.getContext().getNativeTypeDelegates().add(new ExtensionPointToolNativeTypeDelegate());
 	
