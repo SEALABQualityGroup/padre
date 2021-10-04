@@ -1,60 +1,57 @@
 package uml2lqn;
 
-import java.net.URI;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 public class PathProvider {
-	String srcPath;
-	
-	public PathProvider() {
-		this.srcPath = this.getSrc();
-	}
-		
-	private String getSrc() {
-		URL currentDir = this.getScriptPath("");
-		
-		/*
-		System.out.println("ciao " + currentDir.toString());
-		URI uri = URI.create(currentDir.toString());
-		System.out.println(uri.toString());
-		
-		Path srcPath = Paths.get(uri);
-		*/
-
-		// return srcPath.getParent().toAbsolutePath().toString();
-		return currentDir.toString();
-	}
-	
-	private URL getScriptPath(String resourceName) {
-		return this.getClass().getResource("../" + resourceName);
-	}
-	
-	public String getBackAnnotation() {
-		return this.srcPath + "/epsilon/backAnnotation.eol";
-	}
-	
-	public String getTransformation() {
-		return this.srcPath + "/epsilon/uml2lqn.etl";
-	}
-	
-	public String getLqnXsd() {
-		return this.srcPath + "/lqnxsd/lqn.xsd";
-	}
-	
-	public String getResult() {
-		return this.srcPath + "/result/output.xml";
-	}
-	
+	private Bundle bundle; 
 	/*
-	public static void main(String[] args) {
-		PathProvider path = new PathProvider();
-		System.out.println(path.getSrc());
+	 * This class finds and creates a file object for the resources of this bundle.
+	 * It is necessary to use the classes provided by the org.osgi.framework plugin
+	 * since this class is supposed to be executed within OSGi. Indeed, OSGi uses 
+	 * the boundleresource: protocol to identify the files. It is not possible to load
+	 * files referenced with the boundleresource: protocol using vanilla Java.
+	 * https://www.eclipse.org/forums/index.php/t/174048/
+	 */
+	public PathProvider() {
+		this.bundle = FrameworkUtil.getBundle(this.getClass());
 	}
-	*/
+	
+	private String getRealPath(URL bundleresource) {
+		String path = "";
+		try {
+			path = FileLocator.toFileURL(bundleresource).getPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return path;
+	}
+
+	public File getBackAnnotation() {
+		URL url = this.bundle.getEntry("src/epsilon/backAnnotation.eol");
+		String realPath = this.getRealPath(url);
+		return new File(realPath);
+	}
+	
+	public File getTransformation() {
+		URL url = this.bundle.getEntry("src/epsilon/uml2lqn.etl");
+		String realPath = this.getRealPath(url);
+		return new File(realPath);
+	}
+
+	public File getLqnXsd() {
+		URL url = this.bundle.getEntry("src/lqnxsd/lqn.xsd");
+		String realPath = this.getRealPath(url);
+		return new File(realPath);
+	}
+	
+	public String getResultPath() {
+		URL url = this.bundle.getEntry("result/");	
+		return this.getRealPath(url);
+	}
 }

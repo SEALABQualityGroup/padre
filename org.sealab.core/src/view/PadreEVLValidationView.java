@@ -120,34 +120,31 @@ public class PadreEVLValidationView extends ValidationView {
 		public void run() {
 			PadreModelFactory factory = new PadreModelFactory();
 			PathProvider paths = new PathProvider();
-			
-			String etlPath = paths.getTransformation();
-			String backAnnotation =  paths.getBackAnnotation();
-			String resultPath = paths.getResult();
-			String xsdPath = paths.getLqnXsd();
+			String resultPath = paths.getResultPath();
+			String outputPath = resultPath + "output.xml";
 
 			String tempPath = "/home/xeder/Desktop/projects/eclipse/workspace/padre-example/model/train-ticket/train-ticket_out_dam.uml";
-			String lqnOutput = "/home/xeder/Desktop/projects/padre/org.sealab.uml2lqn/result/output.lqxo";
-
+			
 			EmfModel model = (EmfModel) module.getContext().getModelRepository().getModels().get(0);
 			
+			// Creates and sets the resources object for the model
 			ResourceSet modelSet = new ResourceSetImpl();
 			Resource modelRes = modelSet.createResource(URI.createFileURI(tempPath));
 			
 			model.setResource(modelRes);
+
+			/* 
+			 * Registers the metamodels of UML and MARTE
+			 * in the local registry of the model
+			 */
+			factory.loadModel(model);
+			factory.loadUmlMarte(model);
 			
 			if (!module.getContext().getUnsatisfiedConstraints().isEmpty()) {
-
 				if (!isPerfAnOnDemand()) {
-					// Adds the UML model to the transformation
-					factory.loadModel(model);
-					factory.loadUmlMarte(model);
-					/* 
-					 * Creates the XML File containing the LQN resulting
-					 * from the transformation
-					 */
-					File result = new File(resultPath);
-					URI resultURI = URI.createFileURI(resultPath);
+					//Creates a new result file
+					File result = new File(outputPath);
+					URI resultURI = URI.createFileURI(outputPath);
 
 					try {
 						result.createNewFile();
@@ -157,16 +154,16 @@ public class PadreEVLValidationView extends ValidationView {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					
 					// Creates the LQN model
 					EmfModel lqn = factory.createEmfModel("LQN", resultURI, true, true);
-					factory.loadXSD(lqn, xsdPath);					
-					// Executes the ETL script
-					TransformationAgent.run(etlPath, Arrays.asList(model, lqn));
-					Path path = Paths.get(resultPath);
+					factory.loadXSD(lqn, paths.getLqnXsd().getPath());
+					// Executes the UML2LQN ETL script
+					TransformationAgent.run(
+							paths.getTransformation().getPath(), 
+							Arrays.asList(model, lqn));
 					// Output Formatting
 					try {
-						String xml = Files.readString(path);
+						String xml = Files.readString(result.toPath());
 						xml = xml.replaceAll("entryPhaseActivities", "entry-phase-activities")
 								.replaceAll("hostDemandMean", "host-demand-mean")
 								.replaceAll("callsMean", "calls-mean")
@@ -178,9 +175,9 @@ public class PadreEVLValidationView extends ValidationView {
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-					System.out.println("Calling the solver...");
 					// Calls the solver 
-					ProcessBuilder builder = new ProcessBuilder("lqns", "-P", "cycles=yes", resultPath);
+					ProcessBuilder builder = new ProcessBuilder(
+							"lqns", "-P", "cycles=yes", outputPath);
 					// Sets the same I/O of the parent process
 					builder.inheritIO();
 					try {
@@ -189,16 +186,22 @@ public class PadreEVLValidationView extends ValidationView {
 						e.printStackTrace();
 					}
 					System.out.println("Solver Executed!!");
-					
-					PlainXmlModel lqxoModel = factory.createXmlModel("LQXO", new File(lqnOutput), true, false);	
-					factory.loadModel(lqxoModel);
 
+					PlainXmlModel lqxoModel = factory.createXmlModel(
+							"LQXO", new File(resultPath + "output.lqxo"),
+							true, false);
+
+					factory.loadModel(lqxoModel);
 					factory.loadUml(model);
 
-					TransformationAgent.run(backAnnotation, Arrays.asList(model, lqxoModel));
+					TransformationAgent.run(
+							paths.getBackAnnotation().getPath(), 
+							Arrays.asList(model, lqxoModel)
+					);
 					System.out.println("The performance estimation has been reported to the UML model!");
 				}
 			}
+			
 		}
 	}	
 	
@@ -231,6 +234,7 @@ public class PadreEVLValidationView extends ValidationView {
 			}
 		}
 	}
+
 
 	class NameSorter extends ViewerSorter {}
 
