@@ -1,0 +1,12 @@
+operation CombinedFragment getIndexOf(fragment : InteractionFragment, indexOf) : Integer{
+
+	//var indexOf : Integer = self.getFragments()->indexOf(fragment);
+	
+	indexOf = indexOf + self.getOwner().getIndexOf(self, indexOf);
+	
+	if(debug()){
+		("indexOf ["+self.getName()+"] --> "+indexOf).println();
+	}
+	
+	return indexOf;
+}

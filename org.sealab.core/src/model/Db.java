@@ -236,8 +236,7 @@ public class Db {
 			ResultSet rs1 = preparedStatement1.executeQuery();
 			while (rs1.next()) {
 				EOL_Library_F_Operation f;
-				@SuppressWarnings("unused")
-				String name = rs1.getString(2);
+//				String name = rs1.getString(2);
 //				String card = "";
 //				String returnType = "";
 //				if (rs1.getBoolean(4)) {
@@ -300,8 +299,7 @@ public class Db {
 			while (rs1.next()) {
 
 				EOL_Library_F_Operation f;
-				@SuppressWarnings("unused")
-				String name = rs1.getString(2);
+//				String name = rs1.getString(2);
 //				String card = "";
 //				String returnType = "";
 //				if (rs1.getBoolean(4)) {
@@ -339,8 +337,7 @@ public class Db {
 		ResultSet rs1 = preparedStatement1.executeQuery();
 		while (rs1.next()) {
 			EOL_Library_F_Operation f;
-			@SuppressWarnings("unused")
-			String name = rs1.getString(2);
+//			String name = rs1.getString(2);
 //			String card = "";
 //			String returnType = "";
 //			if (rs1.getBoolean(4)) {

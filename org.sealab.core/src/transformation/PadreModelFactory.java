@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.emc.plainxml.PlainXmlModel;
+import org.eclipse.epsilon.emc.uml.UmlModel;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.uml2.uml.UMLPackage;
@@ -26,28 +27,38 @@ public class PadreModelFactory {
 	public EmfModel createEmfModel(
 			String name,
 			URI uri, 
-			boolean readOnLoad, 
-			boolean storedOnDisposal
+			boolean readOnLoad 
 	) {
 		EmfModel model = new EmfModel();
 		model.setName(name);
 		model.setModelFileUri(uri);
 		model.setReadOnLoad(readOnLoad);
-		model.setStoredOnDisposal(storedOnDisposal);
 		
 		return model;
-	}	
+	}
+	
+	public UmlModel createUmlModel(
+			String name,
+			URI uri, 
+			boolean readOnLoad 
+	) {
+		UmlModel model = new UmlModel();
+		model.setName(name);
+		model.setModelFileUri(uri);
+		model.setReadOnLoad(readOnLoad);
+		
+		return model;
+	}
+
 	public PlainXmlModel createXmlModel(
 			String name,
 			File file,
-			boolean readOnLoad, 
-			boolean storedOnDisposal
+			boolean readOnLoad 
 	) {
 		PlainXmlModel model = new PlainXmlModel();
 		model.setName(name);
 		model.setFile(file);
 		model.setReadOnLoad(readOnLoad);
-		model.setStoredOnDisposal(storedOnDisposal);
 
 		return model;
 	}

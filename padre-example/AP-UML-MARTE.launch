@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="launching.PadreEvlLaunchConfigurationDelegate">
+    <listAttribute key="models">
+        <listEntry value="storeOnDisposal=true&#10;expand=true&#10;aliases=&#10;modelFile=/padre-example/model/train-ticket/train-ticket_out_dam.uml&#10;cached=true&#10;name=UML&#10;concurrent=false&#10;type=UML&#10;readOnLoad=true"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+        <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+    </listAttribute>
+    <listAttribute key="parameters"/>
+    <intAttribute key="solver" value="0"/>
+    <stringAttribute key="source" value="/padre-example/evl/AP-UML-MARTE2.evl"/>
+</launchConfiguration>

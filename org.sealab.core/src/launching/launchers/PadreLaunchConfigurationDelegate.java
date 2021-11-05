@@ -23,7 +23,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.epsilon.common.dt.console.EpsilonConsole;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
-import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dt.debug.EolDebugTarget;
 import org.eclipse.epsilon.eol.dt.debug.EolDebugger;
@@ -31,7 +30,6 @@ import org.eclipse.epsilon.eol.dt.launching.EclipseContextManager;
 import org.eclipse.epsilon.eol.dt.launching.EolLaunchConfigurationAttributes;
 import org.eclipse.epsilon.eol.dt.launching.EpsilonLaunchConfigurationDelegate;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.dt.launching.EvlDebugger;
 
@@ -82,39 +80,17 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 
 	@Override
 	protected void preExecute(IEolModule module) throws CoreException, EolRuntimeException {
-//		IEolExecutableModule m = createModule();
-//		String checkModuleEvl = getFilePath(Platform.getBundle("it.univaq.disim.sealab.padre.performanceanalysis").getResource("modelChecking/jmva/checkModel.evl").getPath());
-//		try {
-//			m.parse(new File(checkModuleEvl));
-//			m.compile();
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		super.preExecute(m);
-//		((EvlModule)m).setUnsatisfiedConstraintFixer(new PadreEVLValidationViewFixer());
-
 		super.preExecute(module);
 		((EvlModule) module).setUnsatisfiedConstraintFixer(new PadreEVLValidationViewFixer());
 	}
-
+	
 	public ILaunchConfiguration getConfiguration() {
 		return configuration;
 	}
 
-//	public ILaunch getLaunch() {
-//		return launch;
-//	}
-//	
-//	public IProgressMonitor getProgressMonitor() {
-//		return progressMonitor;
-//	}
-
-	public void launch(ILaunchConfiguration configuration, String mode,
-					   ILaunch launch, IProgressMonitor progressMonitor) throws CoreException {
-		
+	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch,
+			IProgressMonitor progressMonitor) throws CoreException {
 		this.configuration = configuration;
-		
 		launch(configuration, mode, launch, progressMonitor, createModule(), createDebugger(),
 				EolLaunchConfigurationAttributes.SOURCE, true, true);
 	}
@@ -130,7 +106,7 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 
 		collectListeners();
 
-		if(setup)
+		if (setup)
 			EpsilonConsole.getInstance().clear();
 
 		apsEvlFilePath = getConfiguration().getAttribute("source", "");
@@ -144,56 +120,25 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 		EolDebugTarget target = null;
 
 		try {
-			
 			EclipseContextManager.setup(module.getContext(), configuration, progressMonitor, launch, setup);
-			
-			
-			IEolContext context = module.getContext();
-			EmfModel model = (EmfModel) module.getContext().getModelRepository().getModelByName("UML");	
-			
-			/*
-			EList<EPackage> martePackages = 
-					org.eclipse.papyrus.MARTE.MARTEPackage.eINSTANCE.getESubpackages();
-	
-			for(EPackage temp: martePackages) {
-				model.setMetamodelUri(temp.getNsURI());
-				model.setMetamodelFile(temp.getNsURI());
-
-			}
-			
-			EPackage.Registry.INSTANCE.put(
-					org.eclipse.papyrus.MARTE.MARTE_AnalysisModel.GQAM.GQAMPackage.eNS_URI,
-					GQAMPackage.eINSTANCE
-			);
-			*/
-
-			System.out.println(model);			
-			
 			aboutToExecute(configuration, mode, launch, progressMonitor, module);
-			
 			String subtask = "Refactoring";
-			
 			progressMonitor.subTask(subtask);
 			progressMonitor.beginTask(subtask, 100);
 
 			if ("run".equalsIgnoreCase(mode)) {
 				result = module.execute();
-				
 			} else if ("debug".equalsIgnoreCase(mode)) {
 				// Copy launch configuration attributes to launch
 				Map<?, ?> configurationAttributes = configuration.getAttributes();
-				
 				for (Object key : configurationAttributes.keySet()) {
 					launch.setAttribute(key + "", configurationAttributes.get(key) + "");
 				}
 
 				final String name = launch.getAttribute(lauchConfigurationSourceAttribute);
-				
 				target = new EolDebugTarget(launch, module, debugger, name);
-				
 				debugger.setTarget(target);
 				launch.addDebugTarget(target);
-				
 				result = target.debug();
 			}
 
@@ -218,6 +163,7 @@ public class PadreLaunchConfigurationDelegate extends EpsilonLaunchConfiguration
 		return true;
 	}
 
+	// TODO: Report parse errors better
 	protected boolean parse(IModule module, String sourceAttribute, ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor progressMonitor) throws CoreException {
 		String subTask = "";

@@ -6,47 +6,46 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.Model;
+import org.eclipse.epsilon.eol.models.ModelRepository;
 import org.eclipse.epsilon.etl.EtlModule;
 
 public class TransformationAgent{
-
-	// Factory to generate different kind of module
-	public static EolModule createModule(String type) {
-		String lowerCaseType = type.toLowerCase();
-		
-		switch(lowerCaseType) {
-			case "etl":
-				return new EtlModule();
-			case "eol":
-				return new EolModule();
-			default:
-				throw new Error("Module type not found!");
-		}
-	}
-
 	public static void run(File scriptFile, List<Model> models) {
 		String extension = FilenameUtils.getExtension(scriptFile.getPath());
+		EolModule module = new EolModule();
+
 		extension = extension.toLowerCase();
+		extension = extension.trim();
 		
-		EolModule module = createModule(extension);
-		
-		try {
-			module.parse(scriptFile);
-		} catch (Exception e) {
-			e.printStackTrace();
+		switch(extension) {
+			case "etl":
+				module = (EtlModule) new EtlModule();
+				break;
+			case "eol":
+				break;
+			default:
+				throw new Error("Unknown file extension");
 		}
 
+		try {
+			module.parse(scriptFile);
+		} catch (Exception eParse) {
+			eParse.printStackTrace();
+		}
+		
 		module.getContext().getModelRepository().addModels(models);
-		//module.getContext().getNativeTypeDelegates().add(new ExtensionPointToolNativeTypeDelegate());
-	
+		
 		try {
 			module.execute();
-		} catch (EolRuntimeException e) {
-			e.printStackTrace();
+
+			ModelRepository repo = module.getContext().getModelRepository();
+			for(IModel model : repo.getModels())
+				model.store();
+			
+		} catch (EolRuntimeException eExecute) {
+			eExecute.printStackTrace();
 		}
-	
-		//module.getContext().getModelRepository().dispose();
-		
 	}
 }

@@ -122,7 +122,7 @@ public class EVL_Tree extends ViewPart {
 			saveEVL.setToolTipText("Save EVL");
 			saveEVL.setImageDescriptor(
 					PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_SAVE_EDIT));
-			
+
 			/*
 			Action saveEPL = new Save_EPL_file_Action(tree, evl, eol_library_path);
 			saveEPL.setText("Save");
@@ -135,7 +135,7 @@ public class EVL_Tree extends ViewPart {
 			saveEWL.setToolTipText("Save EWL");
 			saveEWL.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
-			
+
 			bars.getToolBarManager().add(saveEVL);
 			bars.getToolBarManager().add(saveEPL);
 			bars.getToolBarManager().add(saveEWL);
@@ -154,7 +154,7 @@ public class EVL_Tree extends ViewPart {
 	 */
 	public void setContexts(List<EOL_Library_Context_Item> cts) {
 
-		Bundle bundle = Platform.getBundle("it.univaq.disim.sealab.padre");
+		Bundle bundle = Platform.getBundle("org.sealab.core");
 		URL fullPathString = bundle.getEntry("icons/context.gif");
 
 		IActionBars bars = getViewSite().getActionBars();
@@ -206,7 +206,7 @@ public class EVL_Tree extends ViewPart {
 					IStructuredSelection selection = (IStructuredSelection) tree.getSelection();
 					Object s = selection.getFirstElement();
 
-					Bundle bundle = Platform.getBundle("it.univaq.disim.sealab.padre");
+					Bundle bundle = Platform.getBundle("org.sealab.padre");
 
 					if (s instanceof EVL_Tree_Context_Item) {
 

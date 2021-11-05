@@ -4,10 +4,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TransferData;
-
-//import helpers.EOL_Utils;
-
-
 /**
  * It is executed when a folder is dropped in the EOL library tree viewer
  * Then it calls the method to update the library data structure
@@ -56,7 +52,7 @@ public class DropListener_for_EOL_Library_Tree extends ViewerDropAdapter {
 		for (String value : text) {
 			builder.append(value);
 		}
-		String path = builder.toString();
+//		String path = builder.toString();
 
 		//EOL_Utils.update_EOL_Library_Data_Structure(path);
 

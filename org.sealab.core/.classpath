@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-15"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/eclipse/epsilon/common/**"/>
@@ -15,8 +11,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/standard-1.0.0-v20140602-0749.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.uml2_5.3.0.v20170605-1616.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15to18-169.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib" sourcepath="lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

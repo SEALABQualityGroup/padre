@@ -91,7 +91,7 @@ public class EOL_Library_Tree extends ViewPart {
 			public void doubleClick(DoubleClickEvent event) {
 				
 				Action doubleClickAction = new DoubleClick_EOL_operation_Action(event.getSelection());
-
+				
 				doubleClickAction.run();
 			}
 		});
@@ -119,7 +119,6 @@ public class EOL_Library_Tree extends ViewPart {
 	 * @param evltree The EVL tree
 	 */
 	public void hookContextMenu(EVL_Tree_CheckBlock block, TreeViewer evltree) {
-
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {

@@ -31,7 +31,7 @@ public class PathProvider {
 		}
 		return path;
 	}
-
+	
 	public File getBackAnnotation() {
 		URL url = this.bundle.getEntry("src/epsilon/backAnnotation.eol");
 		String realPath = this.getRealPath(url);

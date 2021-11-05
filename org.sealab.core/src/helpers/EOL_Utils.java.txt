@@ -23,6 +23,7 @@ import model.EOL_Library_Th_Operation;
 /**
  * It contains a comparator for EOL operations and the code to initialize the
  * EOL library data structure
+ *
  */
 public class EOL_Utils {
 

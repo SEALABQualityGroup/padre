@@ -7,9 +7,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 public class PadreEVLValidationViewFixer extends ValidationViewFixer {
-	/**
-	 * The constructor.
-	 */
 	public PadreEVLValidationViewFixer() {
 		super();
 	}

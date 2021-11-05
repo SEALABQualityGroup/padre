@@ -13,9 +13,6 @@ package launching.launchers;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
@@ -29,15 +26,7 @@ import launching.tabs.PadreSourceConfigurationTab;
 
 public class PadreLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup {
 
-	// @Override
-	// public ILaunchConfigurationTab getSourceConfigurationTab() {
-	// return new PadreEvlSourceConfigurationTab();
-	// }
-
 	public ILaunchConfigurationTab[] getOtherConfigurationTabs() {
-		// AbstractLaunchConfigurationTab[] tabs = { new
-		// PadreEvlPerfAnalysisConfigurationTab(),
-		// new PadreModelsConfigurationTab(), new PadreCommonConfigurationTab() };
 		AbstractLaunchConfigurationTab[] tabs = null;
 		return tabs;
 	}
@@ -58,29 +47,10 @@ public class PadreLaunchConfigurationTabGroup extends AbstractLaunchConfiguratio
 		tabList.add(new ParametersConfigurationTab());
 		tabList.add(new PadrePerfAnalysisConfigurationTab());
 
-//		for (ILaunchConfigurationTab tab : getOtherConfigurationTabs()) {
-//			tabList.add(tab);
-//		}
+		//IExtensionRegistry registry = Platform.getExtensionRegistry();
+		//IExtensionPoint extensionPoint = registry.getExtensionPoint("org.eclipse.epsilon.eol.dt.launchConfigurationExtension");
 
-		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IExtensionPoint extensionPoint = registry
-				.getExtensionPoint("org.eclipse.epsilon.eol.dt.launchConfigurationExtension");
-
-		// for (IConfigurationElement configurationElement :
-		// extensionPoint.getConfigurationElements()) {
-		// try {
-		// EpsilonLaunchConfigurationTabContributor contributor =
-		// (EpsilonLaunchConfigurationTabContributor) configurationElement
-		// .createExecutableExtension("tabContributor");
-		// for (ILaunchConfigurationTab tab : contributor.getTabs(this, dialog, mode)) {
-		// tabList.add(tab);
-		// }
-		// } catch (CoreException e) {
-		// LogUtil.log(e);
-		// }
-		// }
 		tabList.add(new CommonTab());
-
 		setTabs(tabList);
 	}
 
