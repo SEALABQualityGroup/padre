@@ -100,9 +100,9 @@ rule Model2Schema
 	transform uml: UML!Model
 	to lqn: LQN!LqnModelType
 	{
-		guard: uml.name <> "PrimitiveTypes"
+		guard: uml.name <> "PrimitiveTypes" and uml.name <> "UML"
 		
-		lqn.name = uml.name;		
+		lqn.name = uml.name;
 		lqn.processor ::= UML!Node.all();
 	}
 
@@ -121,6 +121,8 @@ rule Node2Processor
 			var components = node.getDeployed();
 			// A component interacts if there is at least one lifeline involved in a sequence
 			components = components.select(i | i.isInteracting());
+			node.name.println("node: ");
+			components.println("comp: ");
 			// The transformation considers nodes that are GaExecHost and interacting
 			return node.checkStereotypeApplication("GaExecHost") and components.notEmpty();
 		}

@@ -22,9 +22,7 @@ public class Transformation{
 	private File transformation;
 	private File lqnXsd;
 	private File backAnnotation;
-	
 
- 
 	public Transformation() {
 		super();
 		/*
@@ -85,7 +83,7 @@ public class Transformation{
 
 		PlainXmlModel lqxoModel = factory.createXmlModel("LQXO", new File(lqxo), true);
 		factory.loadModel(lqxoModel);
-		factory.loadUml(model);
+		//factory.loadUml(model);
 
 		TransformationAgent.run(backAnnotation, Arrays.asList(model, lqxoModel));
 		System.out.println("The performance estimation has been reported to the UML model!");

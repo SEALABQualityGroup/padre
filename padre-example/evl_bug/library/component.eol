@@ -1,5 +1,3 @@
-import "operation.eol";
-
 operation Component cloneOwnedOperationFrom(componentSource : Component){
 	for(op in componentSource.ownedOperation){
 		op.cloneOperationInto(self);
@@ -229,11 +227,15 @@ operation Component getOperations() : Sequence(Operation){
 operation Component deployOnNewNodes(component : Component) {
 	
 	var listOfNode : List(Node) = component.getNodes();
+	listOfNode.println();
+
 	var newNode;
 	if(listOfNode.notEmpty())
 		newNode = listOfNode->first().createNewNode();
-	else
+	else{
+		self.getModel().println("model: ");
 		newNode = self.getModel().createNewNode();
+	}
 	
 	("new node --> "+newNode.getName());
 	

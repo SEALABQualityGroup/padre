@@ -80,11 +80,24 @@ operation Node cloneLink(listOfLinkedNode : List(Property), packageContainer : P
 	}
 }
 
-operation Model createNewNode() : Node{
+operation getGaExecHost() : Stereotype {
+	Model.all.println();
+	var md = Model.all.first();
+	// This triggers "no Ecore Definition" if the MARTE_AnalysisModel is not included
+	var analysis = md.getAppliedProfiles();
+	analysis = analysis.selectOne(s|s.name='MARTE_AnalysisModel');
+	var gqam = analysis.getPackagedElement("GQAM");
+	return gqam.getPackagedElement("GaExecHost");
+}
+
+operation Model createNewNode() : Node {
 	var newNode : Node = new Node; //creo il nuovo nodo
 	var packageContainer : Package = self.getNearestPackage();  //recupero il package container
+
 	packageContainer.addElement(newNode);
+
 	var package = Package.all.select(p|p.name.isDefined() and p.name.contains('deploy')).first();
+	
 	if(package.isDefined()) {
 		package.packagedElement.add(newNode);
 	} else {
@@ -93,11 +106,14 @@ operation Model createNewNode() : Node{
 		package.packagedElement.add(newNode);
 		self.packagedElement.add(package);
 	}
-	newNode.name = newNode.getRandomName();
-	//newNode.setRandoms();
+	
+	newNode.name = newNode.getRandomName();	
+	
+	//var gaExecHost : Stereotype = getGaExecHost();
+	//newNode.applyStereotype(gaExecHost);	
 	var gaExecHost : Stereotype = Stereotype.all.selectOne(s|s.name='GaExecHost');
-	newNode.applyStereotype(gaExecHost);
-
+	//newNode.applyStereotype(gaExecHost);
+	
 	return newNode;
 }
 

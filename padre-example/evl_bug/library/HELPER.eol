@@ -1,6 +1,3 @@
-import "component.eol";
-import "operation.eol";
-
 operation getMeanValue(values : Sequence) : Real {
 	if(values.isDefined() and values.notEmpty())
 		return values.collect(v|v.asReal()).sum() / values.size();
@@ -90,7 +87,7 @@ operation getOpWithMaxMeanDemand(ops : Sequence(Operation)) {
 
 operation getLessUsedComponent() : Component{
 	var listOfSystemComponent = Component.allInstances;//->select(iterator | iterator.hasStereotype("PaRunTInstance") and iterator.notLegacy());
-	var lessUsedComp = listOfSystemComponent->selectOne(iterator | iterator.getAverageDemand() >= 0.0);
+	var lessUsedComp = listOfSystemComponent->selectOne(iterator | iterator.getAverageDemand() > 0.0);
 
 	var lessUsedDemand = lessUsedComp.getAverageDemand();
 	

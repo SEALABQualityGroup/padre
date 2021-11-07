@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="launching.PadreEvlLaunchConfigurationDelegate">
     <listAttribute key="models">
-        <listEntry value="storeOnDisposal=true&#10;expand=true&#10;aliases=&#10;modelFile=/padre-example/model/train-ticket/train-ticket_out_dam.uml&#10;cached=true&#10;name=UML&#10;concurrent=false&#10;type=UML&#10;readOnLoad=true"/>
+        <listEntry value="aliases=UML&#10;reuseUnmodifiedFileBasedMetamodels=true&#10;modelFile=/padre-example/model/train-ticket/train-ticket_out_dam.uml&#10;metamodelUri=http\://www.eclipse.org/emf/2002/Ecore,http\://www.eclipse.org/uml2/5.0.0/UML,http\://www.eclipse.org/papyrus/MARTE/1,http\://www.eclipse.org/papyrus/GQAM/1,http\://www.eclipse.org/papyrus/MARTE_AnalysisModel/1&#10;concurrent=false&#10;type=EMF&#10;readOnLoad=true&#10;storeOnDisposal=true&#10;expand=true&#10;fileBasedMetamodelUri=&#10;metamodelFile=&#10;cached=true&#10;name=UML&#10;modelUri=platform\:/resource/padre-example/model/train-ticket/train-ticket_out_dam.uml&#10;isMetamodelFileBased=false"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>

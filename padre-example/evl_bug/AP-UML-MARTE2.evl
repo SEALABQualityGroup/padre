@@ -1,0 +1,140 @@
+//import "metric_functions.eol";
+import "metric_functions_fuzzy.eol";
+//import "thresholds_eSsopper.eol";
+//import "thresholds_trainticket.eol";
+
+//libraries
+import "library/artifact.eol";
+import "library/association.eol";
+//import "library/class.eol";
+import "library/classifier.eol";
+import "library/component.eol";
+import "library/element.eol";
+import "library/interaction.eol";
+import "library/interactionFragment.eol";
+import "library/interactionOperand.eol";
+import "library/combinedFragment.eol";
+import "library/interface.eol";
+import "library/lifeline.eol";
+import "library/manifestation.eol";
+import "library/message.eol";
+import "library/node.eol";
+import "library/operation.eol";
+import "library/package.eol";
+
+//HELPER
+import "library/HELPER.eol";
+
+pre {
+
+	/*
+	var umlTool = new Native("org.eclipse.epsilon.emc.uml.dt.UMLTool");
+	umlTool.println("tool:" );
+	var marte = umlTool.getProfile("http://www.eclipse.org/papyrus/GQAM/1");
+	
+	var analysis = marte.getPackagedElement("MARTE_AnalysisModel");
+	var gqam = analysis.getPackagedElement("GQAM");
+	var gaExecHost = gqam.getPackagedElement("GaExecHost");
+	gaExecHost.println();
+*/
+	UML!Model.all.println("models: ");
+	
+	var umlModel = UML!Model.all.selectOne(s|s.name = "UML");
+	var ecore = UML!Model.all.selectOne(s|s.name = "Ecore");
+	var priTypes = UML!Model.all.selectOne(s|s.name = "EcorePrimitiveTypes");
+	var ecoreTypes = UML!Model.all.selectOne(s|s.name = "PrimitiveTypes");
+
+	if(umlModel.isDefined())
+		delete umlModel;
+
+	if(priTypes.isDefined())
+		delete priTypes;
+
+	if(ecoreTypes.isDefined())
+		delete ecoreTypes;
+
+	var md = UML!Model.all;
+	md.println("md: ");
+	
+	/*	
+	//md.applyProfile(gqam);
+	
+
+	// This triggers "no Ecore Definition" if the MARTE_AnalysisModel is not included
+	var analysis = md.getAppliedProfiles();
+	analysis = analysis.selectOne(s|s.name='MARTE_AnalysisModel');
+	var gqam = analysis.getPackagedElement("GQAM");
+	var gaExecHost = gqam.getPackagedElement("GaExecHost");
+	gaExecHost.println();*/
+}
+
+/*********************************************************************************************
+ *																							 *
+ *	 								Pipe and Filter 										 *
+ *							Antipattern Detection and Validation					 		 *
+ *										reviewed											 *
+ *********************************************************************************************/
+
+context UML!Operation {
+	critique PaF {
+		check: 
+			self.getOwner().isTypeOf(Component) and
+			self.F_probExec_fuzzy() <> 0 and 
+			(self.F_resDemand_fuzzy() *	(self.F_T_fuzzy() + self.F_maxHwUtil_fuzzy() )) < 0.01 //.println("PaF <" + self.name +"> --> ") < 0.80 
+		message : "PaF <Operation> " + self.name
+		fix {
+			title : "Move it to a New Component deployed to a New Node"
+			do {	
+				log("--------------");
+				log("pattern PaF");
+				log("moveOpNCNN on");
+				log("self --> "+self.getName());
+				self.moveToNewOwnerDeployedOnNewNode(); 
+				log("--------------");
+				log("");
+			}
+		}
+		fix{
+			title : "Move it to a New Component deployed to the Less Used neighbour Node"
+			do{
+				self.moveToNewOwnerDeployedOnNearLessUsedNode();
+			}
+		}
+		fix{
+			title : "Redeploy its Component to the Less Used neighbour Node"
+			do{
+				self.redeployOnNearLessUsedNode();
+			}
+		}
+		fix{
+			title : "Change its Component to the one with the Lowest Demand"
+			do{
+				log("--------------");
+				log("pattern PaF");
+				log("moveOpLC on");
+				log("self --> "+self.getName());
+				self.moveToLessCriticalOwner();
+				log("--------------");
+				log("");
+			}
+		}
+		fix{
+			title : "Redeploy its Component to New Node"
+			do{
+				log("--------------");
+				log("pattern PaF");
+				log("moveCompNN on");
+				log("self --> "+self.getName());
+				self.moveToNewNode();
+				log("--------------");
+				log("");
+			}
+		}
+		fix{
+			title: "Decomposition"
+			do{
+				self.decomposition();
+			}
+		}
+	}
+}

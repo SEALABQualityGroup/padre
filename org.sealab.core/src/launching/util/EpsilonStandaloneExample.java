@@ -28,7 +28,9 @@ import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.evl.EvlModule;
+import org.eclipse.epsilon.evl.IEvlModule;
 import org.eclipse.epsilon.evl.execute.UnsatisfiedConstraint;
+import org.eclipse.epsilon.evl.execute.context.IEvlContext;
 
 public abstract class EpsilonStandaloneExample {
 	
@@ -47,6 +49,31 @@ public abstract class EpsilonStandaloneExample {
 	
 	public void preProcess() {};
 	
+	public Collection<UnsatisfiedConstraint> execute(IEvlModule evl) throws Exception {
+		String source = evl.getSourceUri().getPath();
+	
+		module = createModule(); 
+		module.parse(new File(source));
+		
+		if (module.getParseProblems().size() > 0) {
+			System.err.println("Parse errors occured...");
+			for (ParseProblem problem : module.getParseProblems()) {
+				System.err.println(problem.toString());
+			}
+			return null;
+		}
+		
+		//module.getContext().getModelRepository().addModels(evl.getContext().getModelRepository().getModels());
+		//module.getContext().getFrameStack().put(parameters);
+		module.setContext(evl.getContext());
+		//preProcess();
+		module.execute();
+		//postProcess();
+		//module.getContext().getModelRepository().dispose();
+		
+		return ((IEvlContext) module.getContext()).getUnsatisfiedConstraints();
+	}
+	
 	public Collection<UnsatisfiedConstraint> execute(String source, List<IModel> models) throws Exception {
 		
 		module = createModule();
@@ -64,19 +91,21 @@ public abstract class EpsilonStandaloneExample {
 			module.getContext().getModelRepository().addModel(model);
 		}
 		
+		/*
 		for (Variable parameter : parameters) {
 			module.getContext().getFrameStack().put(parameter);
-		}
+		}*/
 		
-		preProcess();
+		//preProcess();
 		result = execute(module);
-		postProcess();
+		//postProcess();
 		
 		//module.getContext().getModelRepository().dispose();
 		
 		Collection<UnsatisfiedConstraint> unsatisfied = ((EvlModule) module).getContext().getUnsatisfiedConstraints();
 		return unsatisfied;
 	}
+	
 	
 	public List<Variable> getParameters() {
 		return parameters;

@@ -12,7 +12,6 @@ import java.util.List;
 import org.eclipse.emf.common.CommonPlugin;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.emc.uml.UmlModel;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.evl.IEvlModule;
@@ -51,10 +50,10 @@ public class ApplyFix extends Action {
 		
 		this.model = (EmfModel) models.get(0);;
 		
-		if(!(this.model instanceof UmlModel))
+		/*if(!(this.model instanceof UmlModel))
 			throw new IllegalArgumentException(
 					"A UmlModel should be specified in the Padre Configuration. " +
-					"The current model has class " + this.model.getClass());
+					"The current model has class " + this.model.getClass());*/
 	}
 			
 	public void loadTab(FixInstance fixInstance) {
@@ -121,6 +120,7 @@ public class ApplyFix extends Action {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		uml2lqn.run(this.model, outputDir);
 		// Updates the GUI with the new refactored model
 		PadreEVLValidationView.instance.updateView();

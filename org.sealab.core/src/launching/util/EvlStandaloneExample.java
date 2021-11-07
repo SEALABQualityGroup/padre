@@ -1,20 +1,8 @@
 package launching.util;
 
-/*******************************************************************************
- * Copyright (c) 2008 The University of York.
- * This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
- * Contributors:
- *     Dimitrios Kolovos - initial API and implementation
- ******************************************************************************/
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.epsilon.emc.emf.AbstractEmfModel;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.evl.EvlModule;
@@ -40,10 +28,14 @@ public class EvlStandaloneExample extends EpsilonStandaloneExample {
 
 	@Override
 	public List<IModel> getModels() throws Exception {
+		/*
 		List<IModel> models = new ArrayList<IModel>();
 		AbstractEmfModel model = (AbstractEmfModel) module.getContext().getModelRepository().getModels().get(0);
 		models.add(model);
 		return models;
+		*/
+		System.out.println("getModels: ");
+		return module.getContext().getModelRepository().getModels();
 	}
 
 
@@ -64,5 +56,4 @@ public class EvlStandaloneExample extends EpsilonStandaloneExample {
 			System.out.println("All constraints have been satisfied");
 		}
 	}
-
 }
